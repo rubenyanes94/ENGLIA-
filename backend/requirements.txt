@@ -25,6 +25,13 @@ langchain-openai==0.2.14
 # --- Tareas asíncronas (resumen + embedding al cerrar una sesión) ---
 celery[redis]==5.4.0
 
+# --- Narración de lecciones (texto-a-voz) ---
+# Piper: open source, corre en CPU vía ONNX Runtime, sin cuenta ni costo
+# por caracter — coherente con usar Ollama para el LLM. El modelo de voz
+# se descarga en el Dockerfile (RUN python -m piper.download_voices...),
+# no aquí: este paquete es solo el motor, la voz es un asset aparte.
+piper-tts==1.7.0
+
 # --- Facturación ---
 stripe==15.6.0
 # httpx ya llegaba como dependencia transitiva (langchain-openai/openai),

@@ -78,6 +78,11 @@ services:
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
     volumes:
       - ./backend:/app
+      # Volumen dedicado para /app/media, igual que /app/node_modules en
+      # "frontend": este subcamino "gana" sobre el bind mount de arriba,
+      # así el audio de lecciones generado persiste entre reinicios y no
+      # se guarda sin querer dentro del repo en ./backend/media.
+      - media_data:/app/media
     ports:
       - "8000:8000"
     depends_on:
@@ -147,3 +152,4 @@ services:
 volumes:
   db_data:
   ollama_data:
+  media_data:

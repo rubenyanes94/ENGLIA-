@@ -1,13 +1,23 @@
+from pathlib import Path
+
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.db import get_db
 from app.core.redis import redis_client
 from app.routers import admin, auth, billing, chat, events, levels, modules, users, webhooks
 
 app = FastAPI(title="English Academy API", version="0.1.0")
+
+# Archivos generados (hoy: audio de lecciones narradas por James — ver
+# app/media/storage.py). StaticFiles exige que el directorio ya exista
+# al montar, por eso el mkdir aquí antes del mount.
+Path(settings.media_root).mkdir(parents=True, exist_ok=True)
+app.mount("/media", StaticFiles(directory=settings.media_root), name="media")
 
 # En desarrollo permitimos cualquier origen para que React (puerto 5173)
 # pueda llamar a la API (puerto 8000) sin bloqueos de CORS.

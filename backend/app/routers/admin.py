@@ -10,8 +10,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.agents.lesson_narration import generate_lesson_script
 from app.core.db import get_db
 from app.core.deps import get_current_admin
+from app.media.piper_tts import get_wav_duration_seconds, synthesize_to_wav
+from app.media.storage import delete_lesson_audio, save_lesson_audio
 from app.models import Exercise, Lesson, Module, Payment, Plan, User
 from app.repositories import (
     exercise_repository,
@@ -19,6 +22,7 @@ from app.repositories import (
     level_repository,
     module_repository,
     payment_repository,
+    persona_repository,
     plan_repository,
     subscription_repository,
 )
@@ -71,13 +75,54 @@ async def delete_module(module_id: uuid.UUID, db: AsyncSession = Depends(get_db)
 # --- Lecciones ---------------------------------------------------------------
 
 
+async def _generate_narration(db: AsyncSession, lesson: Lesson, module: Module, topic: str | None, script: str | None) -> Lesson:
+    """El pipeline completo de la voz de James: Ollama escribe el guión
+    (si se dio un `topic`; si se dio `script` directo, se lo salta) →
+    Piper lo narra → se guarda el archivo → se actualiza la lección.
+
+    Vive aquí (no en un repositorio) porque orquesta tres capas distintas
+    (agente IA, síntesis de audio, almacenamiento) sobre una sola
+    lección — es exactamente el tipo de lógica que sí le corresponde al
+    router, igual que ya hace send_message() en chat.py.
+    """
+    if script is None:
+        level = await level_repository.get_by_id(db, module.level_id)
+        persona = await persona_repository.get_active_persona_by_level_code(db, level.code)
+        if persona is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"No hay un tutor activo configurado para el nivel '{level.code}' — hace falta para generar el guión.",
+            )
+        script = await generate_lesson_script(topic, level.code, persona)
+
+    wav_bytes = await synthesize_to_wav(script)
+    duration_seconds = get_wav_duration_seconds(wav_bytes)
+    audio_url = save_lesson_audio(lesson.id, wav_bytes)
+    previous_audio_url = lesson.audio_url
+
+    updated_lesson = await lesson_repository.set_narration(db, lesson, script, audio_url, duration_seconds)
+
+    # Recién DESPUÉS de que el nuevo audio quedó guardado y la fila
+    # actualizada: si algo de lo anterior fallara, el audio viejo sigue
+    # ahí y la lección sigue sirviendo lo último que funcionó.
+    if previous_audio_url:
+        delete_lesson_audio(previous_audio_url)
+
+    return updated_lesson
+
+
 @router.post("/modules/{module_id}/lessons", response_model=LessonAdminOut, status_code=status.HTTP_201_CREATED)
 async def create_lesson(module_id: uuid.UUID, payload: LessonCreate, db: AsyncSession = Depends(get_db)) -> Lesson:
     module = await module_repository.get_by_id(db, module_id)
     if module is None:
         raise HTTPException(status_code=404, detail="Módulo no encontrado.")
 
-    return await lesson_repository.create(db, module_id, payload.title, payload.content, payload.order)
+    lesson = await lesson_repository.create(db, module_id, payload.title, payload.content, payload.order)
+
+    if payload.topic or payload.script:
+        lesson = await _generate_narration(db, lesson, module, payload.topic, payload.script)
+
+    return lesson
 
 
 @router.patch("/lessons/{lesson_id}", response_model=LessonAdminOut)
@@ -86,7 +131,15 @@ async def update_lesson(lesson_id: uuid.UUID, payload: LessonUpdate, db: AsyncSe
     if lesson is None:
         raise HTTPException(status_code=404, detail="Lección no encontrada.")
 
-    return await lesson_repository.update(db, lesson, **payload.model_dump(exclude_unset=True))
+    fields = payload.model_dump(exclude_unset=True, exclude={"topic", "script"})
+    if fields:
+        lesson = await lesson_repository.update(db, lesson, **fields)
+
+    if payload.topic or payload.script:
+        module = await module_repository.get_by_id(db, lesson.module_id)
+        lesson = await _generate_narration(db, lesson, module, payload.topic, payload.script)
+
+    return lesson
 
 
 @router.delete("/lessons/{lesson_id}", status_code=status.HTTP_204_NO_CONTENT)

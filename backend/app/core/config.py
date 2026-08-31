@@ -40,6 +40,23 @@ class Settings(BaseSettings):
     # plazo (pero el historial permanente sigue en Postgres, intacto).
     chat_session_ttl_minutes: int = 120
 
+    # --- Narración de lecciones (Ollama genera el guión, Piper TTS lo narra) ---
+    # Piper corre EN el proceso del backend (no como servicio Docker
+    # aparte, a diferencia de Ollama): es una librería ONNX ligera, no un
+    # servidor de inferencia que necesite estar siempre corriendo — carga
+    # el modelo de voz una vez por proceso y sintetiza en un hilo aparte
+    # (ver app/media/piper_tts.py). Fuera de /app a propósito: en dev
+    # ./backend:/app se monta encima del contenedor, así que cualquier
+    # cosa horneada en /app durante el build quedaría oculta.
+    tts_voice_model_path: str = "/opt/piper-voices/en_US-lessac-medium.onnx"
+
+    # Dónde se guardan los archivos generados (hoy: audio de lecciones).
+    # Disco local + un volumen Docker dedicado (ver docker-compose.yml) y
+    # servido como estáticos en /media (ver app/main.py) — suficiente
+    # para un único contenedor backend; migrar a S3/R2 más adelante solo
+    # tocaría app/media/storage.py, nada que hable con esta carpeta directamente.
+    media_root: str = "/app/media"
+
     # --- Facturación ---
     # Dónde redirige el navegador del alumno tras aprobar/cancelar un pago
     # en la pasarela (PayPal, Stripe) antes de volver al frontend.

@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,3 +17,7 @@ async def list_levels(db: AsyncSession) -> list[CEFRLevel]:
 async def get_by_code(db: AsyncSession, code: str) -> CEFRLevel | None:
     result = await db.execute(select(CEFRLevel).where(CEFRLevel.code == code.upper()))
     return result.scalars().first()
+
+
+async def get_by_id(db: AsyncSession, level_id: uuid.UUID) -> CEFRLevel | None:
+    return await db.get(CEFRLevel, level_id)

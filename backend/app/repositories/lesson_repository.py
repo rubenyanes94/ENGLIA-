@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -55,3 +56,18 @@ async def update(
 async def delete(db: AsyncSession, lesson: Lesson) -> None:
     await db.delete(lesson)
     await db.commit()
+
+
+async def set_narration(db: AsyncSession, lesson: Lesson, script: str, audio_url: str, audio_duration_seconds: float) -> Lesson:
+    """Lo llama el router de admin tras generar el guión (Ollama) y el
+    audio (Piper) — separado de `update()` porque conceptualmente es un
+    resultado de un pipeline, no un campo que un admin edita a mano
+    directamente."""
+    lesson.script = script
+    lesson.audio_url = audio_url
+    lesson.audio_duration_seconds = audio_duration_seconds
+    lesson.audio_generated_at = datetime.utcnow()
+
+    await db.commit()
+    await db.refresh(lesson)
+    return lesson
