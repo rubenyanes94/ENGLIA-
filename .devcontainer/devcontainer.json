@@ -1,0 +1,53 @@
+{
+  "name": "English Academy Dev",
+
+  // Codespaces lee estos DOS archivos y los combina: el docker-compose.yml
+  // de la raíz (el "real", el que también usarías en un servidor) más este
+  // de aquí al lado (docker-compose.yml de .devcontainer), que solo AÑADE
+  // ajustes específicos para el editor.
+  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.yml"],
+
+  // A qué contenedor se "conecta" la ventana de VS Code / Codespaces.
+  "service": "backend",
+
+  // Qué contenedores se arrancan aunque VS Code solo se conecte a "backend".
+  "runServices": ["db", "redis", "ollama", "backend", "celery_worker", "frontend"],
+
+  // Carpeta que verás abierta en el explorador de archivos (todo el repo).
+  "workspaceFolder": "/workspaces/englia-",
+
+  // Al cerrar Codespaces, apaga también los contenedores (no los deja huérfanos).
+  "shutdownAction": "stopCompose",
+
+  // Docker-outside-of-Docker: instala el CLI de `docker` (con el plugin
+  // `compose`) DENTRO del contenedor "backend" y lo conecta al Docker del
+  // HOST del Codespace vía el socket montado en docker-compose.yml de aquí
+  // al lado. Sin esto, esta terminal no puede levantar/parar/reconstruir
+  // los demás servicios (ej. "celery_worker") con `docker compose ...`.
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+
+  "forwardPorts": [8000, 5173, 5432, 6379, 11434],
+  "portsAttributes": {
+    "8000": { "label": "FastAPI Backend", "onAutoForward": "notify" },
+    "5173": { "label": "React Frontend", "onAutoForward": "openPreview" },
+    "5432": { "label": "PostgreSQL", "onAutoForward": "silent" },
+    "6379": { "label": "Redis", "onAutoForward": "silent" },
+    "11434": { "label": "Ollama (LLM)", "onAutoForward": "silent" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  },
+
+  "remoteUser": "root"
+}

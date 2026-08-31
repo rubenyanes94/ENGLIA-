@@ -1,0 +1,22 @@
+# Este archivo NO define contenedores nuevos: solo "parchea" el servicio
+# "backend" que ya existe en el docker-compose.yml de la raíz, SOLO cuando
+# se abre el proyecto en VS Code / Codespaces (nunca al hacer
+# "docker compose up" a mano desde la raíz).
+#
+# ¿Por qué? Para poder editar y navegar TODO el repositorio (backend Y
+# frontend) desde una única ventana, y para que uvicorn no arranque solo:
+# lo lanzas tú desde la terminal, así ves los logs y controlas cuándo
+# reiniciarlo.
+
+services:
+  backend:
+    volumes:
+      - ..:/workspaces/englia-:cached
+      # Socket de Docker del HOST del Codespace, montado dentro de "backend".
+      # Junto con la feature "docker-outside-of-docker" del devcontainer.json,
+      # esto hace que el `docker compose` que corras EN esta terminal en
+      # realidad hable con el Docker del host — no crea Docker-dentro-de-Docker,
+      # solo le da a este contenedor un "mando a distancia" hacia el mismo
+      # motor que ya gestiona db/redis/ollama/celery_worker/frontend.
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: sleep infinity

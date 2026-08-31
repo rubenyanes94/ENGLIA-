@@ -1,0 +1,25 @@
+# --- Python / Backend ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# --- Node / Frontend ---
+node_modules/
+dist/
+.vite/
+
+# --- Variables de entorno (nunca subir secretos) ---
+.env
+!.env.example
+frontend/.env
+!frontend/.env.example
+
+# --- Sistema operativo / Editor ---
+.DS_Store
+*.log
+.vscode/*
+!.vscode/extensions.json

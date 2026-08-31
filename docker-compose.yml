@@ -1,0 +1,149 @@
+services:
+  # --- Base de datos principal ---
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: englia_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-englia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-englia_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-englia}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-englia}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # --- Caché y memoria conversacional de corto plazo ---
+  redis:
+    image: redis:7-alpine
+    container_name: englia_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # --- Motor de inferencia LLM (desarrollo) ---
+  # En Codespaces (solo CPU) usamos Ollama para tener un modelo open source
+  # real corriendo. Expone una API compatible con OpenAI en /v1, igual que
+  # vLLM/NVIDIA NIM en producción: el código del agente no distingue entre
+  # uno y otro, solo cambia OLLAMA_BASE_URL / LLM_BASE_URL.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: englia_ollama
+    restart: unless-stopped
+    environment:
+      # RAM limitada (Codespace de 8GB compartido con VS Code): con dos
+      # modelos en juego (chat + embeddings), forzamos a que Ollama
+      # mantenga como mucho UNO cargado en memoria a la vez, descargando
+      # el que no se usa en vez de intentar tener los dos a la vez y
+      # arriesgar un OOM del proceso llama-server.
+      OLLAMA_MAX_LOADED_MODELS: 1
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  # --- API en FastAPI ---
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: englia_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-englia}:${POSTGRES_PASSWORD:-englia_dev_password}@db:5432/${POSTGRES_DB:-englia}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      LLM_BASE_URL: http://ollama:11434/v1
+      LLM_MODEL: ${LLM_MODEL:-llama3.2:1b}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # --- Worker de Celery ---
+  # Procesa en segundo plano lo que no debe bloquear una respuesta HTTP:
+  # hoy, resumir + generar el embedding de una sesión al cerrarla. Mismo
+  # código/imagen que el backend (comparten app/), pero corriendo el
+  # comando de worker de Celery en vez de Uvicorn.
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: englia_celery_worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-englia}:${POSTGRES_PASSWORD:-englia_dev_password}@db:5432/${POSTGRES_DB:-englia}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      LLM_BASE_URL: http://ollama:11434/v1
+      LLM_MODEL: ${LLM_MODEL:-llama3.2:1b}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=2
+
+  # --- App en React ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: englia_frontend
+    restart: unless-stopped
+    # OJO: no fijamos VITE_API_URL aquí a propósito. En su lugar pasamos
+    # el nombre real del Codespace y su dominio de reenvío de puertos
+    # (variables que YA existen en la VM del Codespace) para que el
+    # frontend construya la URL pública del backend sin depender de
+    # "localhost", que en Codespaces no siempre apunta a donde crees
+    # (ver resolveApiUrl() en App.tsx). Fuera de Codespaces, estas
+    # variables simplemente vienen vacías y el frontend usa su fallback.
+    environment:
+      VITE_CODESPACE_NAME: ${CODESPACE_NAME:-}
+      VITE_PORT_FORWARDING_DOMAIN: ${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  db_data:
+  ollama_data:
