@@ -19,7 +19,9 @@ class Module(Base):
     order: Mapped[int] = mapped_column(Integer)
 
     level: Mapped["CEFRLevel"] = relationship(back_populates="modules")
-    lessons: Mapped[list["Lesson"]] = relationship(back_populates="module")
+    # order_by aquí (no en cada query): así "lessons" viene ordenado sin
+    # importar desde dónde se cargue la relación.
+    lessons: Mapped[list["Lesson"]] = relationship(back_populates="module", order_by="Lesson.order")
 
     def __repr__(self) -> str:
         return f"<Module {self.title}>"

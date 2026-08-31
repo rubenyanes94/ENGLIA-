@@ -10,3 +10,8 @@ async def list_levels(db: AsyncSession) -> list[CEFRLevel]:
     así, si mañana cambiamos de ORM o añadimos caché, solo tocamos aquí."""
     result = await db.execute(select(CEFRLevel).order_by(CEFRLevel.order))
     return list(result.scalars().all())
+
+
+async def get_by_code(db: AsyncSession, code: str) -> CEFRLevel | None:
+    result = await db.execute(select(CEFRLevel).where(CEFRLevel.code == code.upper()))
+    return result.scalars().first()
