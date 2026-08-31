@@ -25,7 +25,13 @@
   // al lado. Sin esto, esta terminal no puede levantar/parar/reconstruir
   // los demás servicios (ej. "celery_worker") con `docker compose ...`.
   "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    // "moby: false" fuerza a instalar el CLI oficial de Docker (docker-ce-cli)
+    // en vez de la variante "moby", que ya no tiene paquetes disponibles en
+    // Debian "trixie" (la base de python:3.12-slim) y hacía fallar el build
+    // del contenedor "backend" por completo.
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "moby": false
+    }
   },
 
   "forwardPorts": [8000, 5173, 5432, 6379, 11434],
