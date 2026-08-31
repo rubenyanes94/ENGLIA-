@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.core.security import decode_access_token
 from app.models import User
-from app.repositories import user_repository
+from app.repositories import subscription_repository, user_repository
 
 # tokenUrl es solo informativo (lo usa /docs para dibujar el botón
 # "Authorize"): le dice a Swagger dónde se consigue el token, aunque
@@ -57,4 +57,29 @@ async def get_current_admin(current_user: User = Depends(get_current_user)) -> U
     fallos distintos y el código de estado ya lo comunica sin leer el detail."""
     if current_user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Requiere permisos de administrador.")
+    return current_user
+
+
+async def require_active_subscription(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """El candado de pago, listo para enganchar — pero a propósito TODAVÍA
+    NO está en ningún router (curriculum, chat...). Se decidió así
+    mientras seguimos construyendo/probando el resto del backend sin que
+    cada request de prueba necesite antes una suscripción real de por
+    medio. Para activarlo en un endpoint: cambia
+    `Depends(get_current_user)` por `Depends(require_active_subscription)`
+    (ya incluye la autenticación, no hace falta encadenar las dos).
+
+    402 Payment Required en vez de 403: son casos distintos a propósito
+    — 403 es "no tienes permiso aunque pagues", 402 es literalmente
+    "esto se resuelve pagando".
+    """
+    subscription = await subscription_repository.get_active(db, current_user.id)
+    if subscription is None:
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail="Necesitas una suscripción activa para acceder a este contenido.",
+        )
     return current_user

@@ -24,3 +24,11 @@ langchain-openai==0.2.14
 
 # --- Tareas asíncronas (resumen + embedding al cerrar una sesión) ---
 celery[redis]==5.4.0
+
+# --- Facturación ---
+stripe==15.6.0
+# httpx ya llegaba como dependencia transitiva (langchain-openai/openai),
+# lo fijamos explícito porque app/billing/ lo importa directamente para
+# hablar con las APIs REST de PayPal y Binance Pay (ninguna de las dos
+# tiene un SDK oficial de Python que valga la pena traer solo por esto).
+httpx==0.28.1

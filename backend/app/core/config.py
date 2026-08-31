@@ -40,5 +40,34 @@ class Settings(BaseSettings):
     # plazo (pero el historial permanente sigue en Postgres, intacto).
     chat_session_ttl_minutes: int = 120
 
+    # --- Facturación ---
+    # Dónde redirige el navegador del alumno tras aprobar/cancelar un pago
+    # en la pasarela (PayPal, Stripe) antes de volver al frontend.
+    frontend_base_url: str = "http://localhost:5173"
+
+    # Todas las credenciales de pasarelas por defecto vacías a propósito:
+    # cada gateway (app/billing/*.py) comprueba si las suyas están
+    # configuradas y devuelve un 503 explicable en vez de fallar oscuro
+    # si alguien intenta cobrar antes de tener las cuentas reales dadas
+    # de alta. Nada de esto se sube a git (ver .env vs .env.example).
+
+    # Stripe (tarjetas: Mastercard/Visa/Amex)
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+
+    # PayPal (Subscriptions API — requiere haber creado un Product+Plan
+    # en el dashboard/API de PayPal de antemano; ver Plan.paypal_plan_id)
+    paypal_client_id: str = ""
+    paypal_client_secret: str = ""
+    paypal_api_base: str = "https://api-m.sandbox.paypal.com"
+    paypal_webhook_id: str = ""
+
+    # Binance Pay (cripto). A diferencia de PayPal/Stripe, Binance Pay no
+    # tiene "suscripciones" recurrentes reales: cada mes es una orden
+    # nueva que el alumno paga a mano — ver Subscription.auto_renew.
+    binance_pay_api_key: str = ""
+    binance_pay_api_secret: str = ""
+    binance_pay_api_base: str = "https://bpay.binanceapi.com"
+
 
 settings = Settings()

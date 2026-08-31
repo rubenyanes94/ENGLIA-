@@ -10,6 +10,9 @@ from app.models.enrollment import Enrollment
 from app.models.exercise import Exercise, ExerciseAttempt
 from app.models.lesson import Lesson
 from app.models.module import Module
+from app.models.payment import Payment
+from app.models.plan import Plan
+from app.models.subscription import Subscription
 from app.models.user import User
 from app.models.user_event import UserEvent
 
@@ -23,6 +26,9 @@ __all__ = [
     "ExerciseAttempt",
     "Lesson",
     "Module",
+    "Payment",
+    "Plan",
+    "Subscription",
     "User",
     "UserEvent",
 ]
