@@ -48,3 +48,13 @@ async def get_current_user(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuario deshabilitado.")
 
     return user
+
+
+async def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+    """Depende de get_current_user (no lo duplica): primero exige un
+    token válido, y ENCIMA exige rol admin. Un token inválido da 401
+    (como siempre); un token válido de un alumno normal da 403 — son
+    fallos distintos y el código de estado ya lo comunica sin leer el detail."""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Requiere permisos de administrador.")
+    return current_user

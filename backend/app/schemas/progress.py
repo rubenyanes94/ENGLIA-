@@ -18,3 +18,13 @@ class ProgressModuleOut(BaseModel):
 class ProgressOut(BaseModel):
     current_level_code: str | None
     modules: list[ProgressModuleOut]
+
+
+class SkillBreakdownOut(BaseModel):
+    """Porcentajes 0-100 por destreza CEFR (listening/speaking/reading/
+    writing), solo entre las que ya tienen al menos una inscripción —
+    ver enrollment_repository.get_skill_breakdown. `average` es el
+    promedio de esas destrezas, no de TODAS las posibles."""
+
+    skills: dict[str, float]
+    average: float

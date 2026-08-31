@@ -28,5 +28,10 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
+    # "student" | "admin". String en vez de un enum de Postgres: añadir un
+    # rol nuevo más adelante (ej. "content_editor") es un UPDATE de texto,
+    # no una migración de tipo enum.
+    role: Mapped[str] = mapped_column(String(20), default="student")
+
     def __repr__(self) -> str:
         return f"<User {self.email}>"

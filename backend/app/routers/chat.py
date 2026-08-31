@@ -10,7 +10,7 @@ from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.core.redis import redis_client
 from app.models import ConversationSession, User
-from app.repositories import conversation_repository, persona_repository
+from app.repositories import conversation_repository, event_repository, persona_repository
 from app.workers.tasks import summarize_session
 from app.schemas.chat import (
     CreateSessionRequest,
@@ -147,5 +147,11 @@ async def end_session(
     await conversation_repository.end_session(db, session)
     await memory.clear(session_id)
     summarize_session.delay(str(session_id))
+    await event_repository.record(
+        db,
+        current_user.id,
+        "chat_session_ended",
+        {"session_id": str(session_id), "level_code": session.persona.level.code},
+    )
 
     return EndSessionResponse(session_id=session_id)

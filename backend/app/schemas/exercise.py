@@ -17,6 +17,25 @@ class ExerciseOut(BaseModel):
     prompt: str
 
 
+class ExerciseAdminOut(ExerciseOut):
+    """A diferencia de ExerciseOut, esta SÍ incluye `answer_key` — es lo
+    que ve un admin gestionando contenido, nunca lo que ve un alumno."""
+
+    answer_key: dict
+
+
+class ExerciseCreate(BaseModel):
+    exercise_type: str
+    prompt: str
+    answer_key: dict = {}
+
+
+class ExerciseUpdate(BaseModel):
+    exercise_type: str | None = None
+    prompt: str | None = None
+    answer_key: dict | None = None
+
+
 class SubmitExerciseAttemptRequest(BaseModel):
     """Un único campo `answer` para los cuatro tipos de ejercicio: la
     opción elegida (multiple_choice), la palabra escrita (fill_blank), o

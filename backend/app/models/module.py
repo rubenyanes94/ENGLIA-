@@ -15,7 +15,12 @@ class Module(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     level_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("cefr_levels.id"))
     title: Mapped[str] = mapped_column(String(255))
-    skill_focus: Mapped[str] = mapped_column(String(50))  # listening|speaking|grammar|vocabulary|writing
+    # Las 4 destrezas CEFR estándar (listening|speaking|reading|writing) —
+    # es la dimensión sobre la que se agrega el desglose de habilidades
+    # del alumno (ver enrollment_repository.get_skill_breakdown). Un
+    # módulo de gramática o vocabulario se clasifica bajo la destreza que
+    # más practica (ej.: gramática de tiempos verbales -> "writing").
+    skill_focus: Mapped[str] = mapped_column(String(50))
     order: Mapped[int] = mapped_column(Integer)
 
     level: Mapped["CEFRLevel"] = relationship(back_populates="modules")

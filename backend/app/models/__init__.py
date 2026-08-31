@@ -11,6 +11,7 @@ from app.models.exercise import Exercise, ExerciseAttempt
 from app.models.lesson import Lesson
 from app.models.module import Module
 from app.models.user import User
+from app.models.user_event import UserEvent
 
 __all__ = [
     "AgentPersona",
@@ -23,4 +24,5 @@ __all__ = [
     "Lesson",
     "Module",
     "User",
+    "UserEvent",
 ]

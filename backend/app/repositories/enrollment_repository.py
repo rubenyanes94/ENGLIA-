@@ -94,3 +94,24 @@ async def recompute_mastery(db: AsyncSession, user_id: uuid.UUID, module_id: uui
     await db.commit()
     await db.refresh(enrollment)
     return enrollment
+
+
+async def get_skill_breakdown(db: AsyncSession, user_id: uuid.UUID) -> dict[str, float]:
+    """mastery_score promedio agrupado por Module.skill_focus, entre los
+    módulos en los que el alumno está (o estuvo) inscrito — es lo que
+    alimenta las barras "Listening/Speaking/Reading/Writing" del
+    dashboard de progreso.
+
+    A propósito solo promedia módulos CON inscripción, no todos los
+    módulos del sistema: un alumno de A1 no debería ver su "Writing" en
+    0% solo porque nunca tocó los módulos de writing de C1 — esa
+    destreza sencillamente todavía no tiene datos (el router decide qué
+    mostrar cuando una destreza no aparece aquí).
+    """
+    result = await db.execute(
+        select(Module.skill_focus, func.avg(Enrollment.mastery_score))
+        .join(Enrollment, Enrollment.module_id == Module.id)
+        .where(Enrollment.user_id == user_id)
+        .group_by(Module.skill_focus)
+    )
+    return {skill_focus: float(avg_mastery) for skill_focus, avg_mastery in result.all()}

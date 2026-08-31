@@ -10,6 +10,7 @@ from app.core.deps import get_current_user
 from app.models import Enrollment, ExerciseAttempt, User
 from app.repositories import (
     enrollment_repository,
+    event_repository,
     exercise_attempt_repository,
     exercise_repository,
     lesson_repository,
@@ -64,7 +65,9 @@ async def enroll_in_module(
         return existing
 
     response.status_code = status.HTTP_201_CREATED
-    return await enrollment_repository.create(db, current_user.id, module_id)
+    new_enrollment = await enrollment_repository.create(db, current_user.id, module_id)
+    await event_repository.record(db, current_user.id, "module_enrolled", {"module_id": str(module_id)})
+    return new_enrollment
 
 
 @router.post(
@@ -110,11 +113,29 @@ async def submit_exercise_attempt(
     attempt = await exercise_attempt_repository.create(
         db, current_user.id, exercise_id, payload.answer, result.score, result.feedback
     )
+    await event_repository.record(
+        db,
+        current_user.id,
+        "exercise_attempt_submitted",
+        {"exercise_id": str(exercise_id), "exercise_type": exercise.exercise_type, "score": result.score},
+    )
 
     # Recalcula mastery_score/estado del módulo con este intento ya
     # incluido — el progreso se actualiza solo, sin que el frontend tenga
     # que saber cuándo pedirlo aparte.
-    await enrollment_repository.recompute_mastery(db, current_user.id, module_id)
+    was_completed = enrollment.status == "completed"
+    updated_enrollment = await enrollment_repository.recompute_mastery(db, current_user.id, module_id)
+
+    # Evento aparte (no fusionado con exercise_attempt_submitted): un
+    # dashboard de producto quiere poder contar "módulos completados" sin
+    # tener que reconstruir esa transición a partir de scores sueltos.
+    if updated_enrollment is not None and updated_enrollment.status == "completed" and not was_completed:
+        await event_repository.record(
+            db,
+            current_user.id,
+            "module_completed",
+            {"module_id": str(module_id), "mastery_score": updated_enrollment.mastery_score},
+        )
 
     return attempt
 

@@ -22,3 +22,25 @@ class LessonDetailOut(LessonSummaryOut):
 
     content: dict
     exercises: list[ExerciseOut]
+
+
+class LessonAdminOut(LessonSummaryOut):
+    """Respuesta de crear/editar una lección desde admin: incluye el
+    contenido pero NO `exercises` — esa relación no viene cargada tras un
+    create/update, y forzar su lectura aquí rompería en async
+    (MissingGreenlet). Para ver la lección completa, GET
+    /modules/{id}/lessons/{id} (el endpoint público)."""
+
+    content: dict
+
+
+class LessonCreate(BaseModel):
+    title: str
+    content: dict = {}
+    order: int
+
+
+class LessonUpdate(BaseModel):
+    title: str | None = None
+    content: dict | None = None
+    order: int | None = None
