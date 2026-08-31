@@ -60,15 +60,22 @@ async def seed_curriculum() -> None:
         await session.flush()  # ídem: necesitamos los ids de las lecciones para los ejercicios
 
         exercises = [
+            # stage="exam" en los dos a propósito: son los que definen si
+            # el módulo de ejemplo se completa (ver
+            # enrollment_repository.recompute_mastery, que solo promedia
+            # ejercicios "exam"). Un módulo real tendría también
+            # ejercicios "practice" (el default) antes de estos.
             Exercise(
                 lesson_id=lesson_1.id,
                 exercise_type="multiple_choice",
+                stage="exam",
                 prompt="¿Cuál de estas frases usarías para saludar por la mañana?",
                 answer_key={"correct": "Good morning!", "options": ["Good morning!", "Goodbye!", "See you!"]},
             ),
             Exercise(
                 lesson_id=lesson_2.id,
                 exercise_type="fill_blank",
+                stage="exam",
                 prompt="Completa: 'My ___ is Ana.'",
                 answer_key={"correct": "name"},
             ),

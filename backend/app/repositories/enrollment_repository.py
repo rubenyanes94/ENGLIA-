@@ -59,6 +59,10 @@ async def recompute_mastery(db: AsyncSession, user_id: uuid.UUID, module_id: uui
       del promedio: así mastery_score siempre significa "cuánto del
       módulo completo domina el alumno", no "cuánto de lo que ya
       intentó" (que sería trivialmente 1.0 tras un solo acierto).
+    - Solo se promedian ejercicios stage="exam". Los de práctica se
+      corrigen igual (el alumno ve su nota y feedback), pero
+      deliberadamente NO mueven mastery_score — practicar y fallar no
+      debe sentirse como retroceder en el progreso oficial del módulo.
 
     Llamar a esto es responsabilidad del router tras crear un
     ExerciseAttempt — no vive en exercise_attempt_repository.create()
@@ -69,7 +73,9 @@ async def recompute_mastery(db: AsyncSession, user_id: uuid.UUID, module_id: uui
     if enrollment is None:
         return None
 
-    result = await db.execute(select(Exercise.id).join(Lesson).where(Lesson.module_id == module_id))
+    result = await db.execute(
+        select(Exercise.id).join(Lesson).where(Lesson.module_id == module_id, Exercise.stage == "exam")
+    )
     exercise_ids = [row[0] for row in result.all()]
     if not exercise_ids:
         return enrollment

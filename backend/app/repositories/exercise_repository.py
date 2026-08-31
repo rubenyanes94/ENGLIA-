@@ -34,8 +34,12 @@ async def get_by_id(db: AsyncSession, exercise_id: uuid.UUID) -> Exercise | None
     return await db.get(Exercise, exercise_id)
 
 
-async def create(db: AsyncSession, lesson_id: uuid.UUID, exercise_type: str, prompt: str, answer_key: dict) -> Exercise:
-    exercise = Exercise(lesson_id=lesson_id, exercise_type=exercise_type, prompt=prompt, answer_key=answer_key)
+async def create(
+    db: AsyncSession, lesson_id: uuid.UUID, exercise_type: str, stage: str, prompt: str, answer_key: dict
+) -> Exercise:
+    exercise = Exercise(
+        lesson_id=lesson_id, exercise_type=exercise_type, stage=stage, prompt=prompt, answer_key=answer_key
+    )
     db.add(exercise)
     await db.commit()
     await db.refresh(exercise)
@@ -46,11 +50,14 @@ async def update(
     db: AsyncSession,
     exercise: Exercise,
     exercise_type: str | None = None,
+    stage: str | None = None,
     prompt: str | None = None,
     answer_key: dict | None = None,
 ) -> Exercise:
     if exercise_type is not None:
         exercise.exercise_type = exercise_type
+    if stage is not None:
+        exercise.stage = stage
     if prompt is not None:
         exercise.prompt = prompt
     if answer_key is not None:

@@ -14,6 +14,7 @@ class ExerciseOut(BaseModel):
 
     id: uuid.UUID
     exercise_type: str
+    stage: str  # "practice" | "exam" — así el frontend sabe en qué pestaña pintarlo
     prompt: str
 
 
@@ -26,12 +27,14 @@ class ExerciseAdminOut(ExerciseOut):
 
 class ExerciseCreate(BaseModel):
     exercise_type: str
+    stage: str = "practice"
     prompt: str
     answer_key: dict = {}
 
 
 class ExerciseUpdate(BaseModel):
     exercise_type: str | None = None
+    stage: str | None = None
     prompt: str | None = None
     answer_key: dict | None = None
 

@@ -15,6 +15,14 @@ class Exercise(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     lesson_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("lessons.id"))
     exercise_type: Mapped[str] = mapped_column(String(30))  # multiple_choice|fill_blank|speaking|writing
+
+    # "practice": ensayo libre, intentos ilimitados, NO cuenta para
+    #   mastery_score — el alumno puede fallar sin que le baje el progreso.
+    # "exam": SÍ cuenta para mastery_score/completar el módulo (ver
+    #   enrollment_repository.recompute_mastery, que ahora solo promedia
+    #   ejercicios de este stage).
+    stage: Mapped[str] = mapped_column(String(10), default="practice")
+
     prompt: Mapped[str] = mapped_column(Text)
     answer_key: Mapped[dict] = mapped_column(JSONB)
 
