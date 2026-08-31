@@ -64,6 +64,20 @@ async def enroll_in_module(
     if existing is not None:
         return existing
 
+    # Bloqueo secuencial: para certificar un nivel en orden, no se puede
+    # empezar el módulo N sin haber completado (examen aprobado) el N-1
+    # del MISMO nivel. Solo se compara contra el inmediato anterior, no
+    # contra todos los previos — si esos ya se completaron en su momento,
+    # encadenar la comprobación hacia atrás sería redundante.
+    previous_module = await module_repository.get_previous_in_level(db, module)
+    if previous_module is not None:
+        previous_enrollment = await enrollment_repository.get(db, current_user.id, previous_module.id)
+        if previous_enrollment is None or previous_enrollment.status != "completed":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Debes completar el módulo '{previous_module.title}' antes de inscribirte en este.",
+            )
+
     response.status_code = status.HTTP_201_CREATED
     new_enrollment = await enrollment_repository.create(db, current_user.id, module_id)
     await event_repository.record(db, current_user.id, "module_enrolled", {"module_id": str(module_id)})

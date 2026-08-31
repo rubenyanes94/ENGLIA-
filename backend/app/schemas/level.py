@@ -15,3 +15,5 @@ class CEFRLevelOut(BaseModel):
     name: str
     order: int
     description: str
+    target_hours_min: int
+    target_hours_max: int

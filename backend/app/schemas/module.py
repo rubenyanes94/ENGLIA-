@@ -14,6 +14,7 @@ class ModuleOut(BaseModel):
     title: str
     skill_focus: str
     order: int
+    estimated_hours: float
 
 
 class ModuleDetailOut(ModuleOut):
@@ -23,11 +24,22 @@ class ModuleDetailOut(ModuleOut):
     lessons: list[LessonSummaryOut]
 
 
+class ModuleProgressOut(ModuleOut):
+    """Lo que se ve en el mapa de progreso de un nivel (GET
+    /levels/{code}/certification-progress): igual que ModuleOut, más el
+    estado personalizado para EL ALUMNO que pide esto — no viene del
+    modelo (por eso no hereda `from_attributes`, se construye a mano en
+    el router), es el resultado de cruzar Module con su Enrollment."""
+
+    status: str  # "locked" | "available" | "in_progress" | "completed"
+
+
 class ModuleCreate(BaseModel):
     level_code: str
     title: str
     skill_focus: str
     order: int
+    estimated_hours: float = 10.0
 
 
 class ModuleUpdate(BaseModel):
@@ -40,3 +52,4 @@ class ModuleUpdate(BaseModel):
     title: str | None = None
     skill_focus: str | None = None
     order: int | None = None
+    estimated_hours: float | None = None

@@ -44,7 +44,9 @@ async def create_module(payload: ModuleCreate, db: AsyncSession = Depends(get_db
     if level is None:
         raise HTTPException(status_code=404, detail=f"El nivel '{payload.level_code}' no existe.")
 
-    return await module_repository.create(db, level.id, payload.title, payload.skill_focus, payload.order)
+    return await module_repository.create(
+        db, level.id, payload.title, payload.skill_focus, payload.order, payload.estimated_hours
+    )
 
 
 @router.patch("/modules/{module_id}", response_model=ModuleOut)

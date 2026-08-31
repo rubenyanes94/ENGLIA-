@@ -19,6 +19,15 @@ class CEFRLevel(Base):
     order: Mapped[int] = mapped_column(Integer, unique=True)  # 1..6, define la progresión
     description: Mapped[str] = mapped_column(Text)
 
+    # Horas de aprendizaje guiado para certificar este nivel (ej. A1:
+    # 80-150h, según el marco de referencia habitual). Es un rango, no un
+    # número fijo, porque depende de la intensidad del alumno — el
+    # "% de progreso" que se muestra en el dashboard se calcula contra
+    # target_hours_max (ver levels.get_certification_progress), así que
+    # nunca llega a 100% prematuramente en el extremo bajo del rango.
+    target_hours_min: Mapped[int] = mapped_column(Integer, default=80)
+    target_hours_max: Mapped[int] = mapped_column(Integer, default=150)
+
     modules: Mapped[list["Module"]] = relationship(back_populates="level")
     personas: Mapped[list["AgentPersona"]] = relationship(back_populates="level")
 

@@ -29,8 +29,10 @@ async def get_with_lessons(db: AsyncSession, module_id: uuid.UUID) -> Module | N
     return result.unique().scalars().first()
 
 
-async def create(db: AsyncSession, level_id: uuid.UUID, title: str, skill_focus: str, order: int) -> Module:
-    module = Module(level_id=level_id, title=title, skill_focus=skill_focus, order=order)
+async def create(
+    db: AsyncSession, level_id: uuid.UUID, title: str, skill_focus: str, order: int, estimated_hours: float = 10.0
+) -> Module:
+    module = Module(level_id=level_id, title=title, skill_focus=skill_focus, order=order, estimated_hours=estimated_hours)
     db.add(module)
     await db.commit()
     await db.refresh(module)
@@ -43,6 +45,7 @@ async def update(
     title: str | None = None,
     skill_focus: str | None = None,
     order: int | None = None,
+    estimated_hours: float | None = None,
 ) -> Module:
     """PATCH parcial: solo toca los campos que vienen distintos de None
     (el schema ModuleUpdate ya solo envía lo que el admin quiso cambiar)."""
@@ -52,10 +55,23 @@ async def update(
         module.skill_focus = skill_focus
     if order is not None:
         module.order = order
+    if estimated_hours is not None:
+        module.estimated_hours = estimated_hours
 
     await db.commit()
     await db.refresh(module)
     return module
+
+
+async def get_previous_in_level(db: AsyncSession, module: Module) -> Module | None:
+    """El módulo justo antes de este en el mismo nivel (mismo level_id,
+    order - 1) — es contra el que se compara para el bloqueo secuencial
+    (ver POST /modules/{id}/enroll). None si este ya es el primero."""
+    if module.order <= 1:
+        return None
+
+    result = await db.execute(select(Module).where(Module.level_id == module.level_id, Module.order == module.order - 1))
+    return result.scalars().first()
 
 
 async def delete(db: AsyncSession, module: Module) -> None:
