@@ -4,8 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.models import User
-from app.repositories import enrollment_repository, level_repository, module_repository
+from app.repositories import descriptor_repository, enrollment_repository, level_repository, module_repository
 from app.schemas.certification import CertificationProgressOut
+from app.schemas.descriptor import DescriptorOut
 from app.schemas.level import CEFRLevelOut
 from app.schemas.module import ModuleOut, ModuleProgressOut
 
@@ -31,6 +32,19 @@ async def get_level_modules(level_code: str, db: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=404, detail=f"El nivel '{level_code}' no existe.")
 
     return await module_repository.list_by_level_code(db, level_code)
+
+
+@router.get("/{level_code}/descriptors", response_model=list[DescriptorOut])
+async def get_level_descriptors(level_code: str, db: AsyncSession = Depends(get_db)) -> list[DescriptorOut]:
+    """Catálogo de descriptores MCER ("can-do") de un nivel — la unidad
+    atómica de progreso (documento de currículo § 1.6), sin nada
+    personalizado por alumno (ver /users/me/progress/descriptors/{code}
+    para el dominio acumulado de QUIEN llama)."""
+    level = await level_repository.get_by_code(db, level_code)
+    if level is None:
+        raise HTTPException(status_code=404, detail=f"El nivel '{level_code}' no existe.")
+
+    return await descriptor_repository.list_by_level_code(db, level_code)
 
 
 @router.get("/{level_code}/certification-progress", response_model=CertificationProgressOut)
@@ -75,10 +89,14 @@ async def get_certification_progress(
         modules_out.append(
             ModuleProgressOut(
                 id=module.id,
+                code=module.code,
                 title=module.title,
+                title_es=module.title_es,
                 skill_focus=module.skill_focus,
                 order=module.order,
                 estimated_hours=module.estimated_hours,
+                descriptors=module.descriptors,
+                communicative_objectives=module.communicative_objectives,
                 status=module_status,
             )
         )

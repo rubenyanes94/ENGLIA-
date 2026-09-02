@@ -6,21 +6,39 @@ from app.schemas.lesson import LessonSummaryOut
 
 
 class ModuleOut(BaseModel):
-    """Lo que se ve al listar los módulos de un nivel: sin lecciones."""
+    """Lo que se ve al listar los módulos de un nivel (incluida la
+    certificación): sin lecciones ni el contenido "denso" (l1_interference,
+    tasks, tutor_config) — eso es un fetch aparte vía ModuleDetailOut. Sí
+    trae lo suficiente para pintar una tarjeta de módulo con sentido:
+    título en ambos idiomas, objetivos y qué descriptores MCER desarrolla."""
 
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
+    code: str | None
     title: str
+    title_es: str | None
     skill_focus: str
     order: int
     estimated_hours: float
+    descriptors: list[str]
+    communicative_objectives: list[str]
 
 
 class ModuleDetailOut(ModuleOut):
-    """Lo que se ve al abrir UN módulo: ya con su índice de lecciones
-    (solo el resumen de cada una, no su contenido — eso es un fetch aparte)."""
+    """Lo que se ve al abrir UN módulo: el resto de la anatomía curricular
+    (MCER § 3) — gramática, léxico, pronunciación, interferencia L1,
+    tareas comunicativas y el contrato de comportamiento del tutor — más
+    el índice de lecciones (solo el resumen, no su contenido)."""
 
+    recycles: list[str]
+    grammar: dict
+    lexis: dict
+    pronunciation: dict
+    l1_interference: list[dict]
+    tasks: list[dict]
+    assessment: dict
+    tutor_config: dict
     lessons: list[LessonSummaryOut]
 
 
@@ -35,6 +53,11 @@ class ModuleProgressOut(ModuleOut):
 
 
 class ModuleCreate(BaseModel):
+    """Alta de módulo desde el admin: solo los campos "básicos". El
+    contenido curricular rico (descriptors, l1_interference, tasks,
+    tutor_config...) todavía no tiene formulario de autoría — hoy entra
+    por script de seed (ver app/scripts/seed_a1_modules.py), no por API."""
+
     level_code: str
     title: str
     skill_focus: str

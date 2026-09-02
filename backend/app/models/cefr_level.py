@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy import Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
@@ -18,6 +18,22 @@ class CEFRLevel(Base):
     name: Mapped[str] = mapped_column(String(50))  # "Acceso", "Plataforma", "Maestría"...
     order: Mapped[int] = mapped_column(Integer, unique=True)  # 1..6, define la progresión
     description: Mapped[str] = mapped_column(Text)
+
+    # `level_policy` del documento de currículo: techo de lenguaje del
+    # tutor ({"allowed": [...], "forbidden": [...]}), velocidad de habla,
+    # léxico nuevo máx. por sesión, política de apoyo en L1 y jerarquía de
+    # corrección — heredado por TODOS los módulos del nivel salvo que su
+    # propio `tutor_config` lo sobreescriba. Vive aquí (no en AgentPersona)
+    # porque describe el NIVEL, no un tutor concreto; AgentPersona.system_prompt
+    # es hoy quien realmente lo aplica a mano — conectar esto al prompt de
+    # forma automática es trabajo pendiente (ver seed_a1_modules.py).
+    tutor_policy: Mapped[dict] = mapped_column(JSONB, default=dict)
+
+    # Regla de dominio de descriptor (documento § 1.6): {"threshold": 0.8,
+    # "evidence_required": 3, "conditions": [...]}. Vive aquí (no en cada
+    # Descriptor) porque es una política uniforme para TODOS los
+    # descriptores del nivel — ver descriptor_evidence_repository.compute_mastery.
+    mastery_rule: Mapped[dict] = mapped_column(JSONB, default=dict)
 
     # Horas de aprendizaje guiado para certificar este nivel (ej. A1:
     # 80-150h, según el marco de referencia habitual). Es un rango, no un
