@@ -5,7 +5,15 @@ services:
     container_name: englia_db
     restart: unless-stopped
     env_file:
-      - .env
+      # "required: false" es lo que evita que un clon recién hecho (o un
+      # Codespace nuevo) muera antes de arrancar: .env está en .gitignore,
+      # así que en la primera apertura NO existe, y con la sintaxis corta
+      # (`- .env`) Docker Compose aborta con "env file ... not found" —
+      # en Codespaces eso hace fallar la creación del contenedor y te deja
+      # en "modo recuperación". Como todos los valores tienen defaults
+      # (aquí abajo y en app/core/config.py), el stack levanta sin .env.
+      - path: .env
+        required: false
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-englia}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-englia_dev_password}
@@ -68,7 +76,9 @@ services:
     container_name: englia_backend
     restart: unless-stopped
     env_file:
-      - .env
+      # Opcional a propósito (ver explicación en el servicio "db").
+      - path: .env
+        required: false
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-englia}:${POSTGRES_PASSWORD:-englia_dev_password}@db:5432/${POSTGRES_DB:-englia}
       REDIS_URL: redis://redis:6379/0
@@ -106,7 +116,9 @@ services:
     container_name: englia_celery_worker
     restart: unless-stopped
     env_file:
-      - .env
+      # Opcional a propósito (ver explicación en el servicio "db").
+      - path: .env
+        required: false
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-englia}:${POSTGRES_PASSWORD:-englia_dev_password}@db:5432/${POSTGRES_DB:-englia}
       REDIS_URL: redis://redis:6379/0

@@ -1,6 +1,16 @@
 {
   "name": "English Academy Dev",
 
+  // Se ejecuta en el HOST (la VM del Codespace), ANTES de crear los
+  // contenedores. Crea .env a partir de .env.example la primera vez, ya
+  // que .env está en .gitignore y por tanto no existe en un Codespace
+  // recién creado. El `|| true` final es deliberado: si esto fallara,
+  // Codespaces abortaría la creación del contenedor y caería en "modo
+  // recuperación" — justo lo que queremos evitar. El stack ya arranca sin
+  // .env (ver "required: false" en el docker-compose.yml de la raíz);
+  // esto solo te deja el archivo listo para editar tus credenciales.
+  "initializeCommand": "cp -n .env.example .env 2>/dev/null || true",
+
   // Codespaces lee estos DOS archivos y los combina: el docker-compose.yml
   // de la raíz (el "real", el que también usarías en un servidor) más este
   // de aquí al lado (docker-compose.yml de .devcontainer), que solo AÑADE
