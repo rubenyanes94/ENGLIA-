@@ -8,8 +8,10 @@ from sqlalchemy.sql import func
 from app.models import AgentPersona, ConversationMessage, ConversationSession
 
 
-async def create_session(db: AsyncSession, user_id: uuid.UUID, persona: AgentPersona) -> ConversationSession:
-    session = ConversationSession(user_id=user_id, persona_id=persona.id)
+async def create_session(
+    db: AsyncSession, user_id: uuid.UUID, persona: AgentPersona, module_id: uuid.UUID | None = None
+) -> ConversationSession:
+    session = ConversationSession(user_id=user_id, persona_id=persona.id, module_id=module_id)
     db.add(session)
     await db.commit()
     await db.refresh(session)
@@ -17,12 +19,17 @@ async def create_session(db: AsyncSession, user_id: uuid.UUID, persona: AgentPer
 
 
 async def get_session(db: AsyncSession, session_id: uuid.UUID) -> ConversationSession | None:
-    """Trae la sesión con su `persona` YA cargada (joinedload).
-    Con SQLAlchemy async, acceder a una relación sin haberla precargado
-    explícitamente revienta (MissingGreenlet) — aquí la pedimos de una vez."""
+    """Trae la sesión con `persona` (+ su nivel) y `module` YA cargados
+    (joinedload). Con SQLAlchemy async, acceder a una relación sin
+    haberla precargado explícitamente revienta (MissingGreenlet) — aquí
+    las pedimos de una vez. `module` puede venir None sin problema (la
+    sesión no tiene por qué estar atada a un módulo)."""
     result = await db.execute(
         select(ConversationSession)
-        .options(joinedload(ConversationSession.persona).joinedload(AgentPersona.level))
+        .options(
+            joinedload(ConversationSession.persona).joinedload(AgentPersona.level),
+            joinedload(ConversationSession.module),
+        )
         .where(ConversationSession.id == session_id)
     )
     return result.scalars().first()
