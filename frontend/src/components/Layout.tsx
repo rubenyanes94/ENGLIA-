@@ -1,7 +1,8 @@
-import { faComments, faGraduationCap, faRightFromBracket } from "@fortawesome/free-solid-svg-icons"
+import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Link, Outlet, useNavigate } from "react-router-dom"
 import { useAuth } from "../auth/AuthContext"
+import BottomNav from "./BottomNav"
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -9,36 +10,29 @@ export default function Layout() {
 
   function handleLogout() {
     logout()
-    navigate("/login")
+    navigate("/")
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="border-b border-slate-800 bg-slate-900/60 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <Link to="/" className="flex items-center gap-2 text-lg font-bold">
-            <span>English Academy</span>
-            <span className="text-xs">🇬🇧</span>
+    <div className="min-h-screen bg-slate-50 pb-20 text-slate-900">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-lg items-center justify-between px-5 py-3">
+          <Link to="/dashboard" className="flex items-center gap-2 font-bold text-slate-900">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm text-white">
+              EA
+            </span>
+            English Academy
           </Link>
 
-          <div className="flex items-center gap-4 text-sm">
-            {user?.current_level_id && (
-              <span className="hidden items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-emerald-400 sm:flex">
-                <FontAwesomeIcon icon={faGraduationCap} />
-                Nivel actual
+          <div className="flex items-center gap-3">
+            {user && (
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+                {user.full_name.charAt(0).toUpperCase()}
               </span>
             )}
-            <Link
-              to="/chat"
-              className="flex items-center gap-1.5 rounded-full px-3 py-1 text-slate-300 hover:bg-slate-800 hover:text-white"
-            >
-              <FontAwesomeIcon icon={faComments} />
-              <span className="hidden sm:inline">Tutor</span>
-            </Link>
-            <span className="hidden text-slate-400 sm:inline">{user?.full_name}</span>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 rounded-full px-3 py-1 text-slate-400 hover:bg-slate-800 hover:text-white"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
               title="Cerrar sesión"
             >
               <FontAwesomeIcon icon={faRightFromBracket} />
@@ -47,9 +41,11 @@ export default function Layout() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-8">
+      <main className="mx-auto max-w-lg px-5 py-6">
         <Outlet />
       </main>
+
+      <BottomNav />
     </div>
   )
 }
