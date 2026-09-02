@@ -26,6 +26,7 @@ from app.schemas.chat import (
     SendMessageRequest,
     SendMessageResponse,
 )
+from app.services import certification as certification_service
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -175,6 +176,15 @@ async def send_message(
             source="chat_task",
             scaffolded=turn["task_scaffolded"],
         )
+        if turn["task_completed"]:
+            # Esta tarea puede ser justo la que cierra el gate de salida
+            # del nivel del módulo activo — lo comprueba y certifica sola
+            # si corresponde (ver app.services.certification). Solo se
+            # intenta si la tarea se completó: si falló, no hace falta
+            # gastar la consulta, no puede haber cambiado nada a favor.
+            await certification_service.try_auto_certify_from_descriptor(
+                db, current_user.id, active_task["descriptor"]
+            )
         await event_repository.record(
             db,
             current_user.id,

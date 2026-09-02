@@ -22,6 +22,7 @@ from app.schemas.enrollment import EnrollmentOut
 from app.schemas.exercise import ExerciseAttemptOut, SubmitExerciseAttemptRequest
 from app.schemas.lesson import LessonDetailOut
 from app.schemas.module import ModuleDetailOut
+from app.services import certification as certification_service
 
 router = APIRouter(prefix="/modules", tags=["curriculum"])
 
@@ -138,6 +139,7 @@ async def submit_exercise_attempt(
     # DescriptorEvidence.session_key sobre por qué es un proxy, no una
     # sesión de estudio real). Nunca hay andamiaje posible en un ejercicio
     # autocalificado, así que scaffolded=False siempre aquí.
+    passed = result.score >= MASTERY_COMPLETION_THRESHOLD
     for descriptor_code in exercise.descriptor_codes:
         await descriptor_evidence_repository.record(
             db,
@@ -145,10 +147,18 @@ async def submit_exercise_attempt(
             descriptor_code,
             context=str(exercise_id),
             session_key=str(attempt.id),
-            success=result.score >= MASTERY_COMPLETION_THRESHOLD,
+            success=passed,
             source="exercise_attempt",
             scaffolded=False,
         )
+        if passed:
+            # Esta evidencia puede ser justo la que cierra el gate de
+            # salida del nivel al que pertenece el descriptor — lo
+            # comprueba y certifica sola si corresponde, sin esperar a
+            # que nadie llame a POST /users/me/certify a mano (ver
+            # app.services.certification). Solo si `passed`: un intento
+            # fallido no puede haber mejorado el mastery de nadie.
+            await certification_service.try_auto_certify_from_descriptor(db, current_user.id, descriptor_code)
 
     await event_repository.record(
         db,
