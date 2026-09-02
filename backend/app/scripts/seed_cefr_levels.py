@@ -79,6 +79,15 @@ CEFR_LEVELS = [
                 "Sin andamiaje directo del tutor en al menos una de ellas",
             ],
         },
+        # Versión ejecutable de Module["a1-10"].assessment.level_exit_criteria
+        # (el texto en español vive ahí, para leer; esto es para evaluar).
+        # El criterio "todos los descriptores critical dominados" no lleva
+        # parámetros: se deriva de Descriptor.priority + este mismo
+        # mastery_rule.threshold, no hace falta repetirlo aquí.
+        "exit_gate": {
+            "descriptor_mastery_ratio": {"min_ratio": 0.8, "min_mastery": 0.7},
+            "exit_tasks": [{"task_id": "a1-10-t2", "times_required": 2}],
+        },
     },
     {
         "code": "A2",
@@ -159,23 +168,23 @@ async def seed_cefr_levels() -> None:
                 continue
 
             # A diferencia de la primera versión de este script, si el
-            # nivel YA existía sincronizamos target_hours_* y tutor_policy
-            # de todas formas — es la única forma de que niveles sembrados
-            # ANTES de que existiera cada campo terminen con los valores
-            # reales en vez del server_default genérico de su migración.
+            # nivel YA existía sincronizamos target_hours_* y los campos
+            # JSONB de política de todas formas — es la única forma de que
+            # niveles sembrados ANTES de que existiera cada campo terminen
+            # con los valores reales en vez del server_default genérico de
+            # su migración.
             changed = False
             if existing.target_hours_min != data["target_hours_min"] or existing.target_hours_max != data["target_hours_max"]:
                 existing.target_hours_min = data["target_hours_min"]
                 existing.target_hours_max = data["target_hours_max"]
                 changed = True
-            new_policy = data.get("tutor_policy")
-            if new_policy and existing.tutor_policy != new_policy:
-                existing.tutor_policy = new_policy
-                changed = True
-            new_mastery_rule = data.get("mastery_rule")
-            if new_mastery_rule and existing.mastery_rule != new_mastery_rule:
-                existing.mastery_rule = new_mastery_rule
-                changed = True
+
+            for field in ("tutor_policy", "mastery_rule", "exit_gate"):
+                new_value = data.get(field)
+                if new_value and getattr(existing, field) != new_value:
+                    setattr(existing, field, new_value)
+                    changed = True
+
             if changed:
                 updated_codes.append(data["code"])
 

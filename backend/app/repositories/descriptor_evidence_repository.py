@@ -93,7 +93,7 @@ async def get_mastery_for_level(
     alumno — en una sola query (no N+1 por descriptor): trae toda la
     evidencia exitosa de los descriptores del nivel y agrupa en Python.
     Los descriptores sin ninguna evidencia quedan en 0.0 explícitamente
-    (no se omiten): así el frontend puede pintar "27 de 27", no solo los
+    (no se omiten): así el frontend puede pintar "18 de 35", no solo los
     que ya tienen algo.
     """
     codes = await descriptor_repository.list_codes_by_level_id(db, level_id)
@@ -117,3 +117,26 @@ async def get_mastery_for_level(
     return {
         code: _compute_mastery(rows_by_descriptor.get(code, []), threshold, evidence_required) for code in codes
     }
+
+
+async def count_distinct_successful_sessions(db: AsyncSession, user_id: uuid.UUID, context: str) -> int:
+    """Cuántas SESIONES distintas registraron una evidencia exitosa para
+    este `context` puntual (ej. el id de una tarea de chat concreta).
+
+    Es lo que exige un criterio de salida de nivel del tipo "tarea X
+    superada N veces en sesiones distintas" (documento §
+    Module.assessment.level_exit_criteria) — MÁS estricto que "el
+    descriptor está dominado": pide repetición en ESA tarea puntual, no
+    en cualquier evidencia del descriptor que la tarea evidencia (ver
+    routers/users.py, get_my_level_exit_gate).
+    """
+    result = await db.execute(
+        select(DescriptorEvidence.session_key)
+        .where(
+            DescriptorEvidence.user_id == user_id,
+            DescriptorEvidence.context == context,
+            DescriptorEvidence.success.is_(True),
+        )
+        .distinct()
+    )
+    return len(result.all())

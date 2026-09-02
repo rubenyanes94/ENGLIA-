@@ -46,3 +46,27 @@ class DescriptorMasterySummaryOut(BaseModel):
     mastered: int
     percentage: float  # mastered / total * 100, redondeado
     descriptors: list[DescriptorMasteryOut]
+
+
+class ExitCriterionOut(BaseModel):
+    """Un criterio del gate de salida de nivel (Module.assessment.
+    level_exit_criteria, en texto libre) ya EVALUADO para el alumno que
+    llama. `detail` trae los números crudos detrás de `met`, para que el
+    frontend pueda explicar por qué falta (ej. qué descriptores critical
+    siguen sin dominar) sin que el backend tenga que redactar el mensaje."""
+
+    key: str  # "critical_descriptors_mastered" | "descriptor_mastery_ratio" | "exit_tasks_completed"
+    label: str
+    met: bool
+    detail: dict
+
+
+class LevelExitGateOut(BaseModel):
+    """¿Puede este alumno certificar el nivel? `eligible` es el AND de
+    todos los criterios — no hay certificación parcial: como con
+    mastery_rule (documento § 1.6), una condición sin cumplir basta para
+    que el nivel no esté listo."""
+
+    level_code: str
+    eligible: bool
+    criteria: list[ExitCriterionOut]

@@ -24,9 +24,8 @@ class CEFRLevel(Base):
     # léxico nuevo máx. por sesión, política de apoyo en L1 y jerarquía de
     # corrección — heredado por TODOS los módulos del nivel salvo que su
     # propio `tutor_config` lo sobreescriba. Vive aquí (no en AgentPersona)
-    # porque describe el NIVEL, no un tutor concreto; AgentPersona.system_prompt
-    # es hoy quien realmente lo aplica a mano — conectar esto al prompt de
-    # forma automática es trabajo pendiente (ver seed_a1_modules.py).
+    # porque describe el NIVEL, no un tutor concreto. Se compone en el
+    # system prompt real del chat vía app.agents.prompt_builder.
     tutor_policy: Mapped[dict] = mapped_column(JSONB, default=dict)
 
     # Regla de dominio de descriptor (documento § 1.6): {"threshold": 0.8,
@@ -34,6 +33,16 @@ class CEFRLevel(Base):
     # Descriptor) porque es una política uniforme para TODOS los
     # descriptores del nivel — ver descriptor_evidence_repository.compute_mastery.
     mastery_rule: Mapped[dict] = mapped_column(JSONB, default=dict)
+
+    # Versión EJECUTABLE de los `level_exit_criteria` en texto libre que
+    # declara el módulo de cierre del nivel (Module.assessment) — ese
+    # texto es para LEER, este dict es para EVALUAR. Estructura:
+    # {"descriptor_mastery_ratio": {"min_ratio": 0.8, "min_mastery": 0.7},
+    #  "exit_tasks": [{"task_id": "a1-10-t2", "times_required": 2}]}
+    # El criterio "todos los descriptores critical dominados" NO necesita
+    # parámetros aquí: se deriva de Descriptor.priority=="critical" +
+    # mastery_rule.threshold — ver descriptor_evidence_repository.evaluate_level_exit_gate.
+    exit_gate: Mapped[dict] = mapped_column(JSONB, default=dict)
 
     # Horas de aprendizaje guiado para certificar este nivel (ej. A1:
     # 80-150h, según el marco de referencia habitual). Es un rango, no un
