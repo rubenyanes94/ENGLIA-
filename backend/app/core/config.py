@@ -24,11 +24,31 @@ class Settings(BaseSettings):
     # Ollama; en producción, a vLLM o NVIDIA NIM. El código del agente
     # (app/agents/) nunca sabe cuál de los dos es — solo habla "OpenAI API".
     llm_base_url: str = "http://ollama:11434/v1"
-    llm_model: str = "llama3.2:1b"
+    # qwen2.5:0.5b (~400MB), no llama3.2:1b (~1.3GB): en un Codespace de
+    # 8GB compartido con VS Code+extensiones, cargar el modelo de 1.3GB
+    # ha tumbado el proceso llama-server de Ollama más de una vez por
+    # simple presión de memoria (ni siquiera con concurrencia — pasaba
+    # también en aislamiento). Este es más chico y responde peor, pero
+    # responde. En producción, con vLLM/NIM sobre GPU dedicada, esto se
+    # sube por env var (LLM_MODEL) a un modelo real sin este compromiso.
+    llm_model: str = "qwen2.5:0.5b"
     # Mismo servidor (Ollama), otro tipo de modelo: embeddings para la
     # memoria semántica. Un solo motor de inferencia para todo el agente.
     embedding_model: str = "nomic-embed-text"
     embedding_dim: int = 768
+
+    # Cuántas inferencias simultáneas tolera el motor configurado en
+    # llm_base_url (ver app/agents/llm_client.py, ainvoke_serialized).
+    # Default=1 porque Ollama sobre CPU en un Codespace de 8GB compartido
+    # (Postgres+Redis+Celery+Vite+el propio VS Code) NO soporta 2+
+    # inferencias a la vez con fiabilidad: se ha visto tumbar el proceso
+    # llama-server entero bajo el fan-out "paralelo" del grafo del tutor
+    # (generate_response + detect_corrections + evaluate_active_task a la
+    # vez), sin mencionar una llamada de embeddings compitiendo por el
+    # único modelo que OLLAMA_MAX_LOADED_MODELS permite tener cargado. En
+    # producción, con vLLM/NVIDIA NIM sobre GPU dedicada, sube esto por
+    # env var (LLM_MAX_CONCURRENCY) a lo que el motor real soporte.
+    llm_max_concurrency: int = 1
 
     # Cola de tareas async (resumen + embedding al cerrar una sesión).
     # DB 1 de Redis, separada de la DB 0 (memoria de corto plazo del chat)

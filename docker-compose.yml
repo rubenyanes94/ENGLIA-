@@ -52,12 +52,23 @@ services:
     container_name: englia_ollama
     restart: unless-stopped
     environment:
-      # RAM limitada (Codespace de 8GB compartido con VS Code): con dos
-      # modelos en juego (chat + embeddings), forzamos a que Ollama
-      # mantenga como mucho UNO cargado en memoria a la vez, descargando
-      # el que no se usa en vez de intentar tener los dos a la vez y
-      # arriesgar un OOM del proceso llama-server.
+      # Memoria del Codespace crítica hoy (VS Code + extensiones —
+      # Pylance solo ya son ~450MB — más este propio agente, compitiendo
+      # con Postgres/Redis/Celery en un host de 8GB): incluso CARGAR un
+      # único modelo de 1.3GB, sin ninguna otra petición concurrente, ha
+      # tumbado el proceso llama-server más de una vez ("signal:
+      # terminated") solo por el pico transitorio de la carga. Minimizamos
+      # lo que Ollama intenta reservar: un modelo a la vez, un slot de
+      # inferencia a la vez.
       OLLAMA_MAX_LOADED_MODELS: 1
+      OLLAMA_NUM_PARALLEL: 1
+      # Cuánto tiempo se queda un modelo cargado tras su último uso antes
+      # de descargarse solo (default de Ollama: 5m). Lo subimos porque el
+      # momento de mayor riesgo de crash es precisamente CARGAR un modelo
+      # bajo presión de memoria — con esto, una vez arriba, se queda
+      # arriba el resto de la sesión de desarrollo en vez de recargar
+      # cada vez que pasan 5 minutos sin uso.
+      OLLAMA_KEEP_ALIVE: 1h
     volumes:
       - ollama_data:/root/.ollama
     ports:
@@ -84,7 +95,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       LLM_BASE_URL: http://ollama:11434/v1
-      LLM_MODEL: ${LLM_MODEL:-llama3.2:1b}
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5:0.5b}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
     volumes:
       - ./backend:/app
@@ -124,7 +135,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       LLM_BASE_URL: http://ollama:11434/v1
-      LLM_MODEL: ${LLM_MODEL:-llama3.2:1b}
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5:0.5b}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
     volumes:
       - ./backend:/app

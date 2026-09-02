@@ -12,9 +12,15 @@ política del nivel + tutor_config/l1_interference del módulo activo +
 tarea activa, si las hay). `detect_corrections` analiza solo el último
 mensaje del alumno y busca errores. `evaluate_active_task` solo hace
 trabajo real si hay una tarea activa (ver app/agents/task_evaluation.py);
-si no la hay, devuelve de inmediato sin llamar al LLM. Ninguno depende
-del resultado de otro, así que no pagamos latencia extra por tenerlos
-como pasos separados.
+si no la hay, devuelve de inmediato sin llamar al LLM. Ninguno depende del resultado de otro, así que en un motor de inferencia
+que sí soporte concurrencia (vLLM/NIM sobre GPU en producción) no se paga
+latencia extra por tenerlos como pasos separados. En dev, contra Ollama
+sobre CPU, `ainvoke_serialized` (ver app/agents/llm_client.py) hace que
+estas tres llamadas hagan cola por debajo en vez de competir de verdad
+por el motor — necesario porque se ha visto tumbar el proceso
+llama-server entero al pedirle 2+ inferencias a la vez en este entorno.
+La estructura del grafo no cambia por eso: sigue siendo fan-out real,
+listo para paralelismo real el día que el motor lo soporte.
 
 El siguiente nodo natural para seguir extendiendo este grafo: memoria
 semántica de largo plazo ANTES de generar la respuesta (hoy se resuelve
@@ -28,7 +34,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 
 from app.agents.corrections import detect_corrections as run_correction_detection
-from app.agents.llm_client import get_llm
+from app.agents.llm_client import ainvoke_serialized, get_llm
 from app.agents.prompt_builder import build_system_prompt
 from app.agents.task_evaluation import evaluate_task as run_task_evaluation
 from app.models import AgentPersona, Module
@@ -62,7 +68,7 @@ class TutorState(TypedDict):
 async def generate_response(state: TutorState) -> dict:
     llm = get_llm(model_id=state["model_id"], temperature=state["temperature"])
     messages = [SystemMessage(content=state["system_prompt"]), *state["messages"]]
-    response = await llm.ainvoke(messages)
+    response = await ainvoke_serialized(lambda: llm.ainvoke(messages))
     return {"messages": [response]}
 
 

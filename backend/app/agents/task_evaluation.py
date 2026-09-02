@@ -25,7 +25,7 @@ import logging
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel
 
-from app.agents.llm_client import get_llm
+from app.agents.llm_client import ainvoke_serialized, get_llm
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,9 @@ async def evaluate_task(
     )
 
     try:
-        return await structured_llm.ainvoke([SystemMessage(content=prompt), HumanMessage(content=student_message)])
+        return await ainvoke_serialized(
+            lambda: structured_llm.ainvoke([SystemMessage(content=prompt), HumanMessage(content=student_message)])
+        )
     except Exception:
         logger.warning("No se pudo evaluar la tarea activa con el LLM", exc_info=True)
         return TaskEvaluationResult(task_completed=False, scaffolded=False, reasoning="fallback: error del LLM")
