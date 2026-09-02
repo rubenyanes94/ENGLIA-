@@ -103,7 +103,7 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-3.5 font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500 disabled:opacity-60"
             >
               {submitting ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faArrowRight} />}
               {mode === "login" ? "Entrar ahora" : "Crear cuenta"}

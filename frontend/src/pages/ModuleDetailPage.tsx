@@ -85,7 +85,7 @@ export default function ModuleDetailPage() {
         <button
           onClick={handleEnroll}
           disabled={enrolling || enrolled}
-          className="mt-4 flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
+          className="mt-4 flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
         >
           {enrolling && <FontAwesomeIcon icon={faSpinner} spin />}
           {enrolled ? "Inscrito ✓" : "Inscribirme en este módulo"}
@@ -188,7 +188,7 @@ export default function ModuleDetailPage() {
                   </span>
                   <button
                     onClick={() => navigate(`/chat?module=${module.id}&task=${task.id}`)}
-                    className="flex shrink-0 items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 transition hover:bg-blue-200"
+                    className="flex shrink-0 items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 transition active:scale-[0.98] hover:bg-blue-200"
                   >
                     <FontAwesomeIcon icon={faCommentDots} /> Practicar con el tutor
                   </button>

@@ -61,14 +61,14 @@ export default function LandingPage() {
         <section className="mt-10 space-y-3">
           <Link
             to="/login?mode=register"
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-blue-500"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3.5 font-semibold text-white shadow-sm transition active:scale-[0.98] hover:bg-blue-500"
           >
             <FontAwesomeIcon icon={faRocket} />
             Comenzar ahora
           </Link>
           <Link
             to="/login"
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3.5 font-semibold text-white transition hover:bg-slate-800"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-slate-800"
           >
             Ingresar
             <FontAwesomeIcon icon={faArrowRight} />

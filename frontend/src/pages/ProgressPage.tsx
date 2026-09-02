@@ -122,7 +122,7 @@ export default function ProgressPage() {
             <button
               onClick={handleCertify}
               disabled={!gate.eligible || certifying}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
             >
               {certifying && <FontAwesomeIcon icon={faSpinner} spin />}
               Certificar mi nivel

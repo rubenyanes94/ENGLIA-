@@ -37,7 +37,7 @@ export default function ProfilePage() {
 
       <button
         onClick={handleLogout}
-        className="flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+        className="flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 transition active:scale-[0.98] hover:bg-slate-50"
       >
         <FontAwesomeIcon icon={faRightFromBracket} />
         Cerrar sesión

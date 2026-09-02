@@ -168,7 +168,7 @@ export default function ChatPage() {
         <button
           type="submit"
           disabled={sending || !input.trim()}
-          className="flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200"
+          className="flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition active:scale-[0.98] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200"
         >
           <FontAwesomeIcon icon={faPaperPlane} />
         </button>

@@ -1,3 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    /* Suavizado de fuente estilo macOS/iOS — sin esto, Inter (o
+       cualquier fuente) se ve más "dentada" en pantallas no-Retina,
+       justo la diferencia entre "se parece a una app nativa" y "se
+       parece a una página web". */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    /* Quita el flash gris/azul al tocar un botón/link en móvil — las
+       apps nativas no lo tienen, y con nuestros propios estados
+       hover/active en cada componente, el highlight del navegador solo
+       estorba. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Titulares con tracking ligeramente negativo: es el detalle tipográfico
+     más característico del lenguaje visual de Apple (San Francisco lo
+     hace por defecto en tamaños grandes; Inter no, hay que pedirlo). */
+  h1, h2, h3 {
+    letter-spacing: -0.02em;
+  }
+}

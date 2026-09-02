@@ -93,7 +93,7 @@ export default function DashboardPage() {
         </p>
         <Link
           to="/chat"
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-slate-800"
         >
           Continuar con tu tutor
         </Link>
@@ -109,7 +109,7 @@ export default function DashboardPage() {
           <p className="text-sm text-slate-500">{nextModule.title_es}</p>
           <Link
             to={`/modules/${nextModule.id}`}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500"
           >
             Abrir módulo
           </Link>
