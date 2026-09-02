@@ -11,7 +11,9 @@
 services:
   backend:
     volumes:
-      - ..:/workspaces/englia-:cached
+      # Mayúsculas a propósito: tiene que ser el nombre real de la carpeta
+      # del repo ("ENGLIA-"), igual que "workspaceFolder" en devcontainer.json.
+      - ..:/workspaces/ENGLIA-:cached
       # Socket de Docker del HOST del Codespace, montado dentro de "backend".
       # Junto con la feature "docker-outside-of-docker" del devcontainer.json,
       # esto hace que el `docker compose` que corras EN esta terminal en
