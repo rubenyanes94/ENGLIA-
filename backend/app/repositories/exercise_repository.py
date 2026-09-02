@@ -35,10 +35,21 @@ async def get_by_id(db: AsyncSession, exercise_id: uuid.UUID) -> Exercise | None
 
 
 async def create(
-    db: AsyncSession, lesson_id: uuid.UUID, exercise_type: str, stage: str, prompt: str, answer_key: dict
+    db: AsyncSession,
+    lesson_id: uuid.UUID,
+    exercise_type: str,
+    stage: str,
+    prompt: str,
+    answer_key: dict,
+    descriptor_codes: list[str] | None = None,
 ) -> Exercise:
     exercise = Exercise(
-        lesson_id=lesson_id, exercise_type=exercise_type, stage=stage, prompt=prompt, answer_key=answer_key
+        lesson_id=lesson_id,
+        exercise_type=exercise_type,
+        stage=stage,
+        prompt=prompt,
+        answer_key=answer_key,
+        descriptor_codes=descriptor_codes or [],
     )
     db.add(exercise)
     await db.commit()
@@ -53,6 +64,7 @@ async def update(
     stage: str | None = None,
     prompt: str | None = None,
     answer_key: dict | None = None,
+    descriptor_codes: list[str] | None = None,
 ) -> Exercise:
     if exercise_type is not None:
         exercise.exercise_type = exercise_type
@@ -62,6 +74,8 @@ async def update(
         exercise.prompt = prompt
     if answer_key is not None:
         exercise.answer_key = answer_key
+    if descriptor_codes is not None:
+        exercise.descriptor_codes = descriptor_codes
 
     await db.commit()
     await db.refresh(exercise)

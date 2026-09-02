@@ -170,7 +170,7 @@ async def create_exercise(lesson_id: uuid.UUID, payload: ExerciseCreate, db: Asy
         raise HTTPException(status_code=404, detail="Lección no encontrada.")
 
     return await exercise_repository.create(
-        db, lesson_id, payload.exercise_type, payload.stage, payload.prompt, payload.answer_key
+        db, lesson_id, payload.exercise_type, payload.stage, payload.prompt, payload.answer_key, payload.descriptor_codes
     )
 
 

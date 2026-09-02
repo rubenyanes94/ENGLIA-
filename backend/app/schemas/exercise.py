@@ -23,6 +23,7 @@ class ExerciseAdminOut(ExerciseOut):
     que ve un admin gestionando contenido, nunca lo que ve un alumno."""
 
     answer_key: dict
+    descriptor_codes: list[str]
 
 
 class ExerciseCreate(BaseModel):
@@ -30,6 +31,10 @@ class ExerciseCreate(BaseModel):
     stage: str = "practice"
     prompt: str
     answer_key: dict = {}
+    # Qué descriptores MCER (Descriptor.code) evidencia este ejercicio al
+    # calificarse — alimenta descriptor_evidence (ver routers/modules.py).
+    # Vacío por defecto: no todo ejercicio tiene por qué atarse a uno.
+    descriptor_codes: list[str] = []
 
 
 class ExerciseUpdate(BaseModel):
@@ -37,6 +42,7 @@ class ExerciseUpdate(BaseModel):
     stage: str | None = None
     prompt: str | None = None
     answer_key: dict | None = None
+    descriptor_codes: list[str] | None = None
 
 
 class SubmitExerciseAttemptRequest(BaseModel):
