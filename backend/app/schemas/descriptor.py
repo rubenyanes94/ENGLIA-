@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -70,3 +71,16 @@ class LevelExitGateOut(BaseModel):
     level_code: str
     eligible: bool
     criteria: list[ExitCriterionOut]
+
+
+class CertificationResultOut(BaseModel):
+    """Respuesta de POST /users/me/certify/{level_code} tras un intento
+    EXITOSO (si no era elegible, el endpoint responde 409 con el mismo
+    detalle que LevelExitGateOut en vez de esto — ver routers/users.py)."""
+
+    level_code: str
+    certified: bool = True
+    # Nivel al que se movió User.current_level_id — None solo si `level_code`
+    # ya era el último de la progresión (C2): certificarlo no tiene "siguiente".
+    next_level_code: str | None
+    certified_at: datetime

@@ -21,3 +21,12 @@ async def get_by_code(db: AsyncSession, code: str) -> CEFRLevel | None:
 
 async def get_by_id(db: AsyncSession, level_id: uuid.UUID) -> CEFRLevel | None:
     return await db.get(CEFRLevel, level_id)
+
+
+async def get_by_order(db: AsyncSession, order: int) -> CEFRLevel | None:
+    """El nivel EN esa posición de la progresión (1..6) — lo usa la
+    certificación (routers/users.py, certify_level) para encontrar "el
+    siguiente nivel" tras certificar uno. None si `order` se sale del
+    rango (ej. pedir el siguiente de C2, que ya es el último)."""
+    result = await db.execute(select(CEFRLevel).where(CEFRLevel.order == order))
+    return result.scalars().first()
