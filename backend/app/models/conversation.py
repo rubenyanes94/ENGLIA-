@@ -30,6 +30,15 @@ class ConversationSession(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     persona_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("agent_personas.id"))
+
+    # Módulo que el alumno está practicando en esta sesión — nullable:
+    # una sesión de chat libre (sin módulo) sigue siendo válida, solo que
+    # el tutor no aplica tutor_config/l1_interference de ningún módulo ni
+    # puede evaluar tareas (ver app/agents/prompt_builder.py y
+    # routers/chat.py). Se fija al ABRIR la sesión, no cambia después:
+    # practicar otro módulo es abrir otra sesión.
+    module_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("modules.id"), nullable=True)
+
     started_at: Mapped[datetime] = mapped_column(server_default=func.now())
     ended_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
@@ -38,6 +47,7 @@ class ConversationSession(Base):
 
     user: Mapped["User"] = relationship()
     persona: Mapped["AgentPersona"] = relationship()
+    module: Mapped["Module | None"] = relationship()
     messages: Mapped[list["ConversationMessage"]] = relationship(
         back_populates="session", order_by="ConversationMessage.created_at"
     )

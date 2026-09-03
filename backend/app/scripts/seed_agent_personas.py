@@ -106,37 +106,50 @@ async def seed_agent_personas() -> None:
             print("No hay niveles MCER en la base de datos. Ejecuta primero seed_cefr_levels.py")
             return
 
-        existing_result = await session.execute(
-            select(AgentPersona.level_id).where(AgentPersona.is_active.is_(True))
-        )
-        levels_with_persona = {row[0] for row in existing_result.all()}
+        existing_result = await session.execute(select(AgentPersona).where(AgentPersona.is_active.is_(True)))
+        persona_by_level_id = {p.level_id: p for p in existing_result.scalars().all()}
 
-        created = []
+        created, updated = [], []
         for code, data in PERSONAS_BY_LEVEL.items():
             level = levels.get(code)
             if level is None:
                 print(f"Aviso: nivel {code} no encontrado, se omite su tutor.")
                 continue
-            if level.id in levels_with_persona:
+
+            existing = persona_by_level_id.get(level.id)
+            if existing is None:
+                session.add(
+                    AgentPersona(
+                        level_id=level.id,
+                        name=data["name"],
+                        system_prompt=data["system_prompt"],
+                        model_id=settings.llm_model,
+                        temperature=data["temperature"],
+                        is_active=True,
+                    )
+                )
+                created.append(f"{code} → {data['name']}")
                 continue
 
-            persona = AgentPersona(
-                level_id=level.id,
-                name=data["name"],
-                system_prompt=data["system_prompt"],
-                model_id=settings.llm_model,
-                temperature=data["temperature"],
-                is_active=True,
-            )
-            session.add(persona)
-            created.append(f"{code} → {data['name']}")
+            # Si el nivel YA tenía tutor, sincronizamos model_id de todas
+            # formas (mismo criterio que seed_cefr_levels.py con
+            # tutor_policy/mastery_rule): sin esto, cambiar settings.llm_model
+            # (ej. por presión de memoria, ver core/config.py) nunca llega
+            # a las personas ya sembradas — se quedan apuntando al modelo
+            # viejo para siempre hasta que alguien las borre a mano.
+            if existing.model_id != settings.llm_model:
+                existing.model_id = settings.llm_model
+                updated.append(f"{code} → {data['name']}")
 
-        if not created:
-            print("Cada nivel ya tenía un tutor activo. Nada que insertar.")
+        if not created and not updated:
+            print("Cada nivel ya tenía un tutor activo y al día. Nada que hacer.")
             return
 
         await session.commit()
-        print("Tutores creados:\n  " + "\n  ".join(created))
+        if created:
+            print("Tutores creados:\n  " + "\n  ".join(created))
+        if updated:
+            print(f"model_id sincronizado a '{settings.llm_model}' en:\n  " + "\n  ".join(updated))
 
 
 if __name__ == "__main__":

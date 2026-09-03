@@ -17,7 +17,7 @@ import logging
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
-from app.agents.llm_client import get_llm
+from app.agents.llm_client import ainvoke_serialized, get_llm
 
 logger = logging.getLogger(__name__)
 
@@ -75,8 +75,8 @@ async def grade_open_exercise(prompt: str, student_answer: str, level_code: str,
     system_prompt = GRADING_SYSTEM_PROMPT.format(level_code=level_code, prompt=prompt)
 
     try:
-        result = await structured_llm.ainvoke(
-            [SystemMessage(content=system_prompt), HumanMessage(content=student_answer)]
+        result = await ainvoke_serialized(
+            lambda: structured_llm.ainvoke([SystemMessage(content=system_prompt), HumanMessage(content=student_answer)])
         )
     except Exception:
         logger.warning("No se pudo obtener una nota estructurada del LLM para este ejercicio", exc_info=True)

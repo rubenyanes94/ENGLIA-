@@ -11,7 +11,7 @@ import logging
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
-from app.agents.llm_client import get_llm
+from app.agents.llm_client import ainvoke_serialized, get_llm
 
 logger = logging.getLogger(__name__)
 
@@ -71,8 +71,8 @@ async def detect_corrections(student_message: str, level_code: str, model_id: st
     prompt = CORRECTION_SYSTEM_PROMPT.format(level_code=level_code)
 
     try:
-        result = await structured_llm.ainvoke(
-            [SystemMessage(content=prompt), HumanMessage(content=student_message)]
+        result = await ainvoke_serialized(
+            lambda: structured_llm.ainvoke([SystemMessage(content=prompt), HumanMessage(content=student_message)])
         )
     except Exception:
         logger.warning("No se pudo obtener corrections estructuradas del LLM", exc_info=True)

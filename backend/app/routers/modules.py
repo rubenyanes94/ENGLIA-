@@ -9,6 +9,7 @@ from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.models import Enrollment, ExerciseAttempt, User
 from app.repositories import (
+    descriptor_evidence_repository,
     enrollment_repository,
     event_repository,
     exercise_attempt_repository,
@@ -16,10 +17,12 @@ from app.repositories import (
     lesson_repository,
     module_repository,
 )
+from app.repositories.enrollment_repository import MASTERY_COMPLETION_THRESHOLD
 from app.schemas.enrollment import EnrollmentOut
 from app.schemas.exercise import ExerciseAttemptOut, SubmitExerciseAttemptRequest
 from app.schemas.lesson import LessonDetailOut
 from app.schemas.module import ModuleDetailOut
+from app.services import certification as certification_service
 
 router = APIRouter(prefix="/modules", tags=["curriculum"])
 
@@ -127,6 +130,36 @@ async def submit_exercise_attempt(
     attempt = await exercise_attempt_repository.create(
         db, current_user.id, exercise_id, payload.answer, result.score, result.feedback
     )
+
+    # Si el ejercicio declara qué descriptores MCER evidencia, este intento
+    # cuenta como una pieza de evidencia hacia su dominio acumulado (MCER
+    # § 1.6) — no solo hacia mastery_score del módulo. `context` = el propio
+    # ejercicio (repetir EL MISMO ejercicio no debe evidenciar dos veces el
+    # mismo descriptor); `session_key` = este intento (ver la nota en
+    # DescriptorEvidence.session_key sobre por qué es un proxy, no una
+    # sesión de estudio real). Nunca hay andamiaje posible en un ejercicio
+    # autocalificado, así que scaffolded=False siempre aquí.
+    passed = result.score >= MASTERY_COMPLETION_THRESHOLD
+    for descriptor_code in exercise.descriptor_codes:
+        await descriptor_evidence_repository.record(
+            db,
+            current_user.id,
+            descriptor_code,
+            context=str(exercise_id),
+            session_key=str(attempt.id),
+            success=passed,
+            source="exercise_attempt",
+            scaffolded=False,
+        )
+        if passed:
+            # Esta evidencia puede ser justo la que cierra el gate de
+            # salida del nivel al que pertenece el descriptor — lo
+            # comprueba y certifica sola si corresponde, sin esperar a
+            # que nadie llame a POST /users/me/certify a mano (ver
+            # app.services.certification). Solo si `passed`: un intento
+            # fallido no puede haber mejorado el mastery de nadie.
+            await certification_service.try_auto_certify_from_descriptor(db, current_user.id, descriptor_code)
+
     await event_repository.record(
         db,
         current_user.id,

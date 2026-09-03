@@ -16,28 +16,84 @@ from app.models import CEFRLevel
 
 # target_hours_* son horas de aprendizaje GUIADO por nivel (no
 # acumuladas desde cero) — cuánto dura certificarse EN ese nivel
-# concreto, partiendo de haber certificado el anterior. Los rangos de
-# A1 vienen de un requerimiento explícito (80-150h); A2-C2 son
-# estimaciones de referencia (a mayor nivel, más horas) — ajústalas si
-# tu institución maneja otros números, no son un estándar oficial fijo.
+# concreto, partiendo de haber certificado el anterior. Valores tomados
+# del documento de diseño curricular MCER § 2.1 (alineados con
+# estimaciones Cambridge/ALTE), no una estimación propia.
 CEFR_LEVELS = [
     {
         "code": "A1",
         "name": "Acceso",
         "order": 1,
-        "target_hours_min": 80,
-        "target_hours_max": 150,
+        "target_hours_min": 90,
+        "target_hours_max": 100,
         "description": (
             "Usuario básico. Comprende y utiliza expresiones cotidianas de uso "
             "muy frecuente, así como frases sencillas para satisfacer necesidades "
             "inmediatas. Puede presentarse y presentar a otros."
         ),
+        # level_policy del documento de currículo (§ nivel A1, cabecera de
+        # MODULES A1): heredado por todos los módulos del nivel salvo
+        # override explícito en su propio tutor_config.
+        "tutor_policy": {
+            "tutor_language_ceiling": {
+                "allowed": [
+                    "present_simple",
+                    "present_continuous",
+                    "past_simple_common",
+                    "going_to",
+                    "can",
+                    "imperatives",
+                    "there_is_are",
+                ],
+                "forbidden": [
+                    "present_perfect",
+                    "conditionals",
+                    "passive_voice",
+                    "reported_speech",
+                    "relative_clauses",
+                    "phrasal_verbs_idiomatic",
+                ],
+            },
+            "tutor_speech_rate": "slow",
+            "max_new_lexis_per_session": 8,
+            "l1_support": (
+                "Se permite español para instrucciones de tarea y aclaración de "
+                "significado. Nunca para modelar la respuesta esperada."
+            ),
+            "correction_hierarchy": [
+                "Error que rompe comunicación → corrección inmediata",
+                "Error del módulo activo → recast sin interrumpir",
+                "Error de módulo anterior → registrar, corregir al cierre",
+                "Error por encima del nivel → ignorar por completo",
+            ],
+        },
+        # mastery_rule del documento DESCRIPTORS A1: regla uniforme con la
+        # que se calcula descriptor_mastery para TODOS los descriptores del
+        # nivel (ver descriptor_evidence_repository.get_mastery_for_level).
+        "mastery_rule": {
+            "threshold": 0.8,
+            "evidence_required": 3,
+            "conditions": [
+                "Ejecuciones en contextos distintos",
+                "Ejecuciones en sesiones distintas",
+                "Sin andamiaje directo del tutor en al menos una de ellas",
+            ],
+        },
+        # Versión ejecutable de Module["a1-10"].assessment.level_exit_criteria
+        # (el texto en español vive ahí, para leer; esto es para evaluar).
+        # El criterio "todos los descriptores critical dominados" no lleva
+        # parámetros: se deriva de Descriptor.priority + este mismo
+        # mastery_rule.threshold, no hace falta repetirlo aquí.
+        "exit_gate": {
+            "descriptor_mastery_ratio": {"min_ratio": 0.8, "min_mastery": 0.7},
+            "exit_tasks": [{"task_id": "a1-10-t2", "times_required": 2}],
+        },
     },
     {
         "code": "A2",
         "name": "Plataforma",
-        "target_hours_min": 100,
-        "target_hours_max": 180,
+        "target_hours_min": 90,
+        "target_hours_max": 110,
         "order": 2,
         "description": (
             "Usuario básico. Comprende frases y expresiones de uso frecuente "
@@ -50,7 +106,7 @@ CEFR_LEVELS = [
         "name": "Umbral",
         "order": 3,
         "target_hours_min": 150,
-        "target_hours_max": 250,
+        "target_hours_max": 180,
         "description": (
             "Usuario independiente. Comprende los puntos principales de textos "
             "claros sobre asuntos cotidianos. Sabe desenvolverse en la mayoría "
@@ -61,8 +117,8 @@ CEFR_LEVELS = [
         "code": "B2",
         "name": "Avanzado",
         "order": 4,
-        "target_hours_min": 200,
-        "target_hours_max": 300,
+        "target_hours_min": 180,
+        "target_hours_max": 200,
         "description": (
             "Usuario independiente. Comprende las ideas principales de textos "
             "complejos, incluso de carácter técnico. Puede relacionarse con "
@@ -73,8 +129,8 @@ CEFR_LEVELS = [
         "code": "C1",
         "name": "Dominio operativo eficaz",
         "order": 5,
-        "target_hours_min": 250,
-        "target_hours_max": 350,
+        "target_hours_min": 200,
+        "target_hours_max": 220,
         "description": (
             "Usuario competente. Comprende una amplia variedad de textos extensos "
             "y con cierto nivel de exigencia, reconociendo sentidos implícitos. "
@@ -86,8 +142,8 @@ CEFR_LEVELS = [
         "code": "C2",
         "name": "Maestría",
         "order": 6,
-        "target_hours_min": 300,
-        "target_hours_max": 450,
+        "target_hours_min": 250,
+        "target_hours_max": 300,
         "description": (
             "Usuario competente. Comprende con facilidad prácticamente todo lo "
             "que oye o lee. Puede expresarse espontáneamente, con gran fluidez y "
@@ -112,14 +168,24 @@ async def seed_cefr_levels() -> None:
                 continue
 
             # A diferencia de la primera versión de este script, si el
-            # nivel YA existía sincronizamos target_hours_* de todas
-            # formas — es la única forma de que niveles sembrados ANTES
-            # de que existiera este campo (los 6 originales) terminen
-            # con las horas reales en vez de el server_default genérico
-            # de la migración (80/150 para los seis, sin distinguir).
+            # nivel YA existía sincronizamos target_hours_* y los campos
+            # JSONB de política de todas formas — es la única forma de que
+            # niveles sembrados ANTES de que existiera cada campo terminen
+            # con los valores reales en vez del server_default genérico de
+            # su migración.
+            changed = False
             if existing.target_hours_min != data["target_hours_min"] or existing.target_hours_max != data["target_hours_max"]:
                 existing.target_hours_min = data["target_hours_min"]
                 existing.target_hours_max = data["target_hours_max"]
+                changed = True
+
+            for field in ("tutor_policy", "mastery_rule", "exit_gate"):
+                new_value = data.get(field)
+                if new_value and getattr(existing, field) != new_value:
+                    setattr(existing, field, new_value)
+                    changed = True
+
+            if changed:
                 updated_codes.append(data["code"])
 
         if new_levels:

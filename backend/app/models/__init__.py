@@ -6,6 +6,7 @@
 from app.models.agent_persona import AgentPersona
 from app.models.cefr_level import CEFRLevel
 from app.models.conversation import ConversationMessage, ConversationSession
+from app.models.descriptor import Descriptor, DescriptorEvidence
 from app.models.enrollment import Enrollment
 from app.models.exercise import Exercise, ExerciseAttempt
 from app.models.lesson import Lesson
@@ -21,6 +22,8 @@ __all__ = [
     "CEFRLevel",
     "ConversationMessage",
     "ConversationSession",
+    "Descriptor",
+    "DescriptorEvidence",
     "Enrollment",
     "Exercise",
     "ExerciseAttempt",

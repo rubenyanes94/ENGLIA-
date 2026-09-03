@@ -32,3 +32,13 @@ async def create_user(db: AsyncSession, email: str, password: str, full_name: st
     await db.commit()
     await db.refresh(user)
     return user
+
+
+async def set_current_level(db: AsyncSession, user: User, level_id: uuid.UUID) -> User:
+    """Lo llama la certificación (routers/users.py, certify_level) al
+    aprobar el gate de salida de un nivel: mueve al alumno al SIGUIENTE
+    nivel de la progresión, no lo deja marcado en el que acaba de certificar."""
+    user.current_level_id = level_id
+    await db.commit()
+    await db.refresh(user)
+    return user

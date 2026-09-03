@@ -24,10 +24,23 @@
   "runServices": ["db", "redis", "ollama", "backend", "celery_worker", "frontend"],
 
   // Carpeta que verás abierta en el explorador de archivos (todo el repo).
-  "workspaceFolder": "/workspaces/englia-",
+  // OJO con las mayúsculas: tiene que coincidir EXACTO con el nombre real
+  // de la carpeta del repo ("ENGLIA-"), porque Linux distingue mayúsculas
+  // de minúsculas. Con "englia-" en minúscula, Codespaces monta una ruta
+  // vacía que no es tu repo — el "docker-compose.yml" de este mismo
+  // directorio también usa "ENGLIA-" en su volumen, deben ir siempre a la par.
+  "workspaceFolder": "/workspaces/ENGLIA-",
 
   // Al cerrar Codespaces, apaga también los contenedores (no los deja huérfanos).
   "shutdownAction": "stopCompose",
+
+  // Se ejecuta DENTRO del contenedor "backend" cada vez que arranca (creación
+  // inicial y también cada vez que reabres/reanudas el Codespace). Antes
+  // tenías que acordarte de lanzar `uvicorn` a mano en la terminal cada vez;
+  // ahora start-backend.sh lo hace por ti en segundo plano (y no duplica el
+  // proceso si ya estaba corriendo). Logs en /tmp/uvicorn.log dentro del
+  // contenedor si necesitas revisarlos.
+  "postStartCommand": "bash /workspaces/ENGLIA-/.devcontainer/start-backend.sh",
 
   // Docker-outside-of-Docker: instala el CLI de `docker` (con el plugin
   // `compose`) DENTRO del contenedor "backend" y lo conecta al Docker del
