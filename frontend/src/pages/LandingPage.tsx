@@ -1,4 +1,4 @@
-import { faArrowRight, faRocket } from "@fortawesome/free-solid-svg-icons"
+import { faArrowRight, faCommentDots, faGraduationCap, faRocket, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useState } from "react"
 import { Navigate, Link } from "react-router-dom"
@@ -21,69 +21,154 @@ export default function LandingPage() {
   if (!isLoading && user) return <Navigate to="/dashboard" replace />
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="mx-auto flex max-w-lg items-center justify-between px-5 py-4">
-        <span className="flex items-center gap-2 font-bold">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm text-white">EA</span>
-          English Academy
-        </span>
-        <Link to="/login" className="text-sm font-semibold text-blue-600">
-          Ingresar
-        </Link>
+    <div className="min-h-screen bg-white text-slate-900">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <span className="flex items-center gap-2 font-bold">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm text-white">
+              EA
+            </span>
+            English Academy
+          </span>
+          <div className="flex items-center gap-3">
+            <Link to="/login" className="text-sm font-semibold text-slate-600 hover:text-slate-900">
+              Ingresar
+            </Link>
+            <Link
+              to="/login?mode=register"
+              className="rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500"
+            >
+              Comenzar
+            </Link>
+          </div>
+        </div>
       </header>
 
-      <main className="mx-auto max-w-lg px-5 pb-16">
-        <section className="pt-6 text-center">
-          <h1 className="text-4xl font-extrabold leading-tight text-slate-900">
-            A1 a C2 <span className="text-blue-600">con tutores de IA</span>
+      <main>
+        {/* Hero */}
+        <section className="mx-auto w-full max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8 lg:py-28">
+          <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-blue-600">
+            <FontAwesomeIcon icon={faWandMagicSparkles} />
+            Tutores de IA · Marco Común Europeo (MCER)
+          </span>
+          <h1 className="mx-auto mt-6 max-w-4xl text-4xl font-extrabold leading-[1.1] sm:text-5xl lg:text-6xl">
+            De A1 a C2 con un tutor que <span className="text-blue-600">entiende tus errores</span> de hispanohablante
           </h1>
-          <p className="mx-auto mt-3 max-w-sm text-slate-500">
-            Aprende inglés con agentes de IA que corrigen tus errores según cómo hablan realmente los
-            hispanohablantes, siguiendo el Marco Común Europeo de Referencia.
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-500">
+            No es un chatbot genérico. Cada módulo sabe qué errores comete alguien que piensa en español —
+            del <em>“I have 25 years”</em> al imperativo que suena grosero en inglés — y corrige en orden de
+            impacto real.
           </p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              to="/login?mode=register"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-8 py-4 font-semibold text-white shadow-sm transition active:scale-[0.98] hover:bg-blue-500 sm:w-auto"
+            >
+              <FontAwesomeIcon icon={faRocket} />
+              Comenzar ahora
+            </Link>
+            <Link
+              to="/login"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-8 py-4 font-semibold text-white transition active:scale-[0.98] hover:bg-slate-800 sm:w-auto"
+            >
+              Ingresar
+              <FontAwesomeIcon icon={faArrowRight} />
+            </Link>
+          </div>
         </section>
 
-        <section className="mt-10">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Ruta de certificación</h2>
+        {/* Qué hace distinto al producto */}
+        <section className="border-y border-slate-200 bg-slate-50">
+          <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-16 sm:px-6 md:grid-cols-3 lg:px-8 lg:py-20">
+            <Feature
+              icon={faCommentDots}
+              title="Conversación real, corregida"
+              text="Hablas con tu tutor y recibes correcciones en el momento, calibradas a tu nivel: lo que rompe la comunicación se corrige ya; lo que está por encima de tu nivel, se ignora."
+            />
+            <Feature
+              icon={faGraduationCap}
+              title="Progreso por evidencia, no por clics"
+              text="Cada capacidad del MCER se da por dominada solo tras demostrarla varias veces, en contextos y sesiones distintas. Sin atajos."
+            />
+            <Feature
+              icon={faWandMagicSparkles}
+              title="Diseñado para hispanohablantes"
+              text="Interferencia del español anticipada módulo a módulo: falsos amigos, sujeto nulo, orden de adjetivos y la cortesía que el inglés exige y el español no."
+            />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+        </section>
+
+        {/* Ruta de certificación */}
+        <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-3xl font-extrabold lg:text-4xl">Ruta de certificación</h2>
+              <p className="mt-2 text-slate-500">Los seis niveles del Marco Común Europeo, de principio a fin.</p>
+            </div>
+            <span className="rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-blue-600">
+              ~1.050 h de aprendizaje guiado
+            </span>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {(levels.length > 0 ? levels : PLACEHOLDER_LEVELS).map((level) => (
-              <div key={level.code} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <span className="text-lg font-extrabold text-blue-600">{level.code}</span>
-                <h3 className="mt-1 font-semibold text-slate-900">{level.name}</h3>
-                <p className="mt-1 text-xs text-slate-500">{level.description.split(".")[0]}.</p>
+              <div
+                key={level.code}
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <div className="flex items-baseline justify-between">
+                  <span className="text-2xl font-extrabold text-blue-600">{level.code}</span>
+                  <span className="text-xs text-slate-400">
+                    {level.target_hours_min}–{level.target_hours_max} h
+                  </span>
+                </div>
+                <h3 className="mt-2 text-lg font-semibold">{level.name}</h3>
+                <p className="mt-1 text-sm text-slate-500">{level.description.split(".")[0]}.</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="mt-10 space-y-3">
-          <Link
-            to="/login?mode=register"
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3.5 font-semibold text-white shadow-sm transition active:scale-[0.98] hover:bg-blue-500"
-          >
-            <FontAwesomeIcon icon={faRocket} />
-            Comenzar ahora
-          </Link>
-          <Link
-            to="/login"
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-slate-800"
-          >
-            Ingresar
-            <FontAwesomeIcon icon={faArrowRight} />
-          </Link>
+        {/* CTA final */}
+        <section className="border-t border-slate-200 bg-slate-50">
+          <div className="mx-auto w-full max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8 lg:py-20">
+            <h2 className="text-3xl font-extrabold lg:text-4xl">Empieza hoy por A1</h2>
+            <p className="mx-auto mt-3 max-w-xl text-slate-500">
+              Crea tu cuenta y abre el primer módulo. Tu progreso se mide en capacidades reales, no en lecciones vistas.
+            </p>
+            <Link
+              to="/login?mode=register"
+              className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-8 py-4 font-semibold text-white shadow-sm transition active:scale-[0.98] hover:bg-blue-500"
+            >
+              <FontAwesomeIcon icon={faRocket} />
+              Crear mi cuenta
+            </Link>
+          </div>
         </section>
-
-        <p className="mt-10 text-center text-xs text-slate-400">English Academy © 2026</p>
       </main>
+
+      <footer className="mx-auto w-full max-w-7xl px-4 py-10 text-center text-xs text-slate-400 sm:px-6 lg:px-8">
+        English Academy © 2026
+      </footer>
+    </div>
+  )
+}
+
+function Feature({ icon, title, text }: { icon: typeof faRocket; title: string; text: string }) {
+  return (
+    <div>
+      <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white">
+        <FontAwesomeIcon icon={icon} />
+      </span>
+      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-slate-500">{text}</p>
     </div>
   )
 }
 
 // Solo se usa si /levels no responde (ej. backend recién arrancando) —
-// para que la landing nunca se vea vacía. Nombres/descripciones tomados
-// del propio seed_cefr_levels.py, no inventados.
+// para que la landing nunca se vea vacía. Nombres/descripciones y horas
+// tomados del propio seed_cefr_levels.py, no inventados.
 const PLACEHOLDER_LEVELS: CEFRLevel[] = [
   { id: "a1", code: "A1", name: "Acceso", order: 1, description: "Frases básicas y supervivencia.", target_hours_min: 90, target_hours_max: 100 },
   { id: "a2", code: "A2", name: "Plataforma", order: 2, description: "Intercambio directo de información.", target_hours_min: 90, target_hours_max: 110 },

@@ -40,42 +40,65 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6 text-slate-900">
-      <div className="w-full max-w-sm">
-        <Link to="/" className="mb-4 flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600">
-          <FontAwesomeIcon icon={faArrowLeft} /> Volver
-        </Link>
+    // Pantalla partida en escritorio (marca a la izquierda, formulario a
+    // la derecha), una sola columna en móvil — patrón web estándar para
+    // login, en vez de una tarjeta pequeña flotando en medio de 1400px.
+    <div className="grid min-h-screen grid-cols-1 bg-slate-50 text-slate-900 lg:grid-cols-2">
+      <aside className="hidden flex-col justify-between bg-gradient-to-br from-blue-600 to-blue-500 p-12 text-white lg:flex">
+        <span className="flex items-center gap-2 font-bold">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm">EA</span>
+          English Academy
+        </span>
+        <div>
+          <h2 className="text-4xl font-extrabold leading-tight">
+            De A1 a C2, con un tutor que entiende cómo aprende un hispanohablante.
+          </h2>
+          <p className="mt-4 max-w-md text-blue-100">
+            Tu progreso se mide en capacidades reales del Marco Común Europeo, demostradas varias veces — no en
+            lecciones vistas.
+          </p>
+        </div>
+        <p className="text-sm text-blue-200">English Academy © 2026</p>
+      </aside>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-          <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-500">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">EA</span>
-            English Academy
+      <div className="flex items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-md">
+          <Link to="/" className="mb-6 flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600">
+            <FontAwesomeIcon icon={faArrowLeft} /> Volver al inicio
+          </Link>
+
+          <div className="lg:hidden">
+            <span className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-500">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">
+                EA
+              </span>
+              English Academy
+            </span>
           </div>
-          <h1 className="mt-3 text-2xl font-extrabold">
-            {mode === "login" ? "¡Qué bueno verte!" : "Únete a la academia"}
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
+
+          <h1 className="text-3xl font-extrabold">{mode === "login" ? "¡Qué bueno verte!" : "Únete a la academia"}</h1>
+          <p className="mt-2 text-slate-500">
             {mode === "login" ? "Ingresa para continuar aprendiendo." : "Inicia tu camino hoy mismo."}
           </p>
 
-          <div className="mt-5 grid grid-cols-2 rounded-full bg-slate-100 p-1 text-sm font-semibold">
+          <div className="mt-6 grid grid-cols-2 rounded-full bg-slate-100 p-1 text-sm font-semibold">
             <button
               type="button"
               onClick={() => setMode("login")}
-              className={`rounded-full py-2 transition ${mode === "login" ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}
+              className={`rounded-full py-2.5 transition ${mode === "login" ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}
             >
               Entrar
             </button>
             <button
               type="button"
               onClick={() => setMode("register")}
-              className={`rounded-full py-2 transition ${mode === "register" ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}
+              className={`rounded-full py-2.5 transition ${mode === "register" ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}
             >
               Registrarse
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {mode === "register" && (
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Nombre" value={firstName} onChange={setFirstName} required />
@@ -84,17 +107,10 @@ export default function AuthPage() {
             )}
 
             <Field label="Correo electrónico" type="email" value={email} onChange={setEmail} required />
-            <Field
-              label="Contraseña"
-              type="password"
-              value={password}
-              onChange={setPassword}
-              required
-              minLength={8}
-            />
+            <Field label="Contraseña" type="password" value={password} onChange={setPassword} required minLength={8} />
 
             {error && (
-              <div className="flex items-start gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">
+              <div className="flex items-start gap-2 rounded-xl bg-red-50 px-3 py-2.5 text-sm text-red-600">
                 <FontAwesomeIcon icon={faCircleExclamation} className="mt-0.5 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -132,7 +148,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</span>
+      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</span>
       <input
         type={type}
         required={required}

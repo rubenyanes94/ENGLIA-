@@ -44,47 +44,61 @@ export default function ClassroomPage() {
     return <div className="text-red-500">{error ?? "No se pudo cargar el classroom."}</div>
   }
 
+  const completedCount = progress.modules.filter((m) => m.status === "completed").length
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Classroom {progress.level_code}</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {progress.hours_completed}h de {progress.target_hours_min}–{progress.target_hours_max}h objetivo
-        </p>
-        <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
+    <div className="space-y-8">
+      <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold text-slate-900 lg:text-4xl">Classroom {progress.level_code}</h1>
+            <p className="mt-2 text-slate-500">
+              {completedCount} de {progress.modules.length} módulos completados ·{" "}
+              {progress.hours_completed}h de {progress.target_hours_min}–{progress.target_hours_max}h objetivo
+            </p>
+          </div>
+          <span className="text-3xl font-extrabold text-blue-600">{progress.percentage}%</span>
+        </div>
+        <div className="mt-5 h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
           <div
             className="h-full rounded-full bg-blue-600 transition-all"
             style={{ width: `${Math.min(progress.percentage, 100)}%` }}
           />
         </div>
-      </div>
+      </header>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {progress.modules.map((module) => {
           const style = STATUS_STYLES[module.status]
           const clickable = module.status !== "locked"
           const card = (
-            <div className={`rounded-2xl border p-4 shadow-sm transition ${style.classes} ${clickable ? "hover:border-blue-300" : ""}`}>
+            <div
+              className={`flex h-full flex-col rounded-2xl border p-5 shadow-sm transition ${style.classes} ${
+                clickable ? "hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md" : ""
+              }`}
+            >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">{module.code}</span>
+                <span className="font-mono text-xs text-slate-400">{module.code}</span>
                 <span className="flex items-center gap-1 text-xs font-semibold">
                   <FontAwesomeIcon icon={style.icon} spin={module.status === "in_progress"} />
                   {style.label}
                 </span>
               </div>
-              <h3 className="mt-1 font-semibold text-slate-900">{module.title}</h3>
+              <h3 className="mt-2 text-lg font-semibold text-slate-900">{module.title}</h3>
               <p className="text-sm text-slate-500">{module.title_es}</p>
-              <p className="mt-2 text-xs text-slate-400">
+              <p className="mt-auto pt-4 text-xs text-slate-400">
                 {module.estimated_hours}h · {module.descriptors.length} descriptores
               </p>
             </div>
           )
           return clickable ? (
-            <Link key={module.id} to={`/modules/${module.id}`}>
+            <Link key={module.id} to={`/modules/${module.id}`} className="h-full">
               {card}
             </Link>
           ) : (
-            <div key={module.id}>{card}</div>
+            <div key={module.id} className="h-full">
+              {card}
+            </div>
           )
         })}
       </div>

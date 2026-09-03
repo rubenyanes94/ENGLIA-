@@ -1,24 +1,19 @@
-import { faBookOpen, faChartLine, faComments, faHouse, faUser } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { NavLink } from "react-router-dom"
+import { NAV_ITEMS } from "./navItems"
 
-const ITEMS = [
-  { to: "/dashboard", icon: faHouse, label: "Inicio" },
-  { to: "/classroom", icon: faBookOpen, label: "Classroom" },
-  { to: "/progress", icon: faChartLine, label: "Progreso" },
-  { to: "/chat", icon: faComments, label: "Tutor" },
-  { to: "/profile", icon: faUser, label: "Perfil" },
-]
-
-/** Nav inferior fija, estilo app móvil (ver referencia de diseño) — visible
- * en todas las pantallas protegidas vía Layout. `end` en Inicio a
- * propósito: sin él, NavLink marcaría "/dashboard" como activo también
- * al estar en subrutas que empiecen igual (no las hay hoy, pero evita el bug). */
+/** Nav inferior fija — SOLO en móvil (`md:hidden`). En escritorio la
+ * navegación vive en el header horizontal de Layout: una barra fija
+ * abajo en una pantalla ancha es un patrón de app, no de web, y aquí la
+ * experiencia objetivo es web.
+ *
+ * `end` en cada NavLink a propósito: sin él, NavLink marcaría una ruta
+ * como activa también en subrutas que empiecen igual. */
 export default function BottomNav() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur">
+    <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden">
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
-        {ITEMS.map((item) => (
+        {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
