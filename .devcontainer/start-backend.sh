@@ -23,6 +23,15 @@ fi
 
 cd "$BACKEND_DIR" || { echo "[start-backend] no existe $BACKEND_DIR"; exit 1; }
 
+# LLM_MODEL a mano, explícito: la variable de entorno HORNEADA en este
+# contenedor (fijada al crearlo) puede haber quedado desactualizada
+# frente a lo que dice docker-compose.yml hoy — pasó de verdad: el
+# contenedor seguía con "llama3.2:1b" (1.3GB, tumbaba Ollama por falta de
+# RAM) mucho después de que el compose ya pidiera "qwen2.5:0.5b" (400MB),
+# porque nada volvió a CREAR el contenedor desde entonces. Sin este
+# override, un reinicio automático reintroduciría ese crash en silencio.
+export LLM_MODEL="${LLM_MODEL:-qwen2.5:0.5b}"
+
 # db/redis ya están "healthy" en este punto: docker-compose.yml declara
 # depends_on con condition: service_healthy, y ese chequeo lo hace Docker
 # Compose ANTES de crear/arrancar el contenedor "backend" — no hace falta
