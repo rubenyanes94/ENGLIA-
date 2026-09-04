@@ -7,7 +7,7 @@ import DashboardPage from "./pages/DashboardPage"
 import ClassroomPage from "./pages/ClassroomPage"
 import ProgressPage from "./pages/ProgressPage"
 import ProfilePage from "./pages/ProfilePage"
-import ModuleDetailPage from "./pages/ModuleDetailPage"
+import ModuleWorkspacePage from "./pages/ModuleWorkspacePage"
 import ChatPage from "./pages/ChatPage"
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
           <Route path="/classroom" element={<ClassroomPage />} />
           <Route path="/progress" element={<ProgressPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/modules/:moduleId" element={<ModuleDetailPage />} />
+          <Route path="/modules/:moduleId" element={<ModuleWorkspacePage />} />
           <Route path="/chat" element={<ChatPage />} />
         </Route>
       </Route>
