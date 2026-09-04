@@ -49,7 +49,10 @@ Tema de esta lección: {topic}
 
 
 async def generate_lesson_script(topic: str, level_code: str, persona: AgentPersona) -> str:
-    llm = get_llm(model_id=persona.model_id, temperature=0.5)
+    # 500 tokens ≈ 300 palabras largas: suficiente para el guión que pide
+    # el prompt, y un techo que impide que un modelo pequeño se dispare
+    # (ver la nota en get_llm).
+    llm = get_llm(model_id=persona.model_id, temperature=0.5, max_tokens=500)
     system_prompt = SCRIPT_SYSTEM_PROMPT.format(persona_name=persona.name, level_code=level_code, topic=topic)
 
     # ainvoke_serialized y no llm.ainvoke directo: comparte el motor de

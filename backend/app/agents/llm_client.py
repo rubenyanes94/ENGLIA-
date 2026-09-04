@@ -29,7 +29,7 @@ async def ainvoke_serialized(call: Callable[[], Awaitable[T]]) -> T:
         return await call()
 
 
-def get_llm(model_id: str | None = None, temperature: float = 0.6) -> ChatOpenAI:
+def get_llm(model_id: str | None = None, temperature: float = 0.6, max_tokens: int = 700) -> ChatOpenAI:
     """Crea un cliente de chat apuntando a nuestro endpoint OpenAI-compatible.
 
     En desarrollo, `settings.llm_base_url` apunta a Ollama. En producción
@@ -38,6 +38,22 @@ def get_llm(model_id: str | None = None, temperature: float = 0.6) -> ChatOpenAI
 
     `api_key` es un valor cualquiera no vacío: Ollama/vLLM en local no lo
     validan, pero el SDK de OpenAI exige que el campo no esté vacío.
+
+    `max_tokens` NO es opcional en la práctica, aunque tenga default: un
+    modelo pequeño ignora alegremente un "escribe 150-300 palabras" del
+    prompt. Visto de verdad generando un guión de lección: se fue a
+    11.000+ tokens a 12 tok/s — quince minutos en UNA llamada, con el
+    semáforo de inferencia bloqueado todo ese rato. El tope convierte ese
+    fallo en una respuesta cortada (recuperable) en vez de un cuelgue.
+
+    Va por `extra_body` y NO como argumento `max_tokens=` del constructor
+    ni por `model_kwargs`: langchain-openai 0.2.x traduce AMBOS a
+    `max_completion_tokens` (el nombre nuevo de la API de OpenAI), que
+    Ollama NO reconoce — lo ignora en silencio y sigue generando sin
+    límite. `extra_body` es la única vía que deja pasar el `max_tokens`
+    crudo, que es el que entienden tanto Ollama como vLLM. Comprobado
+    contra el endpoint real: con `max_tokens` corta en seco
+    (finish_reason "length"); con `max_completion_tokens` no corta nada.
 
     OJO: cualquier `.ainvoke(...)` sobre el cliente que devuelve esto debe
     pasar por `ainvoke_serialized()`, no llamarse directo — ver el porqué
@@ -48,4 +64,5 @@ def get_llm(model_id: str | None = None, temperature: float = 0.6) -> ChatOpenAI
         api_key="not-needed-for-local-inference",
         model=model_id or settings.llm_model,
         temperature=temperature,
+        extra_body={"max_tokens": max_tokens},
     )
