@@ -155,16 +155,14 @@ services:
       dockerfile: Dockerfile
     container_name: englia_frontend
     restart: unless-stopped
-    # OJO: no fijamos VITE_API_URL aquí a propósito. En su lugar pasamos
-    # el nombre real del Codespace y su dominio de reenvío de puertos
-    # (variables que YA existen en la VM del Codespace) para que el
-    # frontend construya la URL pública del backend sin depender de
-    # "localhost", que en Codespaces no siempre apunta a donde crees
-    # (ver resolveApiUrl() en App.tsx). Fuera de Codespaces, estas
-    # variables simplemente vienen vacías y el frontend usa su fallback.
-    environment:
-      VITE_CODESPACE_NAME: ${CODESPACE_NAME:-}
-      VITE_PORT_FORWARDING_DOMAIN: ${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-}
+    # Sin variables VITE_* a propósito: el frontend llama a /api en su
+    # propio origen y el proxy del servidor de Vite (ver
+    # frontend/vite.config.ts) reenvía a http://backend:8000 por la red
+    # interna de Docker. Antes se le pasaban CODESPACE_NAME y el dominio
+    # de reenvío para construir la URL pública del puerto 8000, pero eso
+    # no podía funcionar desde el navegador: los puertos de Codespaces
+    # son privados por defecto y GitHub devolvía un 302 a su login (que
+    # el navegador reportaba, despistando, como error de CORS).
     volumes:
       - ./frontend:/app
       - /app/node_modules

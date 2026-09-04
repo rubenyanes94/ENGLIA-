@@ -1,30 +1,23 @@
 import { ApiError } from "./types"
 
-const BACKEND_PORT = "8000"
-const FRONTEND_PORT = "5173"
-
 /**
- * Calcula la URL del backend. Idéntica a la del Paso 1 (ver git history de
- * App.tsx) — se traslada aquí porque ahora la necesita todo api/client.ts,
- * no un solo componente de comprobación de salud.
+ * Todas las llamadas van a /api en el MISMO origen que sirve el frontend;
+ * quien reenvía al backend es el proxy del servidor de Vite (ver
+ * vite.config.ts) o el reverse proxy que haya delante en producción.
+ *
+ * Antes esto era un resolveApiUrl() que construía la URL pública del
+ * puerto 8000 del Codespace. Se eliminó porque no podía funcionar desde
+ * el navegador: los puertos reenviados de Codespaces son PRIVADOS por
+ * defecto, así que esa petición cross-origin nunca llegaba a FastAPI —
+ * GitHub la interceptaba con un 302 a su pantalla de login, sin
+ * cabeceras CORS, y el navegador lo reportaba como error de CORS.
+ * Yendo por el mismo origen no hay cross-origin, ni CORS, ni necesidad
+ * de exponer públicamente el puerto del backend.
+ *
+ * VITE_API_URL sigue existiendo como vía de escape (ej. apuntar a un
+ * backend desplegado aparte desde un frontend estático).
  */
-function resolveApiUrl(): string {
-  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL
-
-  const codespaceName = import.meta.env.VITE_CODESPACE_NAME
-  const forwardingDomain = import.meta.env.VITE_PORT_FORWARDING_DOMAIN
-  if (codespaceName && forwardingDomain) {
-    return `https://${codespaceName}-${BACKEND_PORT}.${forwardingDomain}`
-  }
-
-  const { protocol, hostname } = window.location
-  if (hostname.includes(`-${FRONTEND_PORT}.`)) {
-    return `${protocol}//${hostname.replace(`-${FRONTEND_PORT}.`, `-${BACKEND_PORT}.`)}`
-  }
-  return `${protocol}//${hostname}:${BACKEND_PORT}`
-}
-
-export const API_URL = resolveApiUrl()
+export const API_URL = import.meta.env.VITE_API_URL ?? "/api"
 
 const TOKEN_STORAGE_KEY = "englia_token"
 
