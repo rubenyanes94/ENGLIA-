@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.agents.lesson_narration import generate_lesson_script
 from app.core.db import get_db
 from app.core.deps import get_current_admin
-from app.media.piper_tts import get_wav_duration_seconds, synthesize_to_wav
+from app.media.piper_tts import get_wav_duration_seconds, synthesize_bilingual_to_wav
 from app.media.storage import delete_lesson_audio, save_lesson_audio
 from app.models import Exercise, Lesson, Module, Payment, Plan, User
 from app.repositories import (
@@ -128,7 +128,7 @@ async def _generate_narration(db: AsyncSession, lesson: Lesson, module: Module, 
             )
         script = await generate_lesson_script(topic, level.code, persona)
 
-    wav_bytes = await synthesize_to_wav(script)
+    wav_bytes = await synthesize_bilingual_to_wav(script)
     duration_seconds = get_wav_duration_seconds(wav_bytes)
     audio_url = save_lesson_audio(lesson.id, wav_bytes)
     previous_audio_url = lesson.audio_url

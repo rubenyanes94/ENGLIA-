@@ -68,7 +68,14 @@ class Settings(BaseSettings):
     # (ver app/media/piper_tts.py). Fuera de /app a propósito: en dev
     # ./backend:/app se monta encima del contenedor, así que cualquier
     # cosa horneada en /app durante el build quedaría oculta.
+    # DOS voces, no una: la lección se explica en español pero los
+    # ejemplos se dicen en inglés. Narrar los ejemplos con la voz
+    # española enseñaría pronunciación incorrecta — inaceptable en una
+    # app de idiomas — y narrar la explicación con la voz inglesa suena
+    # a robot leyendo un idioma que no conoce. Ver
+    # app/media/piper_tts.py (synthesize_bilingual_to_wav).
     tts_voice_model_path: str = "/opt/piper-voices/en_US-lessac-medium.onnx"
+    tts_voice_model_path_es: str = "/opt/piper-voices/es_ES-davefx-medium.onnx"
 
     # Dónde se guardan los archivos generados (hoy: audio de lecciones).
     # Disco local + un volumen Docker dedicado (ver docker-compose.yml) y
