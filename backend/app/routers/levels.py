@@ -4,10 +4,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.models import User
-from app.repositories import descriptor_repository, enrollment_repository, level_repository, module_repository
+from app.repositories import (
+    descriptor_repository,
+    enrollment_repository,
+    level_repository,
+    module_repository,
+    persona_repository,
+)
 from app.schemas.certification import CertificationProgressOut
 from app.schemas.descriptor import DescriptorOut
-from app.schemas.level import CEFRLevelOut
+from app.schemas.level import CEFRLevelOut, TutorOut
 from app.schemas.module import ModuleOut, ModuleProgressOut
 
 router = APIRouter(prefix="/levels", tags=["levels"])
@@ -32,6 +38,18 @@ async def get_level_modules(level_code: str, db: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=404, detail=f"El nivel '{level_code}' no existe.")
 
     return await module_repository.list_by_level_code(db, level_code)
+
+
+@router.get("/{level_code}/tutor", response_model=TutorOut)
+async def get_level_tutor(level_code: str, db: AsyncSession = Depends(get_db)) -> TutorOut:
+    """Quién es el tutor activo de un nivel — para poder presentarlo en el
+    dashboard sin abrir una sesión de chat (que crearía una fila en
+    conversation_sessions solo para leer un nombre)."""
+    persona = await persona_repository.get_active_persona_by_level_code(db, level_code)
+    if persona is None:
+        raise HTTPException(status_code=404, detail=f"No hay un tutor activo para el nivel '{level_code}'.")
+
+    return TutorOut(name=persona.name, level_code=persona.level.code)
 
 
 @router.get("/{level_code}/descriptors", response_model=list[DescriptorOut])

@@ -69,6 +69,16 @@ async def list_users(
     return list(result.scalars().all()), total or 0
 
 
+async def set_avatar_url(db: AsyncSession, user: User, avatar_url: str | None) -> User:
+    """Fija (o limpia, con None) la URL de la foto de perfil. Borrar el
+    ARCHIVO anterior es responsabilidad de quien llama, no de aquí: este
+    módulo solo sabe de la base de datos, no del disco."""
+    user.avatar_url = avatar_url
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
 async def set_current_level(db: AsyncSession, user: User, level_id: uuid.UUID) -> User:
     """Lo llama la certificación (routers/users.py, certify_level) al
     aprobar el gate de salida de un nivel: mueve al alumno al SIGUIENTE

@@ -2,6 +2,7 @@ import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom"
 import { useAuth } from "../auth/AuthContext"
+import Avatar from "./Avatar"
 import BottomNav from "./BottomNav"
 import { NAV_ITEMS } from "./navItems"
 
@@ -52,9 +53,9 @@ export default function Layout() {
               <span className="hidden text-sm text-slate-500 lg:inline">{user.full_name}</span>
             )}
             {user && (
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">
-                {user.full_name.charAt(0).toUpperCase()}
-              </span>
+              <Link to="/profile" title="Tu perfil">
+                <Avatar name={user.full_name} avatarUrl={user.avatar_url} size={36} />
+              </Link>
             )}
             <button
               onClick={handleLogout}

@@ -42,7 +42,13 @@ export function clearToken(): void {
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken()
   const headers = new Headers(options.headers)
-  headers.set("Content-Type", "application/json")
+  // Con FormData NO se fija Content-Type a mano: el navegador tiene que
+  // ponerlo él para incluir el `boundary` del multipart. Fijarlo aquí
+  // (como hacíamos para todo) rompía cualquier subida de archivo con un
+  // error de parseo del lado del servidor.
+  if (!(options.body instanceof FormData)) {
+    headers.set("Content-Type", "application/json")
+  }
   if (token) headers.set("Authorization", `Bearer ${token}`)
 
   const res = await fetch(`${API_URL}${path}`, { ...options, headers })
@@ -72,6 +78,13 @@ export const api = {
     request<T>(path, { method: "POST", body: body !== undefined ? JSON.stringify(body) : undefined }),
   patch: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: "PATCH", body: body !== undefined ? JSON.stringify(body) : undefined }),
+  delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  /** Subida de archivo (multipart). El navegador arma el Content-Type. */
+  upload: <T>(path: string, file: File, field = "file") => {
+    const form = new FormData()
+    form.append(field, file)
+    return request<T>(path, { method: "PUT", body: form })
+  },
 }
 
 /** POST /auth/login usa application/x-www-form-urlencoded (OAuth2PasswordRequestForm

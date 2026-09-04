@@ -129,6 +129,14 @@ export interface User {
   full_name: string
   native_language: string
   current_level_id: string | null
+  // URL relativa servida por el backend en /media/avatars/... — null si el
+  // alumno no ha subido foto (se pinta la inicial de su nombre).
+  avatar_url: string | null
+}
+
+export interface Tutor {
+  name: string
+  level_code: string
 }
 
 // --- Chat ---

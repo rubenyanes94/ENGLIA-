@@ -23,6 +23,7 @@ class UserOut(BaseModel):
     full_name: str
     native_language: str
     current_level_id: uuid.UUID | None
+    avatar_url: str | None = None
 
 
 class UserAdminOut(BaseModel):
