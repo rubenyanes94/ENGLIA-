@@ -139,6 +139,19 @@ export interface Tutor {
   level_code: string
 }
 
+/** GET /modules/{moduleId}/lessons/{lessonId}. A diferencia del resumen
+ * que trae ModuleDetail.lessons, este SÍ incluye el audio y el guión —
+ * por eso el reproductor necesita pedirlo aparte. */
+export interface LessonDetail {
+  id: string
+  title: string
+  order: number
+  content: Record<string, unknown>
+  script: string | null
+  audio_url: string | null
+  audio_duration_seconds: number | null
+}
+
 // --- Chat ---
 
 export interface CreateSessionResponse {

@@ -18,8 +18,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useState, type ReactNode } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { api } from "../api/client"
-import type { CertificationProgress, ModuleDetail, ModuleProgress } from "../api/types"
+import type { CertificationProgress, LessonDetail, ModuleDetail, ModuleProgress } from "../api/types"
 import { ApiError } from "../api/types"
+import AudioLesson from "../components/AudioLesson"
 
 const LEVEL_CODE = "A1"
 
@@ -263,8 +264,28 @@ function NavArrow({ to, direction }: { to?: ModuleProgress; direction: "prev" | 
 /* ------------------------- Pestaña: Lección ------------------------- */
 
 function LessonTab({ module, onGoPractice }: { module: ModuleDetail; onGoPractice: () => void }) {
+  const [narrated, setNarrated] = useState<LessonDetail[]>([])
+
+  useEffect(() => {
+    // El audio y el guión NO vienen en module.lessons (que es el resumen,
+    // ver LessonSummaryOut en el backend): hay que pedir el detalle de
+    // cada lección. Son pocas por módulo, así que van en paralelo.
+    if (module.lessons.length === 0) {
+      setNarrated([])
+      return
+    }
+    Promise.all(
+      module.lessons.map((lesson) =>
+        api.get<LessonDetail>(`/modules/${module.id}/lessons/${lesson.id}`).catch(() => null),
+      ),
+    ).then((results) => setNarrated(results.filter((l): l is LessonDetail => l !== null && !!l.audio_url)))
+  }, [module.id, module.lessons])
+
   return (
     <div className="space-y-4">
+      {narrated.map((lesson) => (
+        <AudioLesson key={lesson.id} lesson={lesson} />
+      ))}
       {module.communicative_objectives.length > 0 && (
         <Card title="Al terminar este módulo sabrás" icon={faCircleCheck}>
           <ul className="space-y-2.5">
@@ -348,20 +369,11 @@ function LessonTab({ module, onGoPractice }: { module: ModuleDetail; onGoPractic
         </Card>
       )}
 
-      {module.lessons.length > 0 && (
-        <Card title="Lecciones narradas" icon={faHeadphones}>
-          <ul className="space-y-2">
-            {module.lessons.map((lesson) => (
-              <li key={lesson.id} className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                {lesson.order}. {lesson.title}
-                {lesson.audio_duration_seconds && (
-                  <span className="ml-2 text-xs text-slate-400">
-                    {Math.round(lesson.audio_duration_seconds)}s de audio
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+      {module.lessons.length === 0 && (
+        <Card title="Lección narrada" icon={faHeadphones}>
+          <p className="text-sm text-slate-500">
+            Este módulo todavía no tiene audio narrado. El contenido de arriba es el material de la lección.
+          </p>
         </Card>
       )}
 
