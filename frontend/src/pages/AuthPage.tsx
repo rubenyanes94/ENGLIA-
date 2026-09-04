@@ -46,8 +46,8 @@ export default function AuthPage() {
     <div className="grid min-h-screen grid-cols-1 bg-slate-50 text-slate-900 lg:grid-cols-2">
       <aside className="hidden flex-col justify-between bg-gradient-to-br from-blue-600 to-blue-500 p-12 text-white lg:flex">
         <span className="flex items-center gap-2 font-bold">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm">EA</span>
-          English Academy
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm">E</span>
+          Espikin
         </span>
         <div>
           <h2 className="text-4xl font-extrabold leading-tight">
@@ -58,7 +58,7 @@ export default function AuthPage() {
             lecciones vistas.
           </p>
         </div>
-        <p className="text-sm text-blue-200">English Academy © 2026</p>
+        <p className="text-sm text-blue-200">Espikin © 2026</p>
       </aside>
 
       <div className="flex items-center justify-center p-6 sm:p-10">
@@ -68,11 +68,11 @@ export default function AuthPage() {
           </Link>
 
           <div className="lg:hidden">
-            <span className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-500">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">
-                EA
+            <span className="mb-4 flex items-center gap-2 text-sm font-extrabold text-slate-900">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-[11px] font-black text-white">
+                E
               </span>
-              English Academy
+              Espikin
             </span>
           </div>
 

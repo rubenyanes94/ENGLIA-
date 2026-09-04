@@ -20,11 +20,11 @@ export default function Layout() {
     <div className="min-h-screen bg-slate-50 pb-20 text-slate-900 md:pb-0">
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
-          <Link to="/dashboard" className="flex shrink-0 items-center gap-2 font-bold text-slate-900">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm text-white">
-              EA
+          <Link to="/dashboard" className="flex shrink-0 items-center gap-2.5 font-extrabold tracking-tight text-slate-900">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 text-sm font-black text-white shadow-sm">
+              E
             </span>
-            <span className="hidden sm:inline">English Academy</span>
+            <span className="hidden sm:inline">Espikin</span>
           </Link>
 
           {/* Navegación horizontal: solo escritorio. En móvil la sirve
