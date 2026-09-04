@@ -3,35 +3,65 @@
 Uso:
     python -m app.scripts.seed_a1_lessons
 
-Para cada módulo sin lecciones:
-  1. Arma el TEMA a partir del propio currículo del módulo (objetivos
-     comunicativos + foco gramatical), no de una lista escrita a mano —
-     así la lección habla exactamente de lo que ese módulo enseña.
-  2. Ollama escribe el guión: explicación en español con los ejemplos en
-     inglés entre [[corchetes]] (ver agents/lesson_narration.py).
-  3. Piper lo narra con DOS voces — española para la explicación, inglesa
-     para los ejemplos (ver media/piper_tts.py).
-  4. Guarda el WAV y la lección.
+Va en DOS FASES, y eso NO es un capricho de organización: es lo que hace
+que quepa en memoria. El modelo de Ollama ocupa ~500MB residentes y Piper
+necesita cargar DOS modelos ONNX (voz española + inglesa) encima. Con los
+dos vivos a la vez, el proceso muere ("Terminated") a mitad de la tanda —
+pasó de verdad. Separando las fases, el pico de memoria es el MAYOR de
+los dos, no la suma:
 
-Idempotente: un módulo que ya tenga lecciones se salta. Es importante,
-porque generar las diez tarda ~15-20 min en CPU y no queremos rehacerlo
-por relanzar el script.
+  Fase 1 — Ollama escribe los 10 guiones (explicación en español con los
+           ejemplos en inglés entre [[corchetes]]) y se guardan en la
+           lección. El tema de cada uno sale del propio currículo del
+           módulo (objetivos + gramática + chunks), no de una lista
+           escrita a mano.
+  · Entre fases se DESCARGA el modelo de Ollama de la memoria.
+  Fase 2 — Piper narra cada guión con las dos voces y se guarda el WAV.
 
-LENTO a propósito de anunciar: cada módulo son una llamada al LLM y una
-síntesis de audio, ambas en CPU. Va imprimiendo el avance módulo a módulo.
+Idempotente en las dos fases: un módulo que ya tenga lección se salta en
+la fase 1, y una lección que ya tenga audio se salta en la fase 2. Así,
+si esto se corta por lo que sea, relanzarlo retoma donde quedó en vez de
+rehacerlo todo.
 """
 
 import asyncio
+import json
+import urllib.request
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.agents.lesson_narration import generate_lesson_script
+from app.core.config import settings
 from app.core.db import AsyncSessionLocal
 from app.media.piper_tts import get_wav_duration_seconds, synthesize_bilingual_to_wav
 from app.media.storage import save_lesson_audio
-from app.models import CEFRLevel, Module
+from app.models import CEFRLevel, Lesson, Module
 from app.repositories import lesson_repository, persona_repository
+
+
+def unload_llm() -> None:
+    """Saca el modelo de la memoria de Ollama antes de arrancar Piper.
+
+    `keep_alive: 0` es la forma documentada de pedirle a Ollama que
+    descargue un modelo ya. Sin esto, el modelo se queda residente hasta
+    que expire OLLAMA_KEEP_ALIVE (1h en nuestro compose) y le roba a
+    Piper la memoria que necesita.
+
+    No lanza si falla: si no se puede descargar, la fase 2 igual lo
+    intenta — y si no cabe, fallará ahí con un error claro, no aquí.
+    """
+    base = settings.llm_base_url.rsplit("/v1", 1)[0]
+    try:
+        request = urllib.request.Request(
+            f"{base}/api/generate",
+            data=json.dumps({"model": settings.llm_model, "keep_alive": 0}).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        urllib.request.urlopen(request, timeout=30).read()
+        print("  · modelo de Ollama descargado de memoria\n")
+    except Exception as exc:  # noqa: BLE001 — informativo, no crítico
+        print(f"  · aviso: no se pudo descargar el modelo de Ollama ({exc})\n")
 
 
 def build_topic(module: Module) -> str:
@@ -73,22 +103,20 @@ async def seed_a1_lessons() -> None:
         )
         modules = list(result.scalars().all())
 
-        print(f"{len(modules)} módulos en A1. Generando lección para los que no tengan...\n")
+        total = len(modules)
+        print(f"{total} módulos en A1.\n")
 
-        created = 0
+        # ---------- Fase 1: guiones (solo Ollama en memoria) ----------
+        print("FASE 1 — Guiones\n")
+        written = 0
         for module in modules:
             if module.lessons:
-                print(f"  [{module.order}/{len(modules)}] {module.code} — ya tiene lección, se salta.")
+                print(f"  [{module.order}/{total}] {module.code} — ya tiene lección, se salta.")
                 continue
 
             topic = build_topic(module)
-            print(f"  [{module.order}/{len(modules)}] {module.code} {module.title!r}")
-            print("        · generando guión...", flush=True)
+            print(f"  [{module.order}/{total}] {module.code} {module.title!r} · escribiendo...", flush=True)
             script = await generate_lesson_script(topic, "A1", persona)
-
-            print("        · narrando (voz ES + EN)...", flush=True)
-            wav_bytes = await synthesize_bilingual_to_wav(script)
-            duration = get_wav_duration_seconds(wav_bytes)
 
             lesson = await lesson_repository.create(
                 session,
@@ -97,13 +125,45 @@ async def seed_a1_lessons() -> None:
                 content={"type": "narrated", "topic": topic},
                 order=1,
             )
+            # Se guarda el guión YA, sin audio: si la fase 2 se corta, el
+            # trabajo del LLM (lo más caro) no se pierde.
+            lesson.script = script
+            await session.commit()
+
+            written += 1
+            print(f"        ✓ {len(script)} caracteres\n", flush=True)
+
+        print(f"Fase 1 lista: {written} guiones nuevos.\n")
+
+        unload_llm()
+
+        # ---------- Fase 2: audio (solo Piper en memoria) ----------
+        print("FASE 2 — Narración\n")
+        pending = (
+            (
+                await session.execute(
+                    select(Lesson)
+                    .join(Module)
+                    .where(Module.level_id == level.id, Lesson.script.isnot(None), Lesson.audio_url.is_(None))
+                    .order_by(Module.order)
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+        narrated = 0
+        for index, lesson in enumerate(pending, start=1):
+            print(f"  [{index}/{len(pending)}] {lesson.title!r} · narrando (voz ES + EN)...", flush=True)
+            wav_bytes = await synthesize_bilingual_to_wav(lesson.script)
+            duration = get_wav_duration_seconds(wav_bytes)
             audio_url = save_lesson_audio(lesson.id, wav_bytes)
-            await lesson_repository.set_narration(session, lesson, script, audio_url, duration)
+            await lesson_repository.set_narration(session, lesson, lesson.script, audio_url, duration)
 
-            created += 1
-            print(f"        ✓ {duration:.0f}s de audio · {len(script)} caracteres de guión\n", flush=True)
+            narrated += 1
+            print(f"        ✓ {duration:.0f}s de audio\n", flush=True)
 
-        print(f"Listo. {created} lecciones nuevas generadas.")
+        print(f"Listo. {written} guiones y {narrated} narraciones nuevas.")
 
 
 if __name__ == "__main__":

@@ -44,6 +44,15 @@ def _get_voice(model_path: str) -> PiperVoice:
     return _voices[model_path]
 
 
+def _has_speakable_content(text: str) -> bool:
+    """¿Hay algo que pronunciar? Un fragmento de solo puntuación (típico
+    entre dos frases inglesas seguidas: "[[I'm a doctor]], [[I'm a
+    student]]" deja un "," suelto en medio) hace que Piper no genere
+    audio NI cabecera, y el wave se cierra con "# channels not
+    specified". Se filtran antes de llegar al sintetizador."""
+    return any(character.isalnum() for character in text)
+
+
 def _synthesize_frames(text: str, model_path: str) -> tuple[bytes, tuple]:
     """Sintetiza y devuelve (frames crudos, parámetros del WAV). Se
     devuelven los frames sin cabecera para poder concatenar varios
@@ -86,19 +95,21 @@ async def synthesize_bilingual_to_wav(script: str) -> bytes:
         cursor = 0
         for match in ENGLISH_SEGMENT_PATTERN.finditer(script):
             spanish_part = script[cursor : match.start()].strip()
-            if spanish_part:
+            if _has_speakable_content(spanish_part):
                 segments.append((spanish_part, settings.tts_voice_model_path_es))
             english_part = match.group(1).strip()
-            if english_part:
+            if _has_speakable_content(english_part):
                 segments.append((english_part, settings.tts_voice_model_path))
             cursor = match.end()
 
         tail = script[cursor:].strip()
-        if tail:
+        if _has_speakable_content(tail):
             segments.append((tail, settings.tts_voice_model_path_es))
 
         # Guión sin ninguna marca: se narra entero en español.
         if not segments:
+            if not _has_speakable_content(script):
+                raise ValueError("El guión no tiene texto pronunciable.")
             segments = [(script.strip(), settings.tts_voice_model_path_es)]
 
         all_frames = b""
