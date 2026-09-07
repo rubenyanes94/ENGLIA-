@@ -25,9 +25,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # inglés (ver app/media/piper_tts.py). Con una sola, o el español suena a
 # robot o —peor— el inglés se pronuncia mal, que en una app de idiomas
 # es enseñar el error.
+#
+# Las dos son masculinas y "medium" a propósito, para que suenen al mismo
+# tutor y no a dos personas turnándose; y el español es de México, no de
+# España, porque el alumno de Espikin es latinoamericano. El porqué
+# completo está en app/core/config.py, junto a tts_voice_model_path.
 RUN mkdir -p /opt/piper-voices \
-    && python -m piper.download_voices en_US-lessac-medium --download-dir /opt/piper-voices \
-    && python -m piper.download_voices es_ES-davefx-medium --download-dir /opt/piper-voices
+    && python -m piper.download_voices en_US-ryan-medium --download-dir /opt/piper-voices \
+    && python -m piper.download_voices es_MX-ald-medium --download-dir /opt/piper-voices
 
 COPY . .
 

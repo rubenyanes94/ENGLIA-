@@ -15,6 +15,7 @@ app/media/piper_tts.py, synthesize_bilingual_to_wav.
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from app.agents.llm_client import ainvoke_serialized, get_llm
+from app.agents.prompt_builder import SPANISH_VARIETY
 from app.models import AgentPersona
 
 SCRIPT_SYSTEM_PROMPT = """\
@@ -32,6 +33,7 @@ dobles corchetes. Ejemplo de cómo debe verse tu guión:
 literalmente "yo soy 25 años". Repite conmigo: [[I am 25 years old]].
 - Usa los corchetes SOLO para el inglés real que el alumno debe escuchar \
 y repetir, nunca para palabras en español.
+- {spanish_variety}
 
 Otras reglas:
 - Habla en primera persona, directo al alumno ("Hoy vamos a...", "Fíjate \
@@ -53,7 +55,15 @@ async def generate_lesson_script(topic: str, level_code: str, persona: AgentPers
     # el prompt, y un techo que impide que un modelo pequeño se dispare
     # (ver la nota en get_llm).
     llm = get_llm(model_id=persona.model_id, temperature=0.5, max_tokens=500)
-    system_prompt = SCRIPT_SYSTEM_PROMPT.format(persona_name=persona.name, level_code=level_code, topic=topic)
+    system_prompt = SCRIPT_SYSTEM_PROMPT.format(
+        persona_name=persona.name,
+        level_code=level_code,
+        topic=topic,
+        # La voz que narra este guión es mexicana (ver core/config.py):
+        # un texto en español peninsular leído con acento latinoamericano
+        # suena a doblaje mal hecho, no a un profesor hablando.
+        spanish_variety=SPANISH_VARIETY,
+    )
 
     # ainvoke_serialized y no llm.ainvoke directo: comparte el motor de
     # inferencia con el chat y las correcciones, y pedirle a Ollama dos

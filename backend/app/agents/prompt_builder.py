@@ -20,6 +20,26 @@ el currículo".
 
 from app.models import AgentPersona, Module
 
+# Se antepone a TODAS las personas, en todos los niveles, en vez de
+# repetirlo en los seis system_prompt de seed_agent_personas.py: así
+# cambiar la variedad del español es una sola línea y no exige re-sembrar
+# la base de datos.
+#
+# El alumno de Espikin es latinoamericano. El español peninsular se
+# entiende, pero "vosotros", "vale" o "coger" (que en buena parte de
+# América es vulgar) hacen que el tutor suene a extranjero — y a un
+# profesor al que no reconoces como tuyo se le cree menos. Es la misma
+# decisión que la voz mexicana de la narración (ver core/config.py,
+# tts_voice_model_path_es).
+SPANISH_VARIETY = (
+    "Cuando escribas en español, usa español NEUTRO LATINOAMERICANO: trata al alumno "
+    "de \"tú\" y, en plural, de \"ustedes\" (nunca \"vosotros\" ni sus formas verbales). "
+    "Evita el léxico peninsular: di \"celular\" y no \"móvil\", \"computadora\" y no "
+    "\"ordenador\", \"jugo\" y no \"zumo\", \"manejar\" y no \"conducir\", \"tomar/agarrar\" "
+    "y no \"coger\", \"está bien\" y no \"vale\". Esto NO afecta al inglés que enseñas: "
+    "ahí el modelo sigue siendo el inglés americano estándar."
+)
+
 
 def _render_level_policy(policy: dict) -> str:
     if not policy:
@@ -103,7 +123,7 @@ def build_system_prompt(
     active_task: dict | None = None,
     long_term_context: str | None = None,
 ) -> str:
-    parts = [persona.system_prompt]
+    parts = [persona.system_prompt, SPANISH_VARIETY]
 
     level_policy_text = _render_level_policy((persona.level.tutor_policy or {}) if persona.level else {})
     if level_policy_text:

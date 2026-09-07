@@ -74,8 +74,22 @@ class Settings(BaseSettings):
     # app de idiomas — y narrar la explicación con la voz inglesa suena
     # a robot leyendo un idioma que no conoce. Ver
     # app/media/piper_tts.py (synthesize_bilingual_to_wav).
-    tts_voice_model_path: str = "/opt/piper-voices/en_US-lessac-medium.onnx"
-    tts_voice_model_path_es: str = "/opt/piper-voices/es_ES-davefx-medium.onnx"
+    #
+    # Ningún modelo de Piper habla los dos idiomas: cada uno está
+    # entrenado sobre una sola lengua, así que "la misma voz para todo"
+    # no existe. Lo que SÍ se puede es que las dos suenen al mismo
+    # tutor, y por eso ambas son MASCULINAS y de la misma calidad
+    # (medium, 22050 Hz — requisito para poder concatenar los
+    # fragmentos sin remuestrear). Antes el par era davefx (hombre) +
+    # lessac (mujer): en mitad de una frase el profesor cambiaba de
+    # persona, y eso rompe la ilusión de estar en una clase.
+    #
+    # Español de LATAM (es_MX), no de España: el público objetivo de
+    # Espikin es hispanohablante de América. El acento peninsular no
+    # impide entender, pero un alumno mexicano o colombiano no reconoce
+    # a su profesor en él — y la voz del tutor es media cara del producto.
+    tts_voice_model_path: str = "/opt/piper-voices/en_US-ryan-medium.onnx"
+    tts_voice_model_path_es: str = "/opt/piper-voices/es_MX-ald-medium.onnx"
 
     # Dónde se guardan los archivos generados (hoy: audio de lecciones).
     # Disco local + un volumen Docker dedicado (ver docker-compose.yml) y
