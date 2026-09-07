@@ -23,7 +23,14 @@ class Settings(BaseSettings):
     # Endpoint OpenAI-compatible del motor de inferencia. En dev apunta a
     # Ollama; en producción, a vLLM o NVIDIA NIM. El código del agente
     # (app/agents/) nunca sabe cuál de los dos es — solo habla "OpenAI API".
-    llm_base_url: str = "http://ollama:11434/v1"
+    # Endpoint del CHAT. Por defecto el catálogo de NVIDIA y no Ollama
+    # desde que se midió la diferencia con el tutor real: Ollama con el
+    # 0.5B que cabe en este entorno tardó 34s en contestar "Hello Ruben!"
+    # SIN corregir nada; nemotron-3-super responde en ~1-3s y sí detecta
+    # los errores de interferencia del currículo ("I have 25 years" →
+    # "I am 25 years old"). Ollama sigue sirviendo los embeddings (ver
+    # embedding_base_url) y queda como alternativa sin conexión.
+    llm_base_url: str = "https://integrate.api.nvidia.com/v1"
     # qwen2.5:0.5b (~400MB), no llama3.2:1b (~1.3GB): en un Codespace de
     # 8GB compartido con VS Code+extensiones, cargar el modelo de 1.3GB
     # ha tumbado el proceso llama-server de Ollama más de una vez por
@@ -31,24 +38,61 @@ class Settings(BaseSettings):
     # también en aislamiento). Este es más chico y responde peor, pero
     # responde. En producción, con vLLM/NIM sobre GPU dedicada, esto se
     # sube por env var (LLM_MODEL) a un modelo real sin este compromiso.
-    llm_model: str = "qwen2.5:0.5b"
+    # super-120b y NO lightning-30b, contra lo que sugiere la ficha de cada
+    # uno: lo que importa es la latencia MEDIDA en el endpoint real, no
+    # los parámetros activos del modelo. lightning tardó 73-111s por turno
+    # (está encolado); super, 0.8-2.7s. Ochenta veces más rápido el que
+    # en teoría era el lento.
+    llm_model: str = "nvidia/nemotron-3-super-120b-a12b"
+
+    # Clave del endpoint de chat. Vacía para motores locales (Ollama y
+    # vLLM no la validan, pero el SDK de OpenAI exige el campo no vacío —
+    # ver llm_client.get_llm).
+    llm_api_key: str = ""
+
+    # Los Nemotron razonan en voz alta ANTES de responder, y ese
+    # razonamiento sale dentro del `content`, no en un campo aparte: el
+    # alumno leería "Here'"'"'s a thinking process: 1. Analyze User Input..."
+    # en mitad de su clase. Apagado para el chat. Se puede encender para
+    # tareas offline donde el razonamiento mejore el resultado y nadie lo
+    # lea en crudo. None = no mandar el parámetro (motores que no lo
+    # entienden, como Ollama).
+    llm_enable_thinking: bool | None = False
     # Mismo servidor (Ollama), otro tipo de modelo: embeddings para la
     # memoria semántica. Un solo motor de inferencia para todo el agente.
     embedding_model: str = "nomic-embed-text"
+
+    # Endpoint SEPARADO del chat. Estaban unidos solo porque los dos
+    # modelos vivían en el mismo Ollama; al mover el chat a NVIDIA, seguir
+    # compartiendo la URL habría hecho que se pidiera "nomic-embed-text"
+    # a un catálogo que no lo tiene. Se separan ahora para que cada motor
+    # se pueda mover sin arrastrar al otro.
+    embedding_base_url: str = "http://ollama:11434/v1"
+    embedding_api_key: str = ""
+
+    # Los embeddings siguen en el Ollama local, que tiene
+    # OLLAMA_MAX_LOADED_MODELS=1: más de una llamada a la vez le fuerza a
+    # descargar y recargar modelos a mitad de generación, que es lo que ha
+    # tumbado llama-server más de una vez. Semáforo propio, separado del
+    # de chat, precisamente porque ya no comparten motor.
+    embedding_max_concurrency: int = 1
     embedding_dim: int = 768
 
     # Cuántas inferencias simultáneas tolera el motor configurado en
     # llm_base_url (ver app/agents/llm_client.py, ainvoke_serialized).
-    # Default=1 porque Ollama sobre CPU en un Codespace de 8GB compartido
-    # (Postgres+Redis+Celery+Vite+el propio VS Code) NO soporta 2+
-    # inferencias a la vez con fiabilidad: se ha visto tumbar el proceso
-    # llama-server entero bajo el fan-out "paralelo" del grafo del tutor
-    # (generate_response + detect_corrections + evaluate_active_task a la
-    # vez), sin mencionar una llamada de embeddings compitiendo por el
-    # único modelo que OLLAMA_MAX_LOADED_MODELS permite tener cargado. En
-    # producción, con vLLM/NVIDIA NIM sobre GPU dedicada, sube esto por
-    # env var (LLM_MAX_CONCURRENCY) a lo que el motor real soporte.
-    llm_max_concurrency: int = 1
+    # Era 1 mientras el chat corría en Ollama sobre CPU: dos inferencias a
+    # la vez tumbaban el proceso llama-server, incluido el fan-out
+    # "paralelo" del propio grafo del tutor (generate_response +
+    # detect_corrections + evaluate_active_task). Con el chat en un
+    # endpoint remoto ese motivo desapareció, y mantener 1 sería un fallo
+    # de producto: dos alumnos hablando a la vez harían cola uno detrás
+    # del otro.
+    #
+    # 4 y no más porque el límite real ahora es la cuota del proveedor
+    # (40 req/min en el tier gratuito de NVIDIA) y cada turno del tutor
+    # gasta 3 llamadas. Súbelo con LLM_MAX_CONCURRENCY cuando haya plan
+    # de pago o motor propio.
+    llm_max_concurrency: int = 4
 
     # Cola de tareas async (resumen + embedding al cerrar una sesión).
     # DB 1 de Redis, separada de la DB 0 (memoria de corto plazo del chat)

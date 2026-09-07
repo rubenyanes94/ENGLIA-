@@ -94,9 +94,18 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-englia}:${POSTGRES_PASSWORD:-englia_dev_password}@db:5432/${POSTGRES_DB:-englia}
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
-      LLM_BASE_URL: http://ollama:11434/v1
-      LLM_MODEL: ${LLM_MODEL:-qwen2.5:0.5b}
+      # El CHAT del tutor va al catálogo de NVIDIA, no a Ollama. Medido con
+      # el tutor real: Ollama con el 0.5B que cabe aquí tardó 34s en
+      # responder sin corregir nada; nemotron-3-super responde en ~1-3s y
+      # sí detecta los errores de interferencia del currículo.
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://integrate.api.nvidia.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-nvidia/nemotron-3-super-120b-a12b}
+      LLM_API_KEY: ${NVIDIA_API_KEY:-}
+      # Los EMBEDDINGS se quedan en Ollama: nomic-embed-text no está en el
+      # catálogo de NVIDIA. Por eso la URL va aparte de la del chat.
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-http://ollama:11434/v1}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
     volumes:
       - ./backend:/app
       # Volumen dedicado para /app/media, igual que /app/node_modules en
@@ -134,9 +143,18 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-englia}:${POSTGRES_PASSWORD:-englia_dev_password}@db:5432/${POSTGRES_DB:-englia}
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
-      LLM_BASE_URL: http://ollama:11434/v1
-      LLM_MODEL: ${LLM_MODEL:-qwen2.5:0.5b}
+      # El CHAT del tutor va al catálogo de NVIDIA, no a Ollama. Medido con
+      # el tutor real: Ollama con el 0.5B que cabe aquí tardó 34s en
+      # responder sin corregir nada; nemotron-3-super responde en ~1-3s y
+      # sí detecta los errores de interferencia del currículo.
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://integrate.api.nvidia.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-nvidia/nemotron-3-super-120b-a12b}
+      LLM_API_KEY: ${NVIDIA_API_KEY:-}
+      # Los EMBEDDINGS se quedan en Ollama: nomic-embed-text no está en el
+      # catálogo de NVIDIA. Por eso la URL va aparte de la del chat.
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-http://ollama:11434/v1}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
     volumes:
       - ./backend:/app
     depends_on:
