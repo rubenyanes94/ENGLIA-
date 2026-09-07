@@ -35,8 +35,26 @@ from app.models import Lesson, Module
 from app.repositories import lesson_repository
 
 
-def voice_name(path: str) -> str:
-    return path.rsplit("/", 1)[-1].removesuffix(".onnx")
+def describe_voices() -> list[str]:
+    """Qué voces se van a usar DE VERDAD, según el motor activo.
+
+    Antes esto imprimía siempre las rutas de Piper, con lo que la primera
+    narración con Magpie anunció "es_MX-ald-medium" mientras sintetizaba
+    con Diego. Un script que informa de una voz y usa otra es la forma
+    más fácil de publicar el audio equivocado sin enterarse — por eso el
+    motor manda aquí, no una suposición.
+    """
+    if settings.tts_provider == "magpie":
+        return [
+            f"Motor:        magpie (NVIDIA, remoto)",
+            f"Voz español:  {settings.magpie_voice_es}",
+            f"Voz inglés:   {settings.magpie_voice_en}",
+        ]
+    return [
+        "Motor:        piper (local)",
+        f"Voz español:  {settings.tts_voice_model_path_es.rsplit('/', 1)[-1].removesuffix('.onnx')}",
+        f"Voz inglés:   {settings.tts_voice_model_path.rsplit('/', 1)[-1].removesuffix('.onnx')}",
+    ]
 
 
 async def renarrate_lessons(module_codes: list[str] | None = None) -> None:
@@ -57,8 +75,8 @@ async def renarrate_lessons(module_codes: list[str] | None = None) -> None:
             print("No hay lecciones con guión que narrar.")
             return
 
-        print(f"Voz española: {voice_name(settings.tts_voice_model_path_es)}")
-        print(f"Voz inglesa:  {voice_name(settings.tts_voice_model_path)}")
+        for line in describe_voices():
+            print(line)
         print(f"{len(lessons)} lección(es) a re-narrar.\n")
 
         for index, lesson in enumerate(lessons, start=1):

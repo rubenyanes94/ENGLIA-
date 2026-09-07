@@ -98,7 +98,16 @@ class Settings(BaseSettings):
     # único modelo multilingüe y el MISMO hablante dice los dos idiomas —
     # que es justo lo que pide una lección donde se explica en español y
     # se ejemplifica en inglés.
-    tts_provider: str = "piper"
+    #
+    # Por defecto "magpie" desde que se eligió a Diego: es LA voz del
+    # producto, y dejar "piper" por defecto haría que un despliegue sin
+    # configurar narrara con la voz equivocada EN SILENCIO. Sin
+    # NVIDIA_API_KEY, Magpie falla con un mensaje explícito (ver
+    # media/magpie_tts.py) — un fallo ruidoso al generar audio nuevo es
+    # mucho mejor que audio correcto con la voz de otro tutor. Y no afecta
+    # al alumno: las lecciones se sirven como archivos ya generados, así
+    # que sin clave solo se bloquea CREAR narraciones, no escucharlas.
+    tts_provider: str = "magpie"
 
     # Voces de Magpie. Comprobado contra el servidor (no contra la
     # documentación, que lista voces que el endpoint no sirve): en
