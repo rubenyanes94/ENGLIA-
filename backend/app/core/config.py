@@ -91,6 +91,38 @@ class Settings(BaseSettings):
     tts_voice_model_path: str = "/opt/piper-voices/en_US-ryan-medium.onnx"
     tts_voice_model_path_es: str = "/opt/piper-voices/es_MX-ald-medium.onnx"
 
+    # --- Motor de voz: "piper" (local) o "magpie" (NVIDIA, por API) ---
+    # Piper es gratis y no depende de la red, pero tiene un límite
+    # estructural: cada voz suya habla UN idioma, así que el español y el
+    # inglés salen por fuerza de dos personas distintas. Magpie es un
+    # único modelo multilingüe y el MISMO hablante dice los dos idiomas —
+    # que es justo lo que pide una lección donde se explica en español y
+    # se ejemplifica en inglés.
+    tts_provider: str = "piper"
+
+    # Voces de Magpie. Comprobado contra el servidor (no contra la
+    # documentación, que lista voces que el endpoint no sirve): en
+    # español solo hay dos, Diego (hombre) e Isabela (mujer). Y la subvoz
+    # española de Diego ACEPTA language_code "en-US", que es lo que
+    # permite que estas dos líneas apunten al mismo hablante y el alumno
+    # no oiga cambiar de profesor al llegar al ejemplo en inglés.
+    #
+    # ES-US, además, es español de Estados Unidos: base latinoamericana,
+    # no peninsular — la variedad del doblaje neutro que busca el producto.
+    magpie_voice_es: str = "Magpie-Multilingual.ES-US.Diego"
+    magpie_voice_en: str = "Magpie-Multilingual.ES-US.Diego"
+
+    # 22050 Hz para que los fragmentos se concatenen igual que los de
+    # Piper y ambos motores sean intercambiables (ver media/wav.py).
+    magpie_sample_rate_hz: int = 22050
+    magpie_grpc_uri: str = "grpc.nvcf.nvidia.com:443"
+    magpie_function_id: str = "877104f7-e885-42b9-8de8-f6e4c6303969"
+
+    # Clave del catálogo de NVIDIA (build.nvidia.com). Vacía por defecto:
+    # sin ella, Magpie falla con un mensaje explicable en vez de un error
+    # de red oscuro, y Piper sigue funcionando sin configurar nada.
+    nvidia_api_key: str = ""
+
     # Dónde se guardan los archivos generados (hoy: audio de lecciones).
     # Disco local + un volumen Docker dedicado (ver docker-compose.yml) y
     # servido como estáticos en /media (ver app/main.py) — suficiente

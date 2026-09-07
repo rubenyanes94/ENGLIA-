@@ -29,7 +29,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.core.db import AsyncSessionLocal
-from app.media.piper_tts import get_wav_duration_seconds, synthesize_bilingual_to_wav
+from app.media.tts import get_wav_duration_seconds, synthesize_bilingual_to_wav
 from app.media.storage import delete_lesson_audio, save_lesson_audio
 from app.models import Lesson, Module
 from app.repositories import lesson_repository

@@ -22,6 +22,7 @@ from io import BytesIO
 from piper import PiperVoice
 
 from app.core.config import settings
+from app.media.wav import build_wav
 
 # Cache de voces por ruta de modelo: cargar el ONNX cuesta ~1-2s y no
 # tiene sentido repetirlo por cada síntesis. Un dict y no una global
@@ -135,18 +136,7 @@ async def synthesize_bilingual_to_wav(script: str) -> bytes:
 
 
 def _build_wav(frames: bytes, params) -> bytes:
-    buffer = BytesIO()
-    with wave.open(buffer, "wb") as wav_file:
-        wav_file.setnchannels(params.nchannels)
-        wav_file.setsampwidth(params.sampwidth)
-        wav_file.setframerate(params.framerate)
-        wav_file.writeframes(frames)
-    return buffer.getvalue()
-
-
-def get_wav_duration_seconds(wav_bytes: bytes) -> float:
-    with wave.open(BytesIO(wav_bytes), "rb") as wav_file:
-        return wav_file.getnframes() / wav_file.getframerate()
+    return build_wav(frames, params.nchannels, params.sampwidth, params.framerate)
 
 
 def strip_english_markers(script: str) -> str:
