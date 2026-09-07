@@ -165,10 +165,25 @@ services:
     # el navegador reportaba, despistando, como error de CORS).
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      # Aquí había un volumen anónimo (`- /app/node_modules`) que "tapaba"
+      # la carpeta del repo para que el contenedor usara las dependencias
+      # instaladas durante el build de la imagen. Se quitó a propósito: el
+      # editor (que corre dentro del contenedor "backend" y ve el repo, no
+      # ese volumen) encontraba frontend/node_modules VACÍA y marcaba con
+      # error CASI TODOS los .tsx — "esta etiqueta JSX requiere que exista
+      # la ruta del módulo react/jsx-runtime". Con una única node_modules,
+      # la del repo, Vite y TypeScript ven exactamente lo mismo. El truco
+      # del volumen anónimo sirve para aislar binarios nativos cuando el
+      # host y el contenedor son sistemas distintos (típico en macOS o
+      # Windows); aquí los dos son el mismo Linux x86-64, así que solo
+      # aportaba la desincronización.
     ports:
       - "5173:5173"
-    command: npm run dev -- --host 0.0.0.0
+    # Se instala antes de arrancar porque, sin el volumen de arriba, en un
+    # Codespace recién creado frontend/node_modules no existe y Vite no
+    # levantaría. Si ya está instalada, npm solo verifica el árbol y tarda
+    # un par de segundos.
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
 
 volumes:
   db_data:

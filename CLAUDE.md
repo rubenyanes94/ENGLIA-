@@ -68,6 +68,23 @@ npm run build       # production build
 npm run preview     # preview the production build
 ```
 
+### Typechecking the frontend
+
+The VS Code window attaches to the **backend** container, which is `python:3.12-slim` —
+there is no `node`/`npx` there. Run the typecheck in the frontend container instead:
+
+```bash
+docker compose exec frontend npx tsc --noEmit
+```
+
+`frontend/node_modules` is installed into the repo itself (the `frontend` service bind-mounts
+`./frontend` with no anonymous `node_modules` volume on top, and runs `npm install` before
+`vite`). That is deliberate: the editor's TypeScript server resolves imports from the path it
+can see, so if the dependencies only existed inside a Docker volume, every `.tsx` file would
+be flagged with *"this JSX tag requires the module path 'react/jsx-runtime'"* even though the
+code is fine. If those errors ever come back, check that `frontend/node_modules` is populated
+and restart the TS server (`TypeScript: Restart TS Server`).
+
 ## Architecture
 
 ### Backend (`backend/app`)
