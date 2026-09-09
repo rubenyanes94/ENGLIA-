@@ -1,11 +1,28 @@
 import asyncio
+import logging
+import random
 from typing import Awaitable, Callable, TypeVar
 
+from openai import APIConnectionError, APITimeoutError, InternalServerError, RateLimitError
 from langchain_openai import ChatOpenAI
 
 from app.core.config import settings
 
+logger = logging.getLogger(__name__)
+
 T = TypeVar("T")
+
+# Errores que SÍ merecen reintento: el proveedor está saturado, nos limita
+# el ritmo, o se cayó la conexión. Todos son transitorios y ajenos a
+# nosotros. Visto de verdad en el tier gratuito de NVIDIA: un 503
+# "Service temporarily overloaded" en mitad de una generación, con las
+# ocho llamadas siguientes funcionando sin tocar nada.
+#
+# Deliberadamente NO se reintentan 404 (modelo mal escrito), 401 (clave
+# inválida) ni 400 (petición malformada): esos son errores NUESTROS, y
+# reintentarlos solo los esconde y multiplica por tres el tiempo hasta
+# ver el fallo real.
+RETRYABLE_ERRORS = (InternalServerError, RateLimitError, APIConnectionError, APITimeoutError)
 
 # Serializa TODAS las llamadas de inferencia del backend (chat, detección
 # de correcciones, evaluación de tareas, calificación de ejercicios
@@ -22,11 +39,45 @@ _inference_semaphore = asyncio.Semaphore(settings.llm_max_concurrency)
 async def ainvoke_serialized(call: Callable[[], Awaitable[T]]) -> T:
     """Ejecuta `call` (una llamada async ya armada, ej. `lambda: llm.ainvoke(messages)`)
     sin dejar que compita por el motor de inferencia con otra llamada
-    concurrente — ver el porqué en `_inference_semaphore`. Recibe un
-    callable (no la coroutine ya creada) para que el `await` real ocurra
-    DENTRO del `async with`, no antes."""
-    async with _inference_semaphore:
-        return await call()
+    concurrente — ver el porqué en `_inference_semaphore` — y reintentando
+    los fallos transitorios del proveedor.
+
+    Recibe un callable (no la coroutine ya creada) por DOS razones: para
+    que el `await` real ocurra dentro del `async with`, y para poder
+    volver a armar la llamada en cada reintento (una coroutine ya
+    consumida no se puede reesperar).
+
+    El reintento vive aquí y no en cada punto de llamada porque este es el
+    único sitio por el que pasa TODA la inferencia del backend: respuesta
+    del tutor, detección de correcciones, evaluación de tareas,
+    calificación y generación de guiones. Sin esto, un 503 pasajero del
+    proveedor le llega al alumno como un error de la aplicación.
+
+    La espera crece (1s, 2s, 4s...) y lleva jitter aleatorio: si varios
+    alumnos se topan con la misma caída, reintentar todos a la vez en el
+    mismo instante es justo lo que impide que el proveedor se recupere.
+    """
+    last_error: Exception | None = None
+    for attempt in range(settings.llm_max_retries + 1):
+        async with _inference_semaphore:
+            try:
+                return await call()
+            except RETRYABLE_ERRORS as exc:
+                last_error = exc
+
+        if attempt < settings.llm_max_retries:
+            # El sleep va FUERA del semáforo: esperar con el hueco de
+            # inferencia ocupado bloquearía a los demás alumnos por un
+            # fallo que no es suyo.
+            delay = settings.llm_retry_base_delay_seconds * (2**attempt) * (1 + random.random() * 0.25)
+            logger.warning(
+                "Inferencia falló (%s), reintento %d/%d en %.1fs",
+                type(last_error).__name__, attempt + 1, settings.llm_max_retries, delay,
+            )
+            await asyncio.sleep(delay)
+
+    assert last_error is not None
+    raise last_error
 
 
 def get_llm(model_id: str | None = None, temperature: float = 0.6, max_tokens: int = 700) -> ChatOpenAI:

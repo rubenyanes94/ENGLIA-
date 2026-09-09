@@ -94,6 +94,36 @@ class Settings(BaseSettings):
     # de pago o motor propio.
     llm_max_concurrency: int = 4
 
+    # Reintentos ante fallos transitorios del proveedor (ver
+    # app/agents/llm_client.py, RETRYABLE_ERRORS). Con el motor en local
+    # esto no hacía falta: Ollama estaba arriba o no. Con inferencia
+    # remota sí — el tier gratuito de NVIDIA devolvió un 503 "Service
+    # temporarily overloaded" con las ocho llamadas siguientes
+    # funcionando. 3 reintentos con espera 1s/2s/4s cubren esa clase de
+    # bache sin que el alumno note nada; más allá, algo pasa de verdad y
+    # es mejor fallar que dejarle mirando una animación de carga.
+    llm_max_retries: int = 3
+    llm_retry_base_delay_seconds: float = 1.0
+
+    # Tope de tokens para GENERAR un guión de lección, aparte del tope del
+    # chat: son dos trabajos con formas distintas. Una respuesta de tutor
+    # son dos frases; un guión son 150-300 palabras de prosa narrada.
+    #
+    # Estaba en 500 para frenar al modelo de 0.5B, que se disparó a 11.000
+    # tokens en una sola llamada. Con super-120b ese tope ya no protege:
+    # MUTILA. Comprobado — con 500 el guión termina en "...a describir el
+    # pelo y" (finish_reason "length"); con 1200 cierra solo en 581 tokens
+    # ("¡Hasta la próxima!"). El tope sigue existiendo como red de
+    # seguridad, pero por encima de lo que el trabajo necesita de verdad.
+    lesson_script_max_tokens: int = 1200
+
+    # Cuántas veces se le pide al modelo que rehaga un guión que no pasa
+    # la validación (ver agents/lesson_script_validation.py). 3 porque el
+    # fallo típico es de descuido y se corrige al decírselo; si a la
+    # tercera sigue mal, el problema es el prompt o el tema, y conviene
+    # enterarse en vez de gastar llamadas en silencio.
+    lesson_script_max_attempts: int = 3
+
     # Cola de tareas async (resumen + embedding al cerrar una sesión).
     # DB 1 de Redis, separada de la DB 0 (memoria de corto plazo del chat)
     # para que un `FLUSHDB` o una inspección de una no toque a la otra.

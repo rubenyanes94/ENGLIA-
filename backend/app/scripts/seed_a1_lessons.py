@@ -51,6 +51,14 @@ def unload_llm() -> None:
     No lanza si falla: si no se puede descargar, la fase 2 igual lo
     intenta — y si no cabe, fallará ahí con un error claro, no aquí.
     """
+    # Solo tiene sentido con Ollama corriendo en local. Desde que el chat
+    # vive en un endpoint remoto, pedirle a NVIDIA un "keep_alive: 0" sería
+    # mandar una petición propietaria de Ollama a una API que no la
+    # entiende: ruido en los logs y un aviso confuso en cada ejecución.
+    if "ollama" not in settings.llm_base_url:
+        print("  · motor remoto: no hay modelo local que descargar\n")
+        return
+
     base = settings.llm_base_url.rsplit("/v1", 1)[0]
     try:
         request = urllib.request.Request(
@@ -80,6 +88,19 @@ def build_topic(module: Module) -> str:
         parts.append(f"Estructuras clave: {grammar}")
     if chunks:
         parts.append(f"Frases que debe repetir en inglés: {chunks}")
+        # El currículo escribe "___" donde va un hueco variable
+        # ("I'd like a ___, please"). Eso es notación para un documento,
+        # no para audio: al narrarlo, el hueco no se oye. Sin esta
+        # instrucción el modelo copia el guion bajo literalmente y el
+        # guión queda inservible — pasó con A1.M05 y A1.M08, y ninguna
+        # cantidad de reintentos lo arreglaba porque el fallo venía del
+        # enunciado, no del modelo.
+        if "___" in chunks:
+            parts.append(
+                'Esas frases traen "___" donde el currículo marca un hueco variable. '
+                "Al narrarlas, RELLENA el hueco con un ejemplo concreto (por ejemplo "
+                '"I\'d like a coffee, please") y nunca escribas "___" en tu guión'
+            )
     return ". ".join(parts)
 
 
