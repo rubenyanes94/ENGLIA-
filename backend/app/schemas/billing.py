@@ -114,3 +114,18 @@ class PlanGatewayUpdate(BaseModel):
 
 
 ProviderLiteral = Literal["paypal", "credit_card", "binance_pay"]
+
+
+class PagoMovilInfoOut(BaseModel):
+    """Los datos de la academia a los que el alumno transfiere.
+
+    `configured` va aparte de los campos: el frontend necesita distinguir
+    "aún no hemos puesto nuestros datos" de "aquí están", porque enseñar
+    campos vacíos como si fueran una cuenta real es cómo se pierde el
+    dinero de alguien.
+    """
+
+    configured: bool
+    bank: str
+    document: str
+    phone: str

@@ -45,6 +45,11 @@ class SendMessageResponse(BaseModel):
     # None si el turno no tenía tarea activa (no se envió task_id); si la
     # tenía, dice si el tutor consideró que el alumno la cumplió en este turno.
     task_completed: bool | None = None
+    # El turno no pasó la moderación: `reply` es un mensaje de redirección,
+    # no lo que escribió el tutor. Se expone para que el frontend pueda
+    # avisar al alumno en vez de dejarle creer que el tutor cambió de tema
+    # sin motivo — un bloqueo silencioso se siente como un fallo.
+    moderation_blocked: bool = False
 
 
 class MessageOut(BaseModel):

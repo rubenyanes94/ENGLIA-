@@ -31,6 +31,13 @@ class User(Base):
     # audio de lecciones). Nullable: sin foto se pinta la inicial del nombre.
     avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
+    # Preferencia del alumno para recibir avisos. Se guarda de verdad
+    # aunque TODAVÍA no exista el sistema que los envía: una preferencia
+    # persistida es un dato real que el día que haya notificaciones se
+    # respeta desde el primer momento. Lo que no se hace es fingir en la
+    # interfaz que ya se están enviando.
+    notifications_enabled: Mapped[bool] = mapped_column(default=True)
+
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 

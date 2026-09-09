@@ -118,6 +118,14 @@ export interface CertificationResult {
   certified_at: string
 }
 
+/** GET /users/me/progress/skills — dominio por destreza MCER.
+ * `skills` viene como diccionario (listening/speaking/reading/writing)
+ * con el porcentaje ya calculado en el backend. */
+export interface SkillBreakdown {
+  skills: Record<string, number>
+  average: number
+}
+
 export interface Progress {
   current_level_code: string | null
   modules: { module_id: string; module_title: string; level_code: string; status: string; mastery_score: number }[]
@@ -129,6 +137,7 @@ export interface User {
   full_name: string
   native_language: string
   current_level_id: string | null
+  notifications_enabled: boolean
   // URL relativa servida por el backend en /media/avatars/... — null si el
   // alumno no ha subido foto (se pinta la inicial de su nombre).
   avatar_url: string | null
@@ -186,6 +195,9 @@ export interface SendMessageResponse {
   persona_name: string
   corrections: Correction[]
   task_completed: boolean | null
+  /** El turno no pasó la moderación: `reply` es una redirección, no lo
+   * que escribió el tutor. */
+  moderation_blocked: boolean
 }
 
 export interface ChatMessage {
@@ -214,4 +226,41 @@ export class ApiError extends Error {
     this.status = status
     this.detail = detail
   }
+}
+
+/** POST /pronunciation/attempts — lo que devuelve el evaluador de voz. */
+export interface PronunciationFeedback {
+  expected: string
+  /** Lo que el modelo OYÓ de verdad. Es la parte más útil del ejercicio:
+   * una nota no enseña nada, leer lo que realmente dijiste sí. */
+  transcript: string
+  matches: boolean
+  score: number
+  feedback_es: string
+}
+
+// --- Facturación ---
+
+export type BillingProvider = "credit_card" | "paypal" | "binance_pay" | "pago_movil"
+
+export interface Plan {
+  code: string
+  name: string
+  price_cents: number
+  currency: string
+}
+
+export interface CheckoutResponse {
+  checkout_url: string
+  provider: string
+}
+
+/** Los datos de la academia a los que el alumno transfiere por Pago Móvil.
+ * `configured` va aparte a propósito: mostrar campos vacíos como si fueran
+ * una cuenta real es cómo se pierde el dinero de alguien. */
+export interface PagoMovilInfo {
+  configured: boolean
+  bank: string
+  document: string
+  phone: string
 }

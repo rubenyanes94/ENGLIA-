@@ -35,6 +35,7 @@ from langgraph.graph.message import add_messages
 
 from app.agents.corrections import detect_corrections as run_correction_detection
 from app.agents.llm_client import ainvoke_serialized, get_llm
+from app.agents.moderation import moderate_turn
 from app.agents.prompt_builder import build_system_prompt
 from app.agents.task_evaluation import evaluate_task as run_task_evaluation
 from app.models import AgentPersona, Module
@@ -63,6 +64,12 @@ class TutorState(TypedDict):
     previous_tutor_message: str | None
     task_completed: bool
     task_scaffolded: bool
+
+    # Resultado de la moderación del turno. `moderation_blocked` significa
+    # que la respuesta que ve el alumno NO es la que generó el tutor: se
+    # sustituyó (ver el nodo `moderate`).
+    moderation_blocked: bool
+    moderation_checked: bool
 
 
 async def generate_response(state: TutorState) -> dict:
@@ -105,18 +112,67 @@ async def evaluate_active_task(state: TutorState) -> dict:
     return {"task_completed": result.task_completed, "task_scaffolded": scaffolded}
 
 
+# Lo que ve el alumno cuando el turno no pasa la moderación. Genérico a
+# propósito: el modelo solo dice safe/unsafe, sin categoría, así que
+# adivinar el motivo ("no compartas tu dirección") sería peor que ser
+# vagos — acertaríamos a veces y acusaríamos en falso el resto.
+#
+# Redirige en vez de regañar: el alumno está aquí para practicar inglés y
+# un tutor que sermonea es un tutor que se abandona. Y va en español
+# porque en A1 un aviso en inglés no se entendería, que es justo cuando
+# más importa que se entienda.
+MODERATION_FALLBACK = (
+    "Mejor sigamos con la clase de inglés. Cuéntame algo sobre ti o "
+    "pregúntame cómo se dice cualquier frase. And remember: never share "
+    "your address, phone number or passwords in a chat."
+)
+
+
+async def moderate(state: TutorState) -> dict:
+    """Revisa el turno YA generado y sustituye la respuesta si no pasa.
+
+    Va después de `generate_response`, y no en paralelo desde START, por
+    una razón concreta: así una sola llamada juzga las dos direcciones
+    (lo que escribió el alumno y lo que contestó el tutor), en vez de dos.
+    Cuesta ~0.3s sobre un turno de 2-5s.
+
+    La sustitución la hace ESTE nodo, no el router, a propósito: "contenido
+    inseguro nunca llega al alumno" es una garantía que debe valer para
+    cualquiera que use el grafo, no algo que cada llamador tenga que
+    acordarse de comprobar.
+    """
+    reply = state["messages"][-1] if state["messages"] else None
+    reply_text = reply.content if isinstance(reply, AIMessage) else None
+
+    verdict = await moderate_turn(state["student_message"], reply_text)
+    result = {"moderation_blocked": verdict.blocked, "moderation_checked": verdict.checked}
+    if not verdict.blocked:
+        return result
+
+    # Mismo `id` que el mensaje original: el reducer `add_messages` de
+    # LangGraph fusiona por id, así que esto REEMPLAZA la respuesta del
+    # tutor en vez de añadir una segunda.
+    return {**result, "messages": [AIMessage(content=MODERATION_FALLBACK, id=reply.id)]}
+
+
 def build_tutor_graph():
     graph = StateGraph(TutorState)
     graph.add_node("generate_response", generate_response)
     graph.add_node("detect_corrections", detect_corrections)
     graph.add_node("evaluate_active_task", evaluate_active_task)
+    graph.add_node("moderate", moderate)
 
     # Fan-out: los tres nodos arrancan a la vez desde START...
     graph.add_edge(START, "generate_response")
     graph.add_edge(START, "detect_corrections")
     graph.add_edge(START, "evaluate_active_task")
     # ...y el grafo no termina hasta que los tres hayan acabado.
-    graph.add_edge("generate_response", END)
+    # La moderación cuelga de generate_response porque necesita la
+    # respuesta ya escrita para juzgarla; los otros dos nodos siguen
+    # corriendo en paralelo mientras tanto, así que no añade su latencia
+    # encima de la de ellos.
+    graph.add_edge("generate_response", "moderate")
+    graph.add_edge("moderate", END)
     graph.add_edge("detect_corrections", END)
     graph.add_edge("evaluate_active_task", END)
 
@@ -133,6 +189,9 @@ class TutorTurnResult(TypedDict):
     corrections: list[dict]
     task_completed: bool
     task_scaffolded: bool
+    # El turno no pasó la moderación: `reply` es el mensaje de redirección,
+    # no lo que escribió el tutor.
+    moderation_blocked: bool
 
 
 def _find_previous_tutor_message(history: list[AnyMessage]) -> str | None:
@@ -179,9 +238,22 @@ async def run_tutor_turn(
         }
     )
     last_message = result["messages"][-1]
+    blocked = result.get("moderation_blocked", False)
+
+    # Si el turno se bloqueó, se descartan TAMBIÉN las correcciones y el
+    # avance de tarea. Las correcciones no son un extra estético: cada una
+    # CITA el fragmento del alumno que estaba mal ({"error": "..."}), así
+    # que devolverlas después de bloquear el mensaje reimprimiría en
+    # pantalla justo el texto que se acaba de retirar — la moderación
+    # quedaría anulada por la puerta de atrás.
+    #
+    # Y dar por lograda una tarea comunicativa con un mensaje que no pasó
+    # la moderación registraría evidencia de dominio a partir de algo que
+    # el alumno nunca debió mandar.
     return TutorTurnResult(
         reply=last_message.content,
-        corrections=result.get("corrections", []),
-        task_completed=result.get("task_completed", False),
-        task_scaffolded=result.get("task_scaffolded", False),
+        corrections=[] if blocked else result.get("corrections", []),
+        task_completed=False if blocked else result.get("task_completed", False),
+        task_scaffolded=False if blocked else result.get("task_scaffolded", False),
+        moderation_blocked=blocked,
     )

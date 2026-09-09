@@ -1,4 +1,4 @@
-import { faCircleCheck, faPaperPlane, faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons"
+import { faCircleCheck, faPaperPlane, faShieldHalved, faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useRef, useState, type FormEvent } from "react"
 import { useSearchParams } from "react-router-dom"
@@ -12,6 +12,7 @@ interface DisplayMessage {
   role: "user" | "assistant"
   content: string
   corrections?: { error: string; correction: string; rule: string }[]
+  moderationBlocked?: boolean
   taskCompleted?: boolean | null
 }
 
@@ -63,7 +64,13 @@ export default function ChatPage() {
       })
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: res.reply, corrections: res.corrections, taskCompleted: res.task_completed },
+        {
+          role: "assistant",
+          content: res.reply,
+          corrections: res.corrections,
+          taskCompleted: res.task_completed,
+          moderationBlocked: res.moderation_blocked,
+        },
       ])
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "El tutor no pudo responder. Inténtalo de nuevo.")
@@ -118,6 +125,19 @@ export default function ChatPage() {
                 msg.role === "user" ? "bg-blue-600 text-white" : "bg-white text-slate-800"
               }`}
             >
+              {/* Se avisa de que el mensaje anterior no se procesó, en vez
+                  de bloquear en silencio: sin esto, el alumno ve al tutor
+                  cambiar de tema sin motivo y lo lee como un fallo de la
+                  app. Ámbar y no rojo — no ha hecho nada malo
+                  necesariamente, la mayoría de bloqueos aquí serán un
+                  chico compartiendo datos que no debe. */}
+              {msg.moderationBlocked && (
+                <p className="mb-2 flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-700">
+                  <FontAwesomeIcon icon={faShieldHalved} />
+                  Ese mensaje no se pudo procesar
+                </p>
+              )}
+
               <p className="whitespace-pre-wrap">{msg.content}</p>
 
               {msg.corrections && msg.corrections.length > 0 && (

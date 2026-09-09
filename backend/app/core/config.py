@@ -126,6 +126,22 @@ class Settings(BaseSettings):
     # enterarse en vez de gastar llamadas en silencio.
     lesson_script_max_attempts: int = 3
 
+    # --- Moderación del chat (ver app/agents/moderation.py) ---
+    # Espikin tiene chat libre y alumnos probablemente menores. Se revisa
+    # cada turno en las dos direcciones (lo que escribe el alumno y lo que
+    # responde el tutor) en una sola llamada de 0.1-0.9s.
+    moderation_model: str = "nvidia/nemotron-3.5-content-safety"
+    # Apagarlo deja pasar todo SIN revisar y marcado como tal. Existe para
+    # desarrollo sin conexión, no como interruptor de producción.
+    moderation_enabled: bool = True
+
+    # --- Evaluación de pronunciación (ver app/agents/pronunciation.py) ---
+    pronunciation_model: str = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
+    # Tope del audio que sube el alumno. 10s a 16kHz mono son ~320KB; el
+    # límite deja margen y ataja de golpe que alguien suba un archivo
+    # grande a un endpoint que reenvía su contenido a un tercero.
+    pronunciation_max_audio_bytes: int = 2 * 1024 * 1024
+
     # Cola de tareas async (resumen + embedding al cerrar una sesión).
     # DB 1 de Redis, separada de la DB 0 (memoria de corto plazo del chat)
     # para que un `FLUSHDB` o una inspección de una no toque a la otra.
@@ -214,6 +230,17 @@ class Settings(BaseSettings):
     # para un único contenedor backend; migrar a S3/R2 más adelante solo
     # tocaría app/media/storage.py, nada que hable con esta carpeta directamente.
     media_root: str = "/app/media"
+
+    # --- Datos de la academia para Pago Móvil ---
+    # Vacíos por defecto A PROPÓSITO. Estos son los datos a los que un
+    # alumno transfiere dinero real: dejar aquí un ejemplo tipo
+    # "J-12345678-9" haría que la interfaz los mostrara como si fueran
+    # buenos, y el dinero de alguien acabaría en una cuenta que no existe
+    # o —peor— en la de un tercero. Sin configurar, el frontend muestra
+    # que el método no está disponible en vez de datos inventados.
+    pago_movil_bank: str = ""       # ej. "Bancamiga (0172)"
+    pago_movil_document: str = ""   # cédula o RIF de la academia
+    pago_movil_phone: str = ""
 
     # --- Facturación ---
     # Dónde redirige el navegador del alumno tras aprobar/cancelar un pago

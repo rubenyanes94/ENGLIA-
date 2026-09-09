@@ -24,6 +24,7 @@ class UserOut(BaseModel):
     native_language: str
     current_level_id: uuid.UUID | None
     avatar_url: str | None = None
+    notifications_enabled: bool = True
 
 
 class UserAdminOut(BaseModel):
@@ -59,3 +60,10 @@ class UserListOut(BaseModel):
     limit: int
     offset: int
     users: list[UserAdminOut]
+
+
+class UserPreferencesUpdate(BaseModel):
+    """Preferencias que el alumno cambia desde su perfil. Todo opcional:
+    un PATCH manda solo lo que cambió, no la ficha entera."""
+
+    notifications_enabled: bool | None = None
