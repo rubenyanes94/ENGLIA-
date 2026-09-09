@@ -34,6 +34,17 @@ class Lesson(Base):
     script: Mapped[str | None] = mapped_column(Text, nullable=True)
     audio_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     audio_duration_seconds: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    # Línea de tiempo del guión: [{text, english, start, end}, ...]. La
+    # produce el sintetizador, que ya trocea el guión frase a frase para
+    # alternar voces — los tiempos son la duración REAL de cada trozo, no
+    # una estimación por número de caracteres.
+    #
+    # Es lo que permite que el reproductor muestre lo que se está
+    # diciendo en ese momento en vez de un muro de texto estático.
+    # Nullable porque una lección narrada antes de existir esta columna
+    # sigue siendo válida: el reproductor cae al guión completo.
+    script_segments: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     # Para saber si el audio quedó desactualizado respecto al script
     # (ej. un admin editó el guión pero la regeneración falló) — no se
     # usa todavía para invalidar nada automáticamente, pero es la señal

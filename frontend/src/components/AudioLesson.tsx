@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useRef, useState } from "react"
 import { API_URL } from "../api/client"
 import type { LessonDetail } from "../api/types"
+import LessonScreen from "./LessonScreen"
 
 // Velocidades pensadas para aprender un idioma, no para consumir un
 // podcast: 0.75 para descomponer una frase inglesa que va muy rápida,
@@ -110,6 +111,21 @@ export default function AudioLesson({ lesson }: { lesson: LessonDetail }) {
           </p>
           <h3 className="mt-2 text-xl font-extrabold tracking-tight">{lesson.title}</h3>
 
+          {lesson.script_segments?.length ? (
+            <div className="mt-5">
+              <LessonScreen
+                segments={lesson.script_segments}
+                currentTime={current}
+                onSeek={(seconds) => {
+                  const audio = audioRef.current
+                  if (!audio) return
+                  audio.currentTime = seconds
+                  if (audio.paused) void audio.play()
+                }}
+              />
+            </div>
+          ) : null}
+
           <div className="mt-6 flex items-center gap-4">
             <button
               onClick={toggle}
@@ -162,10 +178,18 @@ export default function AudioLesson({ lesson }: { lesson: LessonDetail }) {
         </div>
       </div>
 
-      {/* Transcripción */}
+      {/* Transcripción completa. Con la pantalla sincronizada arriba, esto
+          deja de ser la forma principal de leer la lección y pasa a ser
+          material de repaso — por eso va plegado si hay línea de tiempo:
+          desplegado competiría por la atención con lo que suena ahora. */}
       {lesson.script && (
-        <div className="p-6 sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Transcripción</p>
+        <details className="group p-6 sm:p-8" open={!lesson.script_segments?.length}>
+          <summary className="cursor-pointer list-none text-xs font-semibold uppercase tracking-wide text-slate-400 transition hover:text-slate-600">
+            Transcripción completa
+            <span className="ml-2 font-normal normal-case tracking-normal text-slate-300 group-open:hidden">
+              — para repasar después
+            </span>
+          </summary>
           <p className="mt-3 leading-relaxed text-slate-700">
             {parseScript(lesson.script).map((part, i) =>
               part.english ? (
@@ -183,7 +207,7 @@ export default function AudioLesson({ lesson }: { lesson: LessonDetail }) {
           <p className="mt-4 text-xs text-slate-400">
             En azul, lo que se dice en inglés — es lo que tienes que repetir en voz alta.
           </p>
-        </div>
+        </details>
       )}
     </section>
   )

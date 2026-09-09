@@ -16,7 +16,10 @@ from app.media.wav import get_wav_duration_seconds  # noqa: F401 — re-exportad
 PROVIDERS = ("piper", "magpie")
 
 
-async def synthesize_bilingual_to_wav(script: str) -> bytes:
+async def synthesize_bilingual_to_wav(script: str) -> tuple[bytes, list[dict]]:
+    """Devuelve (WAV, línea de tiempo). La línea de tiempo dice qué frase
+    suena entre qué segundos, y es lo que permite que el reproductor vaya
+    mostrando el texto conforme se dice en vez de un muro estático."""
     # Import perezoso y no arriba: importar magpie_tts arrastra el cliente
     # gRPC de Riva, y importar piper_tts carga la librería ONNX. Quien use
     # solo uno de los dos motores no debería pagar el arranque del otro.

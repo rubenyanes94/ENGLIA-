@@ -38,3 +38,41 @@ def build_wav(
 def get_wav_duration_seconds(wav_bytes: bytes) -> float:
     with wave.open(BytesIO(wav_bytes), "rb") as wav_file:
         return wav_file.getnframes() / wav_file.getframerate()
+
+
+def frames_duration_seconds(
+    frames: bytes,
+    channels: int = CHANNELS,
+    sample_width: int = SAMPLE_WIDTH_BYTES,
+    frame_rate: int = SAMPLE_RATE_HZ,
+) -> float:
+    """Duración de un bloque de PCM crudo, sin escribir un WAV para
+    medirlo. Es lo que permite saber en qué segundo empieza y acaba cada
+    frase mientras se van concatenando: el sintetizador ya trocea el
+    guión para alternar voces, así que la información de tiempo está ahí
+    — solo había que anotarla."""
+    return len(frames) / (frame_rate * sample_width * channels)
+
+
+def build_segment_timeline(pieces: list[tuple[str, bool, bytes]], frame_rate: int = SAMPLE_RATE_HZ) -> list[dict]:
+    """Convierte los trozos ya sintetizados en una línea de tiempo:
+    qué se dice, en qué idioma, y entre qué segundos.
+
+    Los tiempos salen de la duración REAL de cada audio, no de estimar
+    por número de caracteres. La estimación se desvía en cuanto hay
+    cambios de idioma —el inglés y el español no se hablan al mismo
+    ritmo— y en una lección de cuatro minutos el desfase acumulado deja
+    el subtítulo señalando una frase que ya pasó.
+    """
+    timeline: list[dict] = []
+    cursor = 0.0
+    for text, is_english, frames in pieces:
+        duration = frames_duration_seconds(frames, frame_rate=frame_rate)
+        timeline.append({
+            "text": text,
+            "english": is_english,
+            "start": round(cursor, 3),
+            "end": round(cursor + duration, 3),
+        })
+        cursor += duration
+    return timeline

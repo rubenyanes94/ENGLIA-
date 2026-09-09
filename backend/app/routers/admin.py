@@ -128,12 +128,14 @@ async def _generate_narration(db: AsyncSession, lesson: Lesson, module: Module, 
             )
         script = await generate_lesson_script(topic, level.code, persona)
 
-    wav_bytes = await synthesize_bilingual_to_wav(script)
+    wav_bytes, script_segments = await synthesize_bilingual_to_wav(script)
     duration_seconds = get_wav_duration_seconds(wav_bytes)
     audio_url = save_lesson_audio(lesson.id, wav_bytes)
     previous_audio_url = lesson.audio_url
 
-    updated_lesson = await lesson_repository.set_narration(db, lesson, script, audio_url, duration_seconds)
+    updated_lesson = await lesson_repository.set_narration(
+        db, lesson, script, audio_url, duration_seconds, script_segments
+    )
 
     # Recién DESPUÉS de que el nuevo audio quedó guardado y la fila
     # actualizada: si algo de lo anterior fallara, el audio viejo sigue

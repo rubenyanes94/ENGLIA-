@@ -142,12 +142,25 @@ export interface Tutor {
 /** GET /modules/{moduleId}/lessons/{lessonId}. A diferencia del resumen
  * que trae ModuleDetail.lessons, este SÍ incluye el audio y el guión —
  * por eso el reproductor necesita pedirlo aparte. */
+/** Un fragmento del guión con el segundo exacto en que suena. Lo produce
+ * el sintetizador, que ya trocea el guión frase a frase para alternar
+ * voces (ver backend/app/media/wav.py, build_segment_timeline). */
+export interface ScriptSegment {
+  text: string
+  english: boolean
+  start: number
+  end: number
+}
+
 export interface LessonDetail {
   id: string
   title: string
   order: number
   content: Record<string, unknown>
   script: string | null
+  // null en lecciones narradas antes de que existiera la línea de tiempo:
+  // el reproductor cae a mostrar el guión completo sin sincronizar.
+  script_segments: ScriptSegment[] | null
   audio_url: string | null
   audio_duration_seconds: number | null
 }

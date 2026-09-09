@@ -58,7 +58,14 @@ async def delete(db: AsyncSession, lesson: Lesson) -> None:
     await db.commit()
 
 
-async def set_narration(db: AsyncSession, lesson: Lesson, script: str, audio_url: str, audio_duration_seconds: float) -> Lesson:
+async def set_narration(
+    db: AsyncSession,
+    lesson: Lesson,
+    script: str,
+    audio_url: str,
+    audio_duration_seconds: float,
+    script_segments: list | None = None,
+) -> Lesson:
     """Lo llama el router de admin tras generar el guión (Ollama) y el
     audio (Piper) — separado de `update()` porque conceptualmente es un
     resultado de un pipeline, no un campo que un admin edita a mano
@@ -66,6 +73,7 @@ async def set_narration(db: AsyncSession, lesson: Lesson, script: str, audio_url
     lesson.script = script
     lesson.audio_url = audio_url
     lesson.audio_duration_seconds = audio_duration_seconds
+    lesson.script_segments = script_segments
     lesson.audio_generated_at = datetime.utcnow()
 
     await db.commit()

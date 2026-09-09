@@ -22,7 +22,7 @@ from io import BytesIO
 from piper import PiperVoice
 
 from app.core.config import settings
-from app.media.wav import build_wav
+from app.media.wav import build_segment_timeline, build_wav
 
 # Cache de voces por ruta de modelo: cargar el ONNX cuesta ~1-2s y no
 # tiene sentido repetirlo por cada síntesis. Un dict y no una global
@@ -81,7 +81,7 @@ async def synthesize_to_wav(text: str) -> bytes:
     return await asyncio.to_thread(_synthesize)
 
 
-async def synthesize_bilingual_to_wav(script: str) -> bytes:
+async def synthesize_bilingual_to_wav(script: str) -> tuple[bytes, list[dict]]:
     """Narra un guión mixto: español con la voz española, y los
     fragmentos marcados entre [[corchetes]] con la voz inglesa.
 
@@ -91,7 +91,7 @@ async def synthesize_bilingual_to_wav(script: str) -> bytes:
     velocidad equivocada (ver la comprobación de params).
     """
 
-    def _synthesize() -> bytes:
+    def _synthesize() -> tuple[bytes, list[dict]]:
         segments: list[tuple[str, str]] = []  # (texto, ruta del modelo)
         cursor = 0
         for match in ENGLISH_SEGMENT_PATTERN.finditer(script):
@@ -113,7 +113,7 @@ async def synthesize_bilingual_to_wav(script: str) -> bytes:
                 raise ValueError("El guión no tiene texto pronunciable.")
             segments = [(script.strip(), settings.tts_voice_model_path_es)]
 
-        all_frames = b""
+        pieces: list[tuple[str, bool, bytes]] = []
         base_params = None
         for text, model_path in segments:
             frames, params = _synthesize_frames(text, model_path)
@@ -128,9 +128,10 @@ async def synthesize_bilingual_to_wav(script: str) -> bytes:
                     "Las voces de Piper configuradas tienen formatos de audio distintos "
                     "(canales/bits/sample rate); no se pueden concatenar sin remuestrear."
                 )
-            all_frames += frames
+            pieces.append((text, model_path == settings.tts_voice_model_path, frames))
 
-        return _build_wav(all_frames, base_params)
+        timeline = build_segment_timeline(pieces, frame_rate=base_params.framerate)
+        return _build_wav(b"".join(f for _, _, f in pieces), base_params), timeline
 
     return await asyncio.to_thread(_synthesize)
 

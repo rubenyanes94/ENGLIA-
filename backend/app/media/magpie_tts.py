@@ -25,7 +25,7 @@ from riva.client.proto.riva_audio_pb2 import AudioEncoding
 
 from app.core.config import settings
 from app.media.piper_tts import ENGLISH_SEGMENT_PATTERN, _has_speakable_content
-from app.media.wav import build_wav
+from app.media.wav import build_segment_timeline, build_wav
 
 # Un cliente por proceso: abrir el canal gRPC y negociar TLS cuesta, y
 # reabrirlo por cada fragmento del guión multiplicaría ese coste por
@@ -66,16 +66,20 @@ def _synthesize_frames(text: str, voice: str, language_code: str) -> bytes:
     return response.audio
 
 
-async def synthesize_bilingual_to_wav(script: str) -> bytes:
+async def synthesize_bilingual_to_wav(script: str) -> tuple[bytes, list[dict]]:
     """Narra un guión mixto: el español con `magpie_voice_es` y los
     fragmentos entre [[corchetes]] con `magpie_voice_en`.
+
+    Devuelve el WAV y la línea de tiempo de cada frase (ver
+    wav.build_segment_timeline), que es lo que permite al reproductor ir
+    mostrando el texto según se dice.
 
     Misma firma y mismo protocolo de marcado que la función homónima de
     piper_tts, a propósito: cambiar de motor no debe obligar a reescribir
     ni un guión.
     """
 
-    def _synthesize() -> bytes:
+    def _synthesize() -> tuple[bytes, list[dict]]:
         segments: list[tuple[str, str, str]] = []  # (texto, voz, idioma)
         cursor = 0
         for match in ENGLISH_SEGMENT_PATTERN.finditer(script):
@@ -96,8 +100,13 @@ async def synthesize_bilingual_to_wav(script: str) -> bytes:
                 raise ValueError("El guión no tiene texto pronunciable.")
             segments = [(script.strip(), settings.magpie_voice_es, "es-US")]
 
-        frames = b"".join(_synthesize_frames(text, voice, lang) for text, voice, lang in segments)
-        return build_wav(frames, frame_rate=settings.magpie_sample_rate_hz)
+        pieces = [
+            (text, lang == "en-US", _synthesize_frames(text, voice, lang))
+            for text, voice, lang in segments
+        ]
+        timeline = build_segment_timeline(pieces, frame_rate=settings.magpie_sample_rate_hz)
+        wav = build_wav(b"".join(frames for _, _, frames in pieces), frame_rate=settings.magpie_sample_rate_hz)
+        return wav, timeline
 
     # El cliente de Riva es gRPC SÍNCRONO y bloqueante: fuera del event
     # loop, igual que Piper (que bloquea por ONNX en CPU, no por red).

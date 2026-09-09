@@ -176,10 +176,10 @@ async def seed_a1_lessons() -> None:
         narrated = 0
         for index, lesson in enumerate(pending, start=1):
             print(f"  [{index}/{len(pending)}] {lesson.title!r} · narrando (voz ES + EN)...", flush=True)
-            wav_bytes = await synthesize_bilingual_to_wav(lesson.script)
+            wav_bytes, segments = await synthesize_bilingual_to_wav(lesson.script)
             duration = get_wav_duration_seconds(wav_bytes)
             audio_url = save_lesson_audio(lesson.id, wav_bytes)
-            await lesson_repository.set_narration(session, lesson, lesson.script, audio_url, duration)
+            await lesson_repository.set_narration(session, lesson, lesson.script, audio_url, duration, segments)
 
             narrated += 1
             print(f"        ✓ {duration:.0f}s de audio\n", flush=True)

@@ -83,12 +83,12 @@ async def renarrate_lessons(module_codes: list[str] | None = None) -> None:
             code = lesson.module.code or lesson.module.title
             print(f"  [{index}/{len(lessons)}] {code} — {lesson.title!r} · narrando...", flush=True)
 
-            wav_bytes = await synthesize_bilingual_to_wav(lesson.script)
+            wav_bytes, segments = await synthesize_bilingual_to_wav(lesson.script)
             duration = get_wav_duration_seconds(wav_bytes)
 
             previous_audio_url = lesson.audio_url
             audio_url = save_lesson_audio(lesson.id, wav_bytes)
-            await lesson_repository.set_narration(session, lesson, lesson.script, audio_url, duration)
+            await lesson_repository.set_narration(session, lesson, lesson.script, audio_url, duration, segments)
             if previous_audio_url:
                 delete_lesson_audio(previous_audio_url)
 
