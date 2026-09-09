@@ -218,3 +218,14 @@ export class ApiError extends Error {
     this.detail = detail
   }
 }
+
+/** POST /pronunciation/attempts — lo que devuelve el evaluador de voz. */
+export interface PronunciationFeedback {
+  expected: string
+  /** Lo que el modelo OYÓ de verdad. Es la parte más útil del ejercicio:
+   * una nota no enseña nada, leer lo que realmente dijiste sí. */
+  transcript: string
+  matches: boolean
+  score: number
+  feedback_es: string
+}

@@ -135,6 +135,13 @@ class Settings(BaseSettings):
     # desarrollo sin conexión, no como interruptor de producción.
     moderation_enabled: bool = True
 
+    # --- Evaluación de pronunciación (ver app/agents/pronunciation.py) ---
+    pronunciation_model: str = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
+    # Tope del audio que sube el alumno. 10s a 16kHz mono son ~320KB; el
+    # límite deja margen y ataja de golpe que alguien suba un archivo
+    # grande a un endpoint que reenvía su contenido a un tercero.
+    pronunciation_max_audio_bytes: int = 2 * 1024 * 1024
+
     # Cola de tareas async (resumen + embedding al cerrar una sesión).
     # DB 1 de Redis, separada de la DB 0 (memoria de corto plazo del chat)
     # para que un `FLUSHDB` o una inspección de una no toque a la otra.

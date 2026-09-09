@@ -1,3 +1,5 @@
+import { faMicrophone } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useMemo, useRef } from "react"
 import type { ScriptSegment } from "../api/types"
 
@@ -95,10 +97,15 @@ export default function LessonScreen({
   segments,
   currentTime,
   onSeek,
+  onPractice,
 }: {
   segments: ScriptSegment[]
   currentTime: number
   onSeek: (seconds: number) => void
+  /** Practicar una frase inglesa en voz alta. Solo se ofrece sobre las
+   * frases en inglés: pedirle al alumno que "repita" la explicación en
+   * español no evalúa nada — su español ya es nativo. */
+  onPractice?: (phrase: string) => void
 }) {
   const lines = useMemo(() => splitIntoLines(segments), [segments])
   const activeIndex = findActiveIndex(lines, currentTime)
@@ -126,8 +133,8 @@ export default function LessonScreen({
           const isActive = index === activeIndex
           const isPast = activeIndex >= 0 && index < activeIndex
           return (
+            <span key={index} className="group/line relative flex items-start gap-1">
             <button
-              key={index}
               ref={isActive ? activeRef : undefined}
               onClick={() => onSeek(segment.start)}
               // Cada frase es clicable para repetirla: es LA interacción
@@ -152,6 +159,23 @@ export default function LessonScreen({
             >
               {segment.text}
             </button>
+            {segment.english && onPractice && (
+              <button
+                onClick={() => onPractice(segment.text)}
+                title="Repetir en voz alta y recibir corrección"
+                aria-label={`Practicar la pronunciación de ${segment.text}`}
+                // Solo visible al pasar por encima o en la frase activa:
+                // un micrófono en cada línea a la vez convertiría la
+                // pantalla en una botonera y taparía lo que se está
+                // diciendo, que es para lo que existe.
+                className={`mt-1 shrink-0 rounded-full p-1.5 text-[11px] text-sky-300 transition hover:bg-sky-500/20 hover:text-sky-200 ${
+                  isActive ? "opacity-100" : "opacity-0 group-hover/line:opacity-100"
+                }`}
+              >
+                <FontAwesomeIcon icon={faMicrophone} />
+              </button>
+            )}
+            </span>
           )
         })}
       </div>

@@ -85,6 +85,11 @@ export const api = {
     form.append(field, file)
     return request<T>(path, { method: "PUT", body: form })
   },
+  /** Multipart con campos extra además del archivo, por POST.
+   * Aparte de `upload` porque aquel es un PUT de un único archivo (la
+   * foto de perfil) y aquí el archivo NO se entiende solo: la grabación
+   * necesita ir con la frase contra la que se evalúa. */
+  postForm: <T>(path: string, form: FormData) => request<T>(path, { method: "POST", body: form }),
 }
 
 /** POST /auth/login usa application/x-www-form-urlencoded (OAuth2PasswordRequestForm

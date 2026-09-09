@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react"
 import { API_URL } from "../api/client"
 import type { LessonDetail } from "../api/types"
 import LessonScreen from "./LessonScreen"
+import PronunciationPractice from "./PronunciationPractice"
 
 // Velocidades pensadas para aprender un idioma, no para consumir un
 // podcast: 0.75 para descomponer una frase inglesa que va muy rápida,
@@ -49,12 +50,13 @@ function formatTime(seconds: number): string {
   return `${minutes}:${rest.toString().padStart(2, "0")}`
 }
 
-export default function AudioLesson({ lesson }: { lesson: LessonDetail }) {
+export default function AudioLesson({ lesson, levelCode = "A1" }: { lesson: LessonDetail; levelCode?: string }) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(false)
   const [current, setCurrent] = useState(0)
   const [duration, setDuration] = useState(lesson.audio_duration_seconds ?? 0)
   const [speed, setSpeed] = useState(1)
+  const [practicePhrase, setPracticePhrase] = useState<string | null>(null)
 
   useEffect(() => {
     // Al cambiar de lección, el <audio> se reinicia pero el estado local
@@ -122,6 +124,13 @@ export default function AudioLesson({ lesson }: { lesson: LessonDetail }) {
                   audio.currentTime = seconds
                   if (audio.paused) void audio.play()
                 }}
+                onPractice={(phrase) => {
+                  // Se pausa la lección al empezar a practicar: si no, el
+                  // micrófono grabaría al tutor hablando por encima del
+                  // alumno y el evaluador juzgaría una mezcla de los dos.
+                  audioRef.current?.pause()
+                  setPracticePhrase(phrase)
+                }}
               />
             </div>
           ) : null}
@@ -177,6 +186,20 @@ export default function AudioLesson({ lesson }: { lesson: LessonDetail }) {
           />
         </div>
       </div>
+
+      {practicePhrase && (
+        <div className="border-t border-slate-100 p-6 sm:p-8">
+          <PronunciationPractice
+            // `key` con la frase: al elegir otra, React monta un componente
+            // nuevo en vez de reutilizar el anterior — así no se queda en
+            // pantalla la corrección de la frase anterior junto a la nueva.
+            key={practicePhrase}
+            phrase={practicePhrase}
+            levelCode={levelCode}
+            onClose={() => setPracticePhrase(null)}
+          />
+        </div>
+      )}
 
       {/* Transcripción completa. Con la pantalla sincronizada arriba, esto
           deja de ser la forma principal de leer la lección y pasa a ser

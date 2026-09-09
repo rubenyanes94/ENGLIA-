@@ -284,7 +284,14 @@ function LessonTab({ module, onGoPractice }: { module: ModuleDetail; onGoPractic
   return (
     <div className="space-y-4">
       {narrated.map((lesson) => (
-        <AudioLesson key={lesson.id} lesson={lesson} />
+        <AudioLesson
+          key={lesson.id}
+          lesson={lesson}
+          // El código del módulo es "A1.M02": el nivel es lo que va antes
+          // del punto. El evaluador de pronunciación lo usa para calibrar
+          // cuánto exigir — a un A1 no se le corrige como a un C1.
+          levelCode={module.code?.split(".")[0] ?? "A1"}
+        />
       ))}
       {module.communicative_objectives.length > 0 && (
         <Card title="Al terminar este módulo sabrás" icon={faCircleCheck}>
