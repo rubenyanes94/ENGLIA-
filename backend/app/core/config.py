@@ -60,23 +60,25 @@ class Settings(BaseSettings):
     llm_enable_thinking: bool | None = False
     # Mismo servidor (Ollama), otro tipo de modelo: embeddings para la
     # memoria semántica. Un solo motor de inferencia para todo el agente.
-    embedding_model: str = "nomic-embed-text"
+    embedding_model: str = "nvidia/nemotron-3-embed-1b"
 
     # Endpoint SEPARADO del chat. Estaban unidos solo porque los dos
     # modelos vivían en el mismo Ollama; al mover el chat a NVIDIA, seguir
     # compartiendo la URL habría hecho que se pidiera "nomic-embed-text"
     # a un catálogo que no lo tiene. Se separan ahora para que cada motor
     # se pueda mover sin arrastrar al otro.
-    embedding_base_url: str = "http://ollama:11434/v1"
+    embedding_base_url: str = "https://integrate.api.nvidia.com/v1"
     embedding_api_key: str = ""
 
-    # Los embeddings siguen en el Ollama local, que tiene
-    # OLLAMA_MAX_LOADED_MODELS=1: más de una llamada a la vez le fuerza a
-    # descargar y recargar modelos a mitad de generación, que es lo que ha
-    # tumbado llama-server más de una vez. Semáforo propio, separado del
-    # de chat, precisamente porque ya no comparten motor.
-    embedding_max_concurrency: int = 1
-    embedding_dim: int = 768
+    # Semáforo propio, separado del de chat: aunque ahora los dos apunten
+    # al mismo proveedor, son cuotas y patrones de uso distintos (el chat
+    # lo dispara un alumno esperando; los embeddings, Celery en segundo
+    # plano). Manteniéndolos separados, una tanda de resúmenes no puede
+    # comerse los huecos de inferencia de quien está conversando.
+    #
+    # Era 1 mientras vivían en Ollama con OLLAMA_MAX_LOADED_MODELS=1.
+    embedding_max_concurrency: int = 2
+    embedding_dim: int = 2048
 
     # Cuántas inferencias simultáneas tolera el motor configurado en
     # llm_base_url (ver app/agents/llm_client.py, ainvoke_serialized).

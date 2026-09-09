@@ -101,10 +101,13 @@ services:
       LLM_BASE_URL: ${LLM_BASE_URL:-https://integrate.api.nvidia.com/v1}
       LLM_MODEL: ${LLM_MODEL:-nvidia/nemotron-3-super-120b-a12b}
       LLM_API_KEY: ${NVIDIA_API_KEY:-}
-      # Los EMBEDDINGS se quedan en Ollama: nomic-embed-text no está en el
-      # catálogo de NVIDIA. Por eso la URL va aparte de la del chat.
-      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-http://ollama:11434/v1}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+      # Los EMBEDDINGS también en NVIDIA. La URL sigue siendo una variable
+      # aparte de la del chat, aunque hoy coincidan: son dos motores que
+      # deben poder moverse por separado (fue justo lo que hizo falta al
+      # migrar el chat primero).
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-https://integrate.api.nvidia.com/v1}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nvidia/nemotron-3-embed-1b}
+      EMBEDDING_API_KEY: ${NVIDIA_API_KEY:-}
       NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
     volumes:
       - ./backend:/app
@@ -150,10 +153,13 @@ services:
       LLM_BASE_URL: ${LLM_BASE_URL:-https://integrate.api.nvidia.com/v1}
       LLM_MODEL: ${LLM_MODEL:-nvidia/nemotron-3-super-120b-a12b}
       LLM_API_KEY: ${NVIDIA_API_KEY:-}
-      # Los EMBEDDINGS se quedan en Ollama: nomic-embed-text no está en el
-      # catálogo de NVIDIA. Por eso la URL va aparte de la del chat.
-      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-http://ollama:11434/v1}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+      # Los EMBEDDINGS también en NVIDIA. La URL sigue siendo una variable
+      # aparte de la del chat, aunque hoy coincidan: son dos motores que
+      # deben poder moverse por separado (fue justo lo que hizo falta al
+      # migrar el chat primero).
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-https://integrate.api.nvidia.com/v1}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nvidia/nemotron-3-embed-1b}
+      EMBEDDING_API_KEY: ${NVIDIA_API_KEY:-}
       NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
     volumes:
       - ./backend:/app

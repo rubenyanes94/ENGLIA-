@@ -12,7 +12,20 @@ from app.core.db import Base
 # Dimensión del modelo de embeddings (nomic-embed-text, servido vía
 # Ollama — el mismo motor que el LLM del tutor). Si cambiamos de modelo
 # de embeddings más adelante, este valor cambia y toca una migración nueva.
-EMBEDDING_DIM = 768
+# 2048 = lo que produce nvidia/nemotron-3-embed-1b. No es configurable:
+# el endpoint rechaza cualquier otro valor ("dimensions must be one of
+# 2048"), así que no hay recorte tipo Matryoshka disponible.
+#
+# Eso deja esta columna POR ENCIMA del límite de 2000 dimensiones que
+# tienen los índices hnsw/ivfflat de pgvector: no se puede crear un
+# índice ANN sobre ella. Es aceptable aquí, y conviene saber por qué
+# antes de intentar "arreglarlo": la única consulta que la usa
+# (conversation_repository.find_similar_summaries) filtra SIEMPRE por
+# user_id, así que recorre las sesiones de UN alumno — decenas, quizá
+# cientos — no la tabla entera. Un índice ANN no aportaría nada a ese
+# patrón. Si algún día hiciera falta buscar entre todos los alumnos,
+# habría que cambiar de modelo de embeddings, no de índice.
+EMBEDDING_DIM = 2048
 
 
 class ConversationSession(Base):
