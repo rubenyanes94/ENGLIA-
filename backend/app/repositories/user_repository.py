@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -29,6 +29,51 @@ async def create_user(db: AsyncSession, email: str, password: str, full_name: st
         full_name=full_name,
     )
     db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+async def list_users(
+    db: AsyncSession,
+    limit: int = 50,
+    offset: int = 0,
+    search: str | None = None,
+    role: str | None = None,
+) -> tuple[list[User], int]:
+    """Página de usuarios + total que cumple los filtros (para el panel de
+    admin, ver routers/admin.py).
+
+    Devuelve la tupla (página, total) y no solo la lista porque el total
+    se calcula con un COUNT sobre los MISMOS filtros pero SIN limit/offset
+    — el frontend no puede deducirlo de la página que recibe.
+
+    Sin joinedload de current_level a propósito (a diferencia de
+    get_by_id): el listado no muestra el nivel, y precargarlo aquí sería
+    un JOIN extra por cada fila de cada página sin que nadie lo lea.
+    """
+    filters = []
+    if search:
+        # ilike sobre email Y nombre: quien busca en un panel no sabe (ni
+        # le importa) en cuál de los dos campos está lo que escribió.
+        pattern = f"%{search.strip()}%"
+        filters.append(User.email.ilike(pattern) | User.full_name.ilike(pattern))
+    if role:
+        filters.append(User.role == role)
+
+    total = await db.scalar(select(func.count()).select_from(User).where(*filters))
+
+    result = await db.execute(
+        select(User).where(*filters).order_by(User.created_at.desc()).limit(limit).offset(offset)
+    )
+    return list(result.scalars().all()), total or 0
+
+
+async def set_avatar_url(db: AsyncSession, user: User, avatar_url: str | None) -> User:
+    """Fija (o limpia, con None) la URL de la foto de perfil. Borrar el
+    ARCHIVO anterior es responsabilidad de quien llama, no de aquí: este
+    módulo solo sabe de la base de datos, no del disco."""
+    user.avatar_url = avatar_url
     await db.commit()
     await db.refresh(user)
     return user

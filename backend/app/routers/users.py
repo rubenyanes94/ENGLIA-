@@ -1,15 +1,79 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
 from app.core.deps import get_current_user
+from app.media.storage import ALLOWED_AVATAR_TYPES, MAX_AVATAR_BYTES, delete_avatar, save_avatar
 from app.models import User
-from app.repositories import enrollment_repository
+from app.repositories import enrollment_repository, user_repository
+from app.schemas.auth import UserOut
 from app.schemas.descriptor import CertificationResultOut, DescriptorMasteryOut, DescriptorMasterySummaryOut, LevelExitGateOut
 from app.schemas.progress import ProgressModuleOut, ProgressOut, SkillBreakdownOut
 from app.services import certification as certification_service
 
 router = APIRouter(prefix="/users/me", tags=["users"])
+
+
+@router.put("/avatar", response_model=UserOut)
+async def upload_my_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """Sube (o reemplaza) la foto de perfil del alumno autenticado.
+
+    PUT y no POST a propósito: el usuario tiene UNA foto, y subirla dos
+    veces deja el mismo estado final — es idempotente en el sentido que
+    importa, no crea una colección de fotos.
+
+    Validaciones: tipo MIME en lista blanca (ver storage.ALLOWED_AVATAR_TYPES;
+    lista blanca y no negra para que no se cuele un SVG con script, que
+    el navegador ejecutaría al servirlo desde nuestro propio dominio) y
+    tamaño máximo. El tamaño se comprueba sobre los bytes YA leídos, no
+    sobre el header content-length, que lo controla el cliente y puede
+    mentir.
+    """
+    if file.content_type not in ALLOWED_AVATAR_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail=f"Formato no admitido. Usa: {', '.join(ALLOWED_AVATAR_TYPES)}.",
+        )
+
+    content = await file.read()
+    if len(content) > MAX_AVATAR_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"La imagen supera el máximo de {MAX_AVATAR_BYTES // (1024 * 1024)} MB.",
+        )
+    if not content:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El archivo está vacío.")
+
+    previous_url = current_user.avatar_url
+    new_url = save_avatar(current_user.id, content, file.content_type)
+    user = await user_repository.set_avatar_url(db, current_user, new_url)
+
+    # El archivo anterior se borra DESPUÉS de guardar el nuevo y de que la
+    # base de datos apunte a él: si algo fallara a mitad, es preferible
+    # dejar un archivo huérfano que dejar al usuario sin ninguna foto
+    # servible (mismo criterio que el audio de lecciones).
+    if previous_url:
+        delete_avatar(previous_url)
+
+    return user
+
+
+@router.delete("/avatar", response_model=UserOut)
+async def delete_my_avatar(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """Quita la foto de perfil y vuelve a la inicial del nombre. Si no
+    había foto, no es un error: el estado final pedido ya se cumple."""
+    previous_url = current_user.avatar_url
+    user = await user_repository.set_avatar_url(db, current_user, None)
+    if previous_url:
+        delete_avatar(previous_url)
+    return user
 
 
 @router.get("/progress", response_model=ProgressOut)

@@ -29,6 +29,10 @@ class LessonDetailOut(LessonSummaryOut):
 
     content: dict
     script: str | None
+    # La línea de tiempo del guión: qué frase suena entre qué segundos.
+    # Va al alumno porque es lo que el reproductor usa para ir mostrando
+    # el texto conforme se dice (ver frontend AudioLesson).
+    script_segments: list[dict] | None = None
     audio_url: str | None
     exercises: list[ExerciseOut]
 
@@ -42,6 +46,10 @@ class LessonAdminOut(LessonSummaryOut):
 
     content: dict
     script: str | None
+    # La línea de tiempo del guión: qué frase suena entre qué segundos.
+    # Va al alumno porque es lo que el reproductor usa para ir mostrando
+    # el texto conforme se dice (ver frontend AudioLesson).
+    script_segments: list[dict] | None = None
     audio_url: str | None
 
 

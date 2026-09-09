@@ -15,13 +15,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Voz de Piper TTS horneada en la imagen (no descargada en runtime): así
-# la narración funciona sin depender de que Hugging Face esté disponible
-# cuando arranca el contenedor. Fuera de /app a propósito — en dev
-# ./backend:/app se monta encima (ver docker-compose.yml), lo que
+# Voces de Piper TTS horneadas en la imagen (no descargadas en runtime):
+# así la narración funciona sin depender de que Hugging Face esté
+# disponible cuando arranca el contenedor. Fuera de /app a propósito —
+# en dev ./backend:/app se monta encima (ver docker-compose.yml), lo que
 # horneemos ahí quedaría oculto por el bind mount del host.
+#
+# DOS voces: la lección se explica en español y los ejemplos se dicen en
+# inglés (ver app/media/piper_tts.py). Con una sola, o el español suena a
+# robot o —peor— el inglés se pronuncia mal, que en una app de idiomas
+# es enseñar el error.
+#
+# Las dos son masculinas y "medium" a propósito, para que suenen al mismo
+# tutor y no a dos personas turnándose; y el español es de México, no de
+# España, porque el alumno de Espikin es latinoamericano. El porqué
+# completo está en app/core/config.py, junto a tts_voice_model_path.
 RUN mkdir -p /opt/piper-voices \
-    && python -m piper.download_voices en_US-lessac-medium --download-dir /opt/piper-voices
+    && python -m piper.download_voices en_US-ryan-medium --download-dir /opt/piper-voices \
+    && python -m piper.download_voices es_MX-ald-medium --download-dir /opt/piper-voices
 
 COPY . .
 

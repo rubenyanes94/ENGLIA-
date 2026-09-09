@@ -25,6 +25,12 @@ class User(Base):
     )
     current_level: Mapped["CEFRLevel | None"] = relationship()
 
+    # URL pública (relativa) de la foto de perfil, ej. "/media/avatars/<id>-ab12cd34.jpg".
+    # Guardamos la URL, no la ruta en disco: el día que esto se mueva a S3
+    # o a un CDN, solo cambia app/media/storage.py (mismo criterio que el
+    # audio de lecciones). Nullable: sin foto se pinta la inicial del nombre.
+    avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 

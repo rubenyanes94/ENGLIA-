@@ -1,19 +1,20 @@
-"""Autoría de contenido: crear/editar/borrar módulos, lecciones y
-ejercicios sin pasar por un script de seed. Todo detrás de
-get_current_admin — ningún endpoint aquí es alcanzable por un alumno normal.
+"""Panel de administración: autoría de contenido (módulos, lecciones,
+ejercicios) sin pasar por un script de seed, revisión de pagos y listado
+de alumnos. Todo detrás de get_current_admin — ningún endpoint aquí es
+alcanzable por un alumno normal.
 """
 
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.lesson_narration import generate_lesson_script
 from app.core.db import get_db
 from app.core.deps import get_current_admin
-from app.media.piper_tts import get_wav_duration_seconds, synthesize_to_wav
+from app.media.tts import get_wav_duration_seconds, synthesize_bilingual_to_wav
 from app.media.storage import delete_lesson_audio, save_lesson_audio
 from app.models import Exercise, Lesson, Module, Payment, Plan, User
 from app.repositories import (
@@ -25,14 +26,44 @@ from app.repositories import (
     persona_repository,
     plan_repository,
     subscription_repository,
+    user_repository,
 )
 from app.repositories.subscription_repository import BILLING_PERIOD
+from app.schemas.auth import UserListOut
 from app.schemas.billing import PaymentAdminOut, PaymentOut, PlanGatewayUpdate, PlanOut, RejectPaymentRequest
 from app.schemas.exercise import ExerciseAdminOut, ExerciseCreate, ExerciseUpdate
 from app.schemas.lesson import LessonAdminOut, LessonCreate, LessonUpdate
 from app.schemas.module import ModuleCreate, ModuleOut, ModuleUpdate
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(get_current_admin)])
+
+
+# --- Alumnos ---------------------------------------------------------------
+
+
+@router.get("/users", response_model=UserListOut)
+async def list_users(
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    search: str | None = Query(None, description="Filtra por email o nombre (parcial, sin distinguir mayúsculas)"),
+    role: str | None = Query(None, description='Filtra por rol: "student" o "admin"'),
+    db: AsyncSession = Depends(get_db),
+) -> UserListOut:
+    """Listado de alumnos registrados, del más reciente al más antiguo.
+
+    Paginado desde el primer día (limit tope 200) aunque hoy haya un
+    puñado de usuarios: devolver la tabla entera es de las cosas que
+    funcionan perfecto hasta que dejan de hacerlo, y retrofitear
+    paginación después obliga a cambiar el contrato del endpoint cuando
+    ya hay un frontend consumiéndolo.
+
+    Solo datos de ficha (email, nombre, rol, alta, activo): el progreso
+    de cada alumno vive en /users/me/progress y sus hermanos, que exigen
+    cruzar enrollments/evidencia — no tiene sentido pagarlo por cada fila
+    de un listado.
+    """
+    users, total = await user_repository.list_users(db, limit=limit, offset=offset, search=search, role=role)
+    return UserListOut(total=total, limit=limit, offset=offset, users=users)
 
 
 # --- Módulos ---------------------------------------------------------------
@@ -97,12 +128,14 @@ async def _generate_narration(db: AsyncSession, lesson: Lesson, module: Module, 
             )
         script = await generate_lesson_script(topic, level.code, persona)
 
-    wav_bytes = await synthesize_to_wav(script)
+    wav_bytes, script_segments = await synthesize_bilingual_to_wav(script)
     duration_seconds = get_wav_duration_seconds(wav_bytes)
     audio_url = save_lesson_audio(lesson.id, wav_bytes)
     previous_audio_url = lesson.audio_url
 
-    updated_lesson = await lesson_repository.set_narration(db, lesson, script, audio_url, duration_seconds)
+    updated_lesson = await lesson_repository.set_narration(
+        db, lesson, script, audio_url, duration_seconds, script_segments
+    )
 
     # Recién DESPUÉS de que el nuevo audio quedó guardado y la fila
     # actualizada: si algo de lo anterior fallara, el audio viejo sigue

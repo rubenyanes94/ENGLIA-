@@ -23,6 +23,27 @@ fi
 
 cd "$BACKEND_DIR" || { echo "[start-backend] no existe $BACKEND_DIR"; exit 1; }
 
+# Las variables de entorno de este contenedor se fijaron al CREARLO, y
+# desde entonces han quedado obsoletas más de una vez: seguía con
+# "llama3.2:1b" mucho después de que el compose pidiera otro modelo, y no
+# conocía NVIDIA_API_KEY porque la clave se añadió al .env con el
+# contenedor ya en marcha. Recrear el contenedor no es opción: es el que
+# sostiene esta ventana de VS Code.
+#
+# Por eso se relee el .env del repo en cada arranque y GANA sobre lo
+# horneado. Es lo que hace que cambiar una clave o un modelo en .env
+# baste con reiniciar uvicorn, sin tocar Docker.
+ENV_FILE="/workspaces/ENGLIA-/.env"
+if [ -f "$ENV_FILE" ]; then
+  while IFS= read -r line; do
+    case "$line" in
+      ''|'#'*) continue ;;
+      LLM_*|EMBEDDING_*|NVIDIA_API_KEY=*|TTS_*) export "${line?}" ;;
+    esac
+  done < "$ENV_FILE"
+  echo "[start-backend] variables de $ENV_FILE aplicadas sobre las del contenedor."
+fi
+
 # db/redis ya están "healthy" en este punto: docker-compose.yml declara
 # depends_on con condition: service_healthy, y ese chequeo lo hace Docker
 # Compose ANTES de crear/arrancar el contenedor "backend" — no hace falta

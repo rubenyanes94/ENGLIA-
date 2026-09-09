@@ -94,9 +94,21 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-englia}:${POSTGRES_PASSWORD:-englia_dev_password}@db:5432/${POSTGRES_DB:-englia}
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
-      LLM_BASE_URL: http://ollama:11434/v1
-      LLM_MODEL: ${LLM_MODEL:-qwen2.5:0.5b}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+      # El CHAT del tutor va al catálogo de NVIDIA, no a Ollama. Medido con
+      # el tutor real: Ollama con el 0.5B que cabe aquí tardó 34s en
+      # responder sin corregir nada; nemotron-3-super responde en ~1-3s y
+      # sí detecta los errores de interferencia del currículo.
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://integrate.api.nvidia.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-nvidia/nemotron-3-super-120b-a12b}
+      LLM_API_KEY: ${NVIDIA_API_KEY:-}
+      # Los EMBEDDINGS también en NVIDIA. La URL sigue siendo una variable
+      # aparte de la del chat, aunque hoy coincidan: son dos motores que
+      # deben poder moverse por separado (fue justo lo que hizo falta al
+      # migrar el chat primero).
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-https://integrate.api.nvidia.com/v1}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nvidia/nemotron-3-embed-1b}
+      EMBEDDING_API_KEY: ${NVIDIA_API_KEY:-}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
     volumes:
       - ./backend:/app
       # Volumen dedicado para /app/media, igual que /app/node_modules en
@@ -134,9 +146,21 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-englia}:${POSTGRES_PASSWORD:-englia_dev_password}@db:5432/${POSTGRES_DB:-englia}
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
-      LLM_BASE_URL: http://ollama:11434/v1
-      LLM_MODEL: ${LLM_MODEL:-qwen2.5:0.5b}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+      # El CHAT del tutor va al catálogo de NVIDIA, no a Ollama. Medido con
+      # el tutor real: Ollama con el 0.5B que cabe aquí tardó 34s en
+      # responder sin corregir nada; nemotron-3-super responde en ~1-3s y
+      # sí detecta los errores de interferencia del currículo.
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://integrate.api.nvidia.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-nvidia/nemotron-3-super-120b-a12b}
+      LLM_API_KEY: ${NVIDIA_API_KEY:-}
+      # Los EMBEDDINGS también en NVIDIA. La URL sigue siendo una variable
+      # aparte de la del chat, aunque hoy coincidan: son dos motores que
+      # deben poder moverse por separado (fue justo lo que hizo falta al
+      # migrar el chat primero).
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-https://integrate.api.nvidia.com/v1}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nvidia/nemotron-3-embed-1b}
+      EMBEDDING_API_KEY: ${NVIDIA_API_KEY:-}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
     volumes:
       - ./backend:/app
     depends_on:
@@ -155,22 +179,35 @@ services:
       dockerfile: Dockerfile
     container_name: englia_frontend
     restart: unless-stopped
-    # OJO: no fijamos VITE_API_URL aquí a propósito. En su lugar pasamos
-    # el nombre real del Codespace y su dominio de reenvío de puertos
-    # (variables que YA existen en la VM del Codespace) para que el
-    # frontend construya la URL pública del backend sin depender de
-    # "localhost", que en Codespaces no siempre apunta a donde crees
-    # (ver resolveApiUrl() en App.tsx). Fuera de Codespaces, estas
-    # variables simplemente vienen vacías y el frontend usa su fallback.
-    environment:
-      VITE_CODESPACE_NAME: ${CODESPACE_NAME:-}
-      VITE_PORT_FORWARDING_DOMAIN: ${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-}
+    # Sin variables VITE_* a propósito: el frontend llama a /api en su
+    # propio origen y el proxy del servidor de Vite (ver
+    # frontend/vite.config.ts) reenvía a http://backend:8000 por la red
+    # interna de Docker. Antes se le pasaban CODESPACE_NAME y el dominio
+    # de reenvío para construir la URL pública del puerto 8000, pero eso
+    # no podía funcionar desde el navegador: los puertos de Codespaces
+    # son privados por defecto y GitHub devolvía un 302 a su login (que
+    # el navegador reportaba, despistando, como error de CORS).
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      # Aquí había un volumen anónimo (`- /app/node_modules`) que "tapaba"
+      # la carpeta del repo para que el contenedor usara las dependencias
+      # instaladas durante el build de la imagen. Se quitó a propósito: el
+      # editor (que corre dentro del contenedor "backend" y ve el repo, no
+      # ese volumen) encontraba frontend/node_modules VACÍA y marcaba con
+      # error CASI TODOS los .tsx — "esta etiqueta JSX requiere que exista
+      # la ruta del módulo react/jsx-runtime". Con una única node_modules,
+      # la del repo, Vite y TypeScript ven exactamente lo mismo. El truco
+      # del volumen anónimo sirve para aislar binarios nativos cuando el
+      # host y el contenedor son sistemas distintos (típico en macOS o
+      # Windows); aquí los dos son el mismo Linux x86-64, así que solo
+      # aportaba la desincronización.
     ports:
       - "5173:5173"
-    command: npm run dev -- --host 0.0.0.0
+    # Se instala antes de arrancar porque, sin el volumen de arriba, en un
+    # Codespace recién creado frontend/node_modules no existe y Vite no
+    # levantaría. Si ya está instalada, npm solo verifica el árbol y tarda
+    # un par de segundos.
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
 
 volumes:
   db_data:

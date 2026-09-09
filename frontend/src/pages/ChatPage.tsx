@@ -85,21 +85,28 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-170px)] flex-col">
-      <header className="mb-4 flex items-center justify-between border-b border-slate-200 pb-4">
+    // max-w-4xl dentro del contenedor ancho: una conversación a 1400px de
+    // ancho es incómoda de leer (líneas larguísimas). El ancho completo lo
+    // aprovechan las vistas de contenido, no esta.
+    <div className="mx-auto flex h-[calc(100vh-200px)] w-full max-w-4xl flex-col md:h-[calc(100vh-190px)]">
+      <header className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
         <div>
-          <h1 className="text-lg font-extrabold text-slate-900">{session.persona_name}</h1>
+          <h1 className="text-lg font-bold text-slate-900">{session.persona_name}</h1>
           <p className="text-sm text-slate-500">
             Nivel {session.level_code}
-            {session.module_title && ` · Módulo: ${session.module_title}`}
-            {taskId && ` · Tarea: ${taskId}`}
+            {session.module_title && ` · ${session.module_title}`}
           </p>
         </div>
+        {taskId && (
+          <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600">
+            Practicando: {taskId}
+          </span>
+        )}
       </header>
 
       <div className="flex-1 space-y-4 overflow-y-auto pr-1">
         {messages.length === 0 && (
-          <p className="text-center text-sm text-slate-400">
+          <p className="py-10 text-center text-sm text-slate-400">
             Escribe un mensaje para empezar a conversar con {session.persona_name}.
           </p>
         )}
@@ -107,16 +114,16 @@ export default function ChatPage() {
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-2.5 shadow-sm ${
+              className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[70%] ${
                 msg.role === "user" ? "bg-blue-600 text-white" : "bg-white text-slate-800"
               }`}
             >
               <p className="whitespace-pre-wrap">{msg.content}</p>
 
               {msg.corrections && msg.corrections.length > 0 && (
-                <div className="mt-2 space-y-1.5 border-t border-black/10 pt-2">
+                <div className="mt-3 space-y-1.5 border-t border-black/10 pt-2">
                   {msg.corrections.map((c, j) => (
-                    <div key={j} className="text-xs text-amber-700">
+                    <div key={j} className="text-xs">
                       <span className="text-red-500 line-through decoration-red-300">{c.error}</span>
                       {" → "}
                       <span className="font-semibold text-emerald-600">{c.correction}</span>
@@ -128,7 +135,7 @@ export default function ChatPage() {
 
               {msg.taskCompleted !== null && msg.taskCompleted !== undefined && (
                 <div
-                  className={`mt-2 flex items-center gap-1.5 border-t border-black/10 pt-2 text-xs font-medium ${
+                  className={`mt-3 flex items-center gap-1.5 border-t border-black/10 pt-2 text-xs font-medium ${
                     msg.taskCompleted ? "text-emerald-600" : "text-slate-400"
                   }`}
                 >
@@ -142,7 +149,7 @@ export default function ChatPage() {
 
         {sending && (
           <div className="flex justify-start">
-            <div className="flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-slate-400 shadow-sm">
+            <div className="flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-slate-400 shadow-sm">
               <FontAwesomeIcon icon={faSpinner} spin />
               <span className="text-sm">
                 Pensando... (puede tardar hasta un minuto en este entorno de desarrollo sin GPU)
@@ -154,21 +161,21 @@ export default function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
-      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
 
-      <form onSubmit={handleSend} className="mt-4 flex gap-2 border-t border-slate-200 pt-4">
+      <form onSubmit={handleSend} className="mt-4 flex gap-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={sending}
           placeholder="Escribe en inglés..."
-          className="flex-1 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none ring-blue-500 focus:ring-2 disabled:opacity-60"
+          className="flex-1 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 shadow-sm outline-none ring-blue-500 focus:ring-2 disabled:opacity-60"
         />
         <button
           type="submit"
           disabled={sending || !input.trim()}
-          className="flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition active:scale-[0.98] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200"
+          className="flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-medium text-white transition active:scale-[0.98] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200"
         >
           <FontAwesomeIcon icon={faPaperPlane} />
         </button>
