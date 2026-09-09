@@ -129,6 +129,7 @@ export interface User {
   full_name: string
   native_language: string
   current_level_id: string | null
+  notifications_enabled: boolean
   // URL relativa servida por el backend en /media/avatars/... — null si el
   // alumno no ha subido foto (se pinta la inicial de su nombre).
   avatar_url: string | null
@@ -228,4 +229,30 @@ export interface PronunciationFeedback {
   matches: boolean
   score: number
   feedback_es: string
+}
+
+// --- Facturación ---
+
+export type BillingProvider = "credit_card" | "paypal" | "binance_pay" | "pago_movil"
+
+export interface Plan {
+  code: string
+  name: string
+  price_cents: number
+  currency: string
+}
+
+export interface CheckoutResponse {
+  checkout_url: string
+  provider: string
+}
+
+/** Los datos de la academia a los que el alumno transfiere por Pago Móvil.
+ * `configured` va aparte a propósito: mostrar campos vacíos como si fueran
+ * una cuenta real es cómo se pierde el dinero de alguien. */
+export interface PagoMovilInfo {
+  configured: boolean
+  bank: string
+  document: string
+  phone: string
 }

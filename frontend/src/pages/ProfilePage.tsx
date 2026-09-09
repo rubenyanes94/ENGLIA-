@@ -1,4 +1,15 @@
-import { faCamera, faEnvelope, faGraduationCap, faLanguage, faRightFromBracket, faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons"
+import {
+  faBell,
+  faCamera,
+  faChevronRight,
+  faCreditCard,
+  faEnvelope,
+  faGraduationCap,
+  faLanguage,
+  faRightFromBracket,
+  faSpinner,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useRef, useState, type ChangeEvent } from "react"
 import { useNavigate } from "react-router-dom"
@@ -8,6 +19,7 @@ import { ApiError } from "../api/types"
 import { useAuth } from "../auth/AuthContext"
 import AppFooter from "../components/AppFooter"
 import Avatar from "../components/Avatar"
+import BillingModal from "../components/billing/BillingModal"
 
 export default function ProfilePage() {
   const { user, logout, refreshUser } = useAuth()
@@ -15,6 +27,8 @@ export default function ProfilePage() {
   const fileInput = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [billingOpen, setBillingOpen] = useState(false)
+  const [savingPrefs, setSavingPrefs] = useState(false)
 
   if (!user) return null
 
@@ -125,17 +139,93 @@ export default function ProfilePage() {
           />
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 transition active:scale-[0.98] hover:bg-slate-50 sm:w-auto sm:px-8"
-        >
-          <FontAwesomeIcon icon={faRightFromBracket} />
-          Cerrar sesión
-        </button>
+        {/* Configuración: las tres acciones en una sola tarjeta, en vez del
+            botón de cerrar sesión suelto que había antes. Agruparlas las
+            hace encontrables — un ajuste que vive solo en mitad de la
+            página no se busca, se tropieza uno con él. */}
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <p className="px-6 pt-5 text-xs font-semibold uppercase tracking-wide text-slate-400">Configuración</p>
+
+          <div className="mt-2 divide-y divide-slate-100">
+            <div className="flex items-center gap-4 px-6 py-4">
+              <FontAwesomeIcon icon={faBell} className="w-5 text-slate-400" />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-slate-800">Notificaciones</p>
+                {/* Se dice la verdad sobre el estado real de la función:
+                    la preferencia se guarda, pero todavía no hay nada que
+                    envíe avisos. Un interruptor que promete lo que no hay
+                    se nota a la primera semana. */}
+                <p className="text-xs text-slate-400">Guardamos tu preferencia para cuando activemos los avisos</p>
+              </div>
+              <Toggle
+                checked={user.notifications_enabled}
+                disabled={savingPrefs}
+                onChange={async (value) => {
+                  setSavingPrefs(true)
+                  try {
+                    await api.patch<User>("/users/me/preferences", { notifications_enabled: value })
+                    await refreshUser()
+                  } catch {
+                    setError("No se pudo guardar la preferencia.")
+                  } finally {
+                    setSavingPrefs(false)
+                  }
+                }}
+              />
+            </div>
+
+            <button
+              onClick={() => setBillingOpen(true)}
+              className="flex w-full items-center gap-4 px-6 py-4 text-left transition hover:bg-slate-50"
+            >
+              <FontAwesomeIcon icon={faCreditCard} className="w-5 text-slate-400" />
+              <span className="flex-1 font-semibold text-slate-800">Método de Facturación</span>
+              <FontAwesomeIcon icon={faChevronRight} className="text-xs text-slate-300" />
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-4 px-6 py-4 text-left font-semibold text-red-500 transition hover:bg-red-50"
+            >
+              <FontAwesomeIcon icon={faRightFromBracket} className="w-5" />
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
       </div>
+
+      {billingOpen && <BillingModal onClose={() => setBillingOpen(false)} />}
 
       <AppFooter />
     </div>
+  )
+}
+
+/** Interruptor de preferencia. `button` con role="switch" y no un
+ * `input type="checkbox"` maquillado: así el lector de pantalla anuncia
+ * "activado/desactivado" en vez de "casilla", que es lo que realmente es. */
+function Toggle({
+  checked,
+  disabled,
+  onChange,
+}: {
+  checked: boolean
+  disabled?: boolean
+  onChange: (value: boolean) => void
+}) {
+  return (
+    <button
+      role="switch"
+      aria-checked={checked}
+      aria-label="Notificaciones"
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-50 ${checked ? "bg-blue-600" : "bg-slate-200"}`}
+    >
+      <span
+        className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all ${checked ? "left-6" : "left-1"}`}
+      />
+    </button>
   )
 }
 

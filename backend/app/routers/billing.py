@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.billing import binance_pay, paypal, stripe_gateway
+from app.core.config import settings
 from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.models import Payment, User
@@ -17,6 +18,7 @@ from app.schemas.billing import (
     CheckoutResponse,
     MySubscriptionOut,
     PagoMovilClaimRequest,
+    PagoMovilInfoOut,
     PaymentOut,
     PlanOut,
     ProviderLiteral,
@@ -97,6 +99,23 @@ async def start_checkout(
     subscription.provider_subscription_id = str(subscription.id)  # ver nota en binance_pay.create_order
     await db.commit()
     return CheckoutResponse(checkout_url=result["checkout_url"], provider="binance_pay")
+
+
+@router.get("/pago-movil-info", response_model=PagoMovilInfoOut)
+async def get_pago_movil_info(current_user: User = Depends(get_current_user)) -> PagoMovilInfoOut:
+    """Los datos bancarios de la academia, para que el alumno transfiera.
+
+    Salen de la configuración y no del código: son datos reales de una
+    cuenta real, y quemarlos en el frontend obligaría a un despliegue para
+    corregir un dígito de una cédula — con transferencias perdidas
+    mientras tanto.
+    """
+    return PagoMovilInfoOut(
+        configured=all([settings.pago_movil_bank, settings.pago_movil_document, settings.pago_movil_phone]),
+        bank=settings.pago_movil_bank,
+        document=settings.pago_movil_document,
+        phone=settings.pago_movil_phone,
+    )
 
 
 @router.post("/payments/pago-movil", response_model=PaymentOut, status_code=status.HTTP_201_CREATED)

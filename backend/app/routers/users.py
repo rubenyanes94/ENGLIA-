@@ -6,7 +6,7 @@ from app.core.deps import get_current_user
 from app.media.storage import ALLOWED_AVATAR_TYPES, MAX_AVATAR_BYTES, delete_avatar, save_avatar
 from app.models import User
 from app.repositories import enrollment_repository, user_repository
-from app.schemas.auth import UserOut
+from app.schemas.auth import UserOut, UserPreferencesUpdate
 from app.schemas.descriptor import CertificationResultOut, DescriptorMasteryOut, DescriptorMasterySummaryOut, LevelExitGateOut
 from app.schemas.progress import ProgressModuleOut, ProgressOut, SkillBreakdownOut
 from app.services import certification as certification_service
@@ -74,6 +74,27 @@ async def delete_my_avatar(
     if previous_url:
         delete_avatar(previous_url)
     return user
+
+
+@router.patch("/preferences", response_model=UserOut)
+async def update_preferences(
+    payload: UserPreferencesUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """Actualiza las preferencias del alumno.
+
+    PATCH y no PUT porque se manda solo lo que cambió: si mañana hay seis
+    preferencias, tocar una no debe obligar al frontend a reenviar las
+    otras cinco (y arriesgarse a pisarlas con valores viejos).
+    """
+    changes = payload.model_dump(exclude_unset=True)
+    for field, value in changes.items():
+        setattr(current_user, field, value)
+
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user
 
 
 @router.get("/progress", response_model=ProgressOut)

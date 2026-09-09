@@ -231,6 +231,17 @@ class Settings(BaseSettings):
     # tocaría app/media/storage.py, nada que hable con esta carpeta directamente.
     media_root: str = "/app/media"
 
+    # --- Datos de la academia para Pago Móvil ---
+    # Vacíos por defecto A PROPÓSITO. Estos son los datos a los que un
+    # alumno transfiere dinero real: dejar aquí un ejemplo tipo
+    # "J-12345678-9" haría que la interfaz los mostrara como si fueran
+    # buenos, y el dinero de alguien acabaría en una cuenta que no existe
+    # o —peor— en la de un tercero. Sin configurar, el frontend muestra
+    # que el método no está disponible en vez de datos inventados.
+    pago_movil_bank: str = ""       # ej. "Bancamiga (0172)"
+    pago_movil_document: str = ""   # cédula o RIF de la academia
+    pago_movil_phone: str = ""
+
     # --- Facturación ---
     # Dónde redirige el navegador del alumno tras aprobar/cancelar un pago
     # en la pasarela (PayPal, Stripe) antes de volver al frontend.
