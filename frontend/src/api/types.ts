@@ -118,6 +118,14 @@ export interface CertificationResult {
   certified_at: string
 }
 
+/** GET /users/me/progress/skills — dominio por destreza MCER.
+ * `skills` viene como diccionario (listening/speaking/reading/writing)
+ * con el porcentaje ya calculado en el backend. */
+export interface SkillBreakdown {
+  skills: Record<string, number>
+  average: number
+}
+
 export interface Progress {
   current_level_code: string | null
   modules: { module_id: string; module_title: string; level_code: string; status: string; mastery_score: number }[]
