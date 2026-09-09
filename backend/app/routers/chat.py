@@ -204,6 +204,7 @@ async def send_message(
         persona_name=session.persona.name,
         corrections=turn["corrections"],
         task_completed=turn["task_completed"] if active_task is not None else None,
+        moderation_blocked=turn["moderation_blocked"],
     )
 
 

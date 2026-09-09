@@ -186,6 +186,9 @@ export interface SendMessageResponse {
   persona_name: string
   corrections: Correction[]
   task_completed: boolean | null
+  /** El turno no pasó la moderación: `reply` es una redirección, no lo
+   * que escribió el tutor. */
+  moderation_blocked: boolean
 }
 
 export interface ChatMessage {

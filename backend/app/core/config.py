@@ -126,6 +126,15 @@ class Settings(BaseSettings):
     # enterarse en vez de gastar llamadas en silencio.
     lesson_script_max_attempts: int = 3
 
+    # --- Moderación del chat (ver app/agents/moderation.py) ---
+    # Espikin tiene chat libre y alumnos probablemente menores. Se revisa
+    # cada turno en las dos direcciones (lo que escribe el alumno y lo que
+    # responde el tutor) en una sola llamada de 0.1-0.9s.
+    moderation_model: str = "nvidia/nemotron-3.5-content-safety"
+    # Apagarlo deja pasar todo SIN revisar y marcado como tal. Existe para
+    # desarrollo sin conexión, no como interruptor de producción.
+    moderation_enabled: bool = True
+
     # Cola de tareas async (resumen + embedding al cerrar una sesión).
     # DB 1 de Redis, separada de la DB 0 (memoria de corto plazo del chat)
     # para que un `FLUSHDB` o una inspección de una no toque a la otra.
