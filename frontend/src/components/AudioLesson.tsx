@@ -2,6 +2,7 @@ import {
   faBackward,
   faForward,
   faGaugeHigh,
+  faChevronDown,
   faHeadphones,
   faPause,
   faPlay,
@@ -20,6 +21,11 @@ import PronunciationPractice from "./PronunciationPractice"
 const SPEEDS = [0.75, 1, 1.25, 1.5]
 
 const SKIP_SECONDS = 10
+
+// Nombre con el que se presenta el tutor en la lección narrada. Fijo aquí
+// y no leído de la persona del nivel: en la base de datos el tutor de A1
+// se llama "Tutor Emma (A1)", que no es el nombre que se quiere mostrar.
+const TUTOR_NAME = "Teacher David"
 
 /** Divide el guión en fragmentos, marcando cuáles son inglés (los que el
  * guión encierra entre [[dobles corchetes]] para que Piper los narre con
@@ -109,7 +115,7 @@ export default function AudioLesson({ lesson, levelCode = "A1" }: { lesson: Less
         />
         <div className="relative">
           <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-300">
-            <FontAwesomeIcon icon={faHeadphones} /> Lección narrada
+            <FontAwesomeIcon icon={faHeadphones} /> Lección con {TUTOR_NAME}
           </p>
           <h3 className="mt-2 text-xl font-extrabold tracking-tight">{lesson.title}</h3>
 
@@ -207,10 +213,14 @@ export default function AudioLesson({ lesson, levelCode = "A1" }: { lesson: Less
           desplegado competiría por la atención con lo que suena ahora. */}
       {lesson.script && (
         <details className="group p-6 sm:p-8" open={!lesson.script_segments?.length}>
-          <summary className="cursor-pointer list-none text-xs font-semibold uppercase tracking-wide text-slate-400 transition hover:text-slate-600">
-            Transcripción completa
-            <span className="ml-2 font-normal normal-case tracking-normal text-slate-300 group-open:hidden">
-              — para repasar después
+          {/* Sigue siendo el botón que despliega la transcripción completa:
+              la flecha es la única pista de que se puede abrir, ahora que
+              el texto es la marca y no "Transcripción completa". */}
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-xs font-semibold uppercase tracking-wide text-slate-400 transition hover:text-slate-600">
+            <span className="font-extrabold tracking-[0.2em] text-slate-500">ESPIKIN</span>
+            <span className="flex items-center gap-2 font-medium normal-case tracking-normal">
+              Repasa las veces que quieras
+              <FontAwesomeIcon icon={faChevronDown} className="text-[10px] transition-transform group-open:rotate-180" />
             </span>
           </summary>
           <p className="mt-3 leading-relaxed text-slate-700">
