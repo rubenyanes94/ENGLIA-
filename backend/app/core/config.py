@@ -126,6 +126,13 @@ class Settings(BaseSettings):
     # enterarse en vez de gastar llamadas en silencio.
     lesson_script_max_attempts: int = 3
 
+    # Intentos para generar el examen de un módulo (ver
+    # agents/exam_generation.py). Más que para un guión porque el examen
+    # pasa DOS filtros —forma y una verificación de la clave resolviendo
+    # el examen a ciegas— y cada pregunta ambigua lo tumba entero. Se
+    # genera una vez por módulo y se guarda, así que el coste no se repite.
+    exam_generation_max_attempts: int = 6
+
     # --- Moderación del chat (ver app/agents/moderation.py) ---
     # Espikin tiene chat libre y alumnos probablemente menores. Se revisa
     # cada turno en las dos direcciones (lo que escribe el alumno y lo que

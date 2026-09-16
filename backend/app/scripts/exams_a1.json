@@ -1,0 +1,902 @@
+{
+  "A1.M01": [
+    {
+      "descriptor_code": "A1.SP.01",
+      "prompt": "¿Cómo dices tu profesión si eres médico?",
+      "options": [
+        "I'm the doctor.",
+        "I'm a doctor.",
+        "I'm doctors.",
+        "I'm doctor."
+      ],
+      "correct": "I'm a doctor."
+    },
+    {
+      "descriptor_code": "A1.SI.03",
+      "prompt": "No entendiste una palabra. ¿Qué dices?",
+      "options": [
+        "Where are you from?",
+        "I'm 20 years old.",
+        "Sorry, can you repeat that?",
+        "Goodbye."
+      ],
+      "correct": "Sorry, can you repeat that?"
+    },
+    {
+      "descriptor_code": "A1.SI.01",
+      "prompt": "Es de noche y te vas a dormir. ¿Qué dices al despedirte?",
+      "options": [
+        "See you later.",
+        "Good afternoon.",
+        "Nice to meet you.",
+        "Good night."
+      ],
+      "correct": "Good night."
+    },
+    {
+      "descriptor_code": "A1.SI.03",
+      "prompt": "Tu compañero habla muy rápido y no le entiendes. ¿Qué le pides?",
+      "options": [
+        "Can you speak more slowly, please?",
+        "I don't like that.",
+        "Nice to meet you.",
+        "What is your name?"
+      ],
+      "correct": "Can you speak more slowly, please?"
+    },
+    {
+      "descriptor_code": "A1.SI.01",
+      "prompt": "Es de mañana y conoces a alguien nuevo. ¿Cómo lo saludas?",
+      "options": [
+        "Good night.",
+        "Good evening.",
+        "Good morning.",
+        "Goodbye."
+      ],
+      "correct": "Good morning."
+    },
+    {
+      "descriptor_code": "A1.SI.02",
+      "prompt": "¿Cómo preguntas la edad de alguien?",
+      "options": [
+        "How is your age?",
+        "What old are you?",
+        "How old are you?",
+        "What is your old?"
+      ],
+      "correct": "How old are you?"
+    },
+    {
+      "descriptor_code": "A1.SP.01",
+      "prompt": "¿Cómo dices de dónde eres si eres de Colombia?",
+      "options": [
+        "I'm from Colombia.",
+        "I'm from the Colombia.",
+        "I'm Colombia.",
+        "I'm from Colombian."
+      ],
+      "correct": "I'm from Colombia."
+    },
+    {
+      "descriptor_code": "A1.SI.02",
+      "prompt": "Alguien te pregunta tu nombre. ¿Cómo respondes?",
+      "options": [
+        "I have 25.",
+        "My name is Ana.",
+        "I'm a student.",
+        "I'm from Mexico."
+      ],
+      "correct": "My name is Ana."
+    }
+  ],
+  "A1.M02": [
+    {
+      "descriptor_code": "A1.SP.02",
+      "prompt": "¿Cómo describes el cabello de tu hermana si es rubio y largo?",
+      "options": [
+        "She has got blonde hair long.",
+        "She has got long blonde hair.",
+        "She has got hair blonde long.",
+        "She has got blonde long hair."
+      ],
+      "correct": "She has got long blonde hair."
+    },
+    {
+      "descriptor_code": "A1.LI.01",
+      "prompt": "Escuchas: 'This is my mother. She's got brown eyes.' ¿De quién se está hablando?",
+      "options": [
+        "The speaker's friend",
+        "The speaker's mother",
+        "The speaker's sister",
+        "The speaker's father"
+      ],
+      "correct": "The speaker's mother"
+    },
+    {
+      "descriptor_code": "A1.SP.02",
+      "prompt": "¿Cómo describirías a tu amiga si tiene el pelo corto y negro?",
+      "options": [
+        "She has got short blacks hair.",
+        "She's got black short hair.",
+        "She's got short hairs black.",
+        "She's got short black hair."
+      ],
+      "correct": "She's got short black hair."
+    },
+    {
+      "descriptor_code": "A1.LI.01",
+      "prompt": "Escuchas: 'My father has got a beard.' ¿Qué característica se menciona?",
+      "options": [
+        "a beard",
+        "blue eyes",
+        "tall height",
+        "blonde hair"
+      ],
+      "correct": "a beard"
+    },
+    {
+      "descriptor_code": "A1.WR.02",
+      "prompt": "Completa: 'She's got ___ black hair.'",
+      "options": [
+        "long",
+        "longest",
+        "length",
+        "longer"
+      ],
+      "correct": "long"
+    },
+    {
+      "descriptor_code": "A1.WR.02",
+      "prompt": "Completa: 'This is ___ brother. His name is Carlos.'",
+      "options": [
+        "your",
+        "her",
+        "my",
+        "his"
+      ],
+      "correct": "my"
+    },
+    {
+      "descriptor_code": "A1.RE.03",
+      "prompt": "Lees esta descripción: 'My grandparents live in Mexico. They are very kind.' ¿Dónde viven los abuelos?",
+      "options": [
+        "In Mexico",
+        "In Spain",
+        "In Colombia",
+        "In Argentina"
+      ],
+      "correct": "In Mexico"
+    },
+    {
+      "descriptor_code": "A1.RE.03",
+      "prompt": "Lees este mensaje: 'Hi! This is my sister Ana. She's got curly hair and she is funny.' ¿Cómo es Ana?",
+      "options": [
+        "She's got curly hair and she is funny.",
+        "She's got curly hair and she is serious.",
+        "She's got straight hair and she is serious.",
+        "She's got straight hair and she is funny."
+      ],
+      "correct": "She's got curly hair and she is funny."
+    }
+  ],
+  "A1.M03": [
+    {
+      "descriptor_code": "A1.SP.03",
+      "prompt": "Completa la oración: I usually ___ at 7:00.",
+      "options": [
+        "gets up",
+        "get ups",
+        "get upped",
+        "get up"
+      ],
+      "correct": "get up"
+    },
+    {
+      "descriptor_code": "A1.WR.02",
+      "prompt": "Escribe una oración sobre lo que haces los domingos:",
+      "options": [
+        "On Sundays I relax at home.",
+        "On Sundays I relaxed at home.",
+        "On Sundays I relaxing at home.",
+        "On Sundays I relaxs at home."
+      ],
+      "correct": "On Sundays I relax at home."
+    },
+    {
+      "descriptor_code": "A1.SP.03",
+      "prompt": "Elige la oración correcta sobre tu rutina:",
+      "options": [
+        "I always brushed my teeth before bed.",
+        "I always brush my teeth before bed.",
+        "I always brushing my teeth before bed.",
+        "I always brushs my teeth before bed."
+      ],
+      "correct": "I always brush my teeth before bed."
+    },
+    {
+      "descriptor_code": "A1.SI.02",
+      "prompt": "Tu compañero dice: 'I don't like coffee.' A ti tampoco te gusta. ¿Qué respondes?",
+      "options": [
+        "Me too.",
+        "I do too.",
+        "I am not.",
+        "Me neither."
+      ],
+      "correct": "Me neither."
+    },
+    {
+      "descriptor_code": "A1.SI.02",
+      "prompt": "¿Cómo preguntas a un amigo a qué hora se levanta?",
+      "options": [
+        "What time do you get up?",
+        "What time you get up?",
+        "What time are you get up?",
+        "What time does you get up?"
+      ],
+      "correct": "What time do you get up?"
+    },
+    {
+      "descriptor_code": "A1.LI.03",
+      "prompt": "Escuchas: 'She goes to bed at ten fifteen.' ¿Qué hora es?",
+      "options": [
+        "10:5",
+        "10:50",
+        "10:15",
+        "1:10"
+      ],
+      "correct": "10:15"
+    },
+    {
+      "descriptor_code": "A1.LI.03",
+      "prompt": "Escuchas: 'The meeting starts at nine thirty.' ¿Qué hora es?",
+      "options": [
+        "3:9",
+        "9:30",
+        "9:03",
+        "93:00"
+      ],
+      "correct": "9:30"
+    },
+    {
+      "descriptor_code": "A1.WR.02",
+      "prompt": "Escribe una oración simple sobre tu rutina los días laborables:",
+      "options": [
+        "On weekdays I go to works.",
+        "On weekdays I going to work.",
+        "On weekdays I goes to work.",
+        "On weekdays I go to work."
+      ],
+      "correct": "On weekdays I go to work."
+    }
+  ],
+  "A1.M04": [
+    {
+      "descriptor_code": "A1.RE.01",
+      "prompt": "Ves este aviso: 'No parking'. ¿Qué significa?",
+      "options": [
+        "No fumar",
+        "No salir",
+        "No estacionar",
+        "No entrar"
+      ],
+      "correct": "No estacionar"
+    },
+    {
+      "descriptor_code": "A1.LI.01",
+      "prompt": "Escuchas: 'There is a book on the table.' ¿Qué significa?",
+      "options": [
+        "Hay un libro sobre la mesa.",
+        "Hay un libro detrás de la mesa.",
+        "Hay un libro bajo la mesa.",
+        "Hay un libro delante de la mesa."
+      ],
+      "correct": "Hay un libro sobre la mesa."
+    },
+    {
+      "descriptor_code": "A1.SP.04",
+      "prompt": "¿Cómo corregirías esta frase: '*It has a table in the kitchen'?",
+      "options": [
+        "There's a table in the kitchen.",
+        "It has a table in the kitchen.",
+        "It have a table in the kitchen.",
+        "It is a table in the kitchen."
+      ],
+      "correct": "There's a table in the kitchen."
+    },
+    {
+      "descriptor_code": "A1.RE.01",
+      "prompt": "Ves este letrero: 'Bathroom'. ¿Qué significa?",
+      "options": [
+        "Baño",
+        "Dormitorio",
+        "Cocina",
+        "Sala"
+      ],
+      "correct": "Baño"
+    },
+    {
+      "descriptor_code": "A1.SP.04",
+      "prompt": "¿Cómo corregirías esta frase: '*In my city have many parks'?",
+      "options": [
+        "In my city has many parks.",
+        "In my city there are many parks.",
+        "In my city have many parks.",
+        "In my city is many parks."
+      ],
+      "correct": "In my city there are many parks."
+    },
+    {
+      "descriptor_code": "A1.WR.03",
+      "prompt": "Completa la descripción: 'There ___ two chairs in the kitchen.'",
+      "options": [
+        "are",
+        "am",
+        "is",
+        "be"
+      ],
+      "correct": "are"
+    },
+    {
+      "descriptor_code": "A1.WR.03",
+      "prompt": "Escribe una frase sencilla sobre tu barrio: 'There ___ a park near my house.'",
+      "options": [
+        "are",
+        "be",
+        "am",
+        "is"
+      ],
+      "correct": "is"
+    },
+    {
+      "descriptor_code": "A1.LI.01",
+      "prompt": "Escuchas: 'I live in a house.' ¿Qué significa?",
+      "options": [
+        "Tengo una casa.",
+        "Vivo en una casa.",
+        "Construyo una casa.",
+        "Me gusta la casa."
+      ],
+      "correct": "Vivo en una casa."
+    }
+  ],
+  "A1.M05": [
+    {
+      "descriptor_code": "A1.SI.07",
+      "prompt": "Quieres preguntarle a tu compañero si le gusta el café. ¿Qué dices?",
+      "options": [
+        "Like you coffee?",
+        "Do you like coffee?",
+        "You like coffee?",
+        "Coffee you like?"
+      ],
+      "correct": "Do you like coffee?"
+    },
+    {
+      "descriptor_code": "A1.SI.04",
+      "prompt": "Quieres saber el precio de un sándwich. ¿Qué preguntas en inglés?",
+      "options": [
+        "Sandwich how much?",
+        "How much is the sandwich?",
+        "How many is the sandwich?",
+        "What price has sandwich?"
+      ],
+      "correct": "How much is the sandwich?"
+    },
+    {
+      "descriptor_code": "A1.SI.07",
+      "prompt": "Tu amigo pregunta si te gusta la pizza. Respondes que sí, mucho. ¿Qué dices?",
+      "options": [
+        "I really like pizza.",
+        "Very I like pizza.",
+        "I like very much pizza.",
+        "I like pizza very."
+      ],
+      "correct": "I really like pizza."
+    },
+    {
+      "descriptor_code": "A1.ME.02",
+      "prompt": "Quieres pedir agua pero no recuerdas la palabra. Señalas tu garganta y haces el gesto de beber. ¿Qué estás intentando comunicar?",
+      "options": [
+        "Estoy cansado",
+        "Tengo sed",
+        "Tengo frío",
+        "Tengo hambre"
+      ],
+      "correct": "Tengo sed"
+    },
+    {
+      "descriptor_code": "A1.RE.02",
+      "prompt": "En el menú lees: 'Does not contain nuts'. ¿Qué indica?",
+      "options": [
+        "No tiene nueces",
+        "Tiene muchas nueces",
+        "Está muy frío",
+        "Es solo para niños"
+      ],
+      "correct": "No tiene nueces"
+    },
+    {
+      "descriptor_code": "A1.SI.04",
+      "prompt": "Estás en un café y quieres pedir un té. ¿Qué dices en inglés?",
+      "options": [
+        "I want a tea.",
+        "Give me a tea.",
+        "Tea, please give.",
+        "I'd like a tea, please."
+      ],
+      "correct": "I'd like a tea, please."
+    },
+    {
+      "descriptor_code": "A1.RE.02",
+      "prompt": "Ves en un menú: 'Grilled chicken salad'. ¿Qué significa?",
+      "options": [
+        "Ensalada de pollo a la plancha",
+        "Pollo frito con papas",
+        "Ensalada de frutas",
+        "Sopa de pollo"
+      ],
+      "correct": "Ensalada de pollo a la plancha"
+    },
+    {
+      "descriptor_code": "A1.ME.02",
+      "prompt": "No sabes cómo se dice 'aguacate' en inglés. Señalas el aguacate en el menú y dices: 'This, please'. ¿Qué quieres decir?",
+      "options": [
+        "Quiero esto, por favor",
+        "¿Cuánto cuesta esto?",
+        "Esto está malo",
+        "No quiero esto"
+      ],
+      "correct": "Quiero esto, por favor"
+    }
+  ],
+  "A1.M06": [
+    {
+      "descriptor_code": "A1.PR.01",
+      "prompt": "En lugar de decir 'Give me a ticket', ¿cómo pides de forma más educada?",
+      "options": [
+        "Can I have a ticket, please?",
+        "Ticket please now.",
+        "Give me a ticket.",
+        "I want a ticket."
+      ],
+      "correct": "Can I have a ticket, please?"
+    },
+    {
+      "descriptor_code": "A1.LI.02",
+      "prompt": "Escuchas: 'Take the second turning on the right.' ¿Qué significa?",
+      "options": [
+        "Go straight and turn right at the second street.",
+        "Turn left at the second street.",
+        "Turn right now.",
+        "Go left twice."
+      ],
+      "correct": "Go straight and turn right at the second street."
+    },
+    {
+      "descriptor_code": "A1.SI.04",
+      "prompt": "Preguntas el precio de un boleto de ida y vuelta al centro. ¿Qué dices?",
+      "options": [
+        "How much is a return ticket to downtown?",
+        "How much return ticket downtown?",
+        "Price return ticket?",
+        "Return ticket how much?"
+      ],
+      "correct": "How much is a return ticket to downtown?"
+    },
+    {
+      "descriptor_code": "A1.SI.04",
+      "prompt": "Quieres comprar un boleto sencillo al museo. ¿Qué dices?",
+      "options": [
+        "I want ticket museum.",
+        "Ticket museum now.",
+        "A ticket to the museum, please.",
+        "Give me museum ticket."
+      ],
+      "correct": "A ticket to the museum, please."
+    },
+    {
+      "descriptor_code": "A1.RE.02",
+      "prompt": "Ves este anuncio: 'Bus to downtown leaves every 30 minutes.' ¿Qué puedes entender?",
+      "options": [
+        "The bus goes to downtown every half hour.",
+        "The bus leaves at 30 o'clock.",
+        "The bus costs 30 dollars.",
+        "The bus is 30 minutes long."
+      ],
+      "correct": "The bus goes to downtown every half hour."
+    },
+    {
+      "descriptor_code": "A1.SI.05",
+      "prompt": "Quieres ir al parque y preguntas: 'How do I get to the park?' ¿Cuál es la respuesta correcta usando imperativos?",
+      "options": [
+        "Go straight on and turn left at the school.",
+        "I like the park.",
+        "Where is the park?",
+        "The park is near here."
+      ],
+      "correct": "Go straight on and turn left at the school."
+    },
+    {
+      "descriptor_code": "A1.SI.05",
+      "prompt": "Alguien te da estas indicaciones: 'Go straight on and turn left at the post office.' ¿Qué debes hacer?",
+      "options": [
+        "Go straight, then turn left at the post office.",
+        "Turn left first, then go straight.",
+        "Turn right at the post office.",
+        "Go left and turn straight."
+      ],
+      "correct": "Go straight, then turn left at the post office."
+    },
+    {
+      "descriptor_code": "A1.LI.02",
+      "prompt": "Escuchas: 'It's about ten minutes on foot.' ¿Qué significa?",
+      "options": [
+        "It's a ten-minute walk.",
+        "Take a bus for ten minutes.",
+        "It's ten minutes by car.",
+        "You need to drive for ten minutes."
+      ],
+      "correct": "It's a ten-minute walk."
+    }
+  ],
+  "A1.M07": [
+    {
+      "descriptor_code": "A1.LI.04",
+      "prompt": "Escuchas: 'I'm drinking water. It's hot today.' ¿De qué están hablando?",
+      "options": [
+        "The weather and a drink.",
+        "Reading a book.",
+        "Going to the store.",
+        "Wearing clothes."
+      ],
+      "correct": "The weather and a drink."
+    },
+    {
+      "descriptor_code": "A1.SP.05",
+      "prompt": "¿Qué está haciendo María ahora? (Ella está leyendo un libro.)",
+      "options": [
+        "Maria reads a book.",
+        "Maria read a book.",
+        "Maria is reading a book.",
+        "Maria is read a book."
+      ],
+      "correct": "Maria is reading a book."
+    },
+    {
+      "descriptor_code": "A1.SP.05",
+      "prompt": "¿Qué está llevando puesto Juan ahora? (Él está usando una camisa roja.)",
+      "options": [
+        "Juan is wearing a shirt red.",
+        "Juan is wearing a red shirt.",
+        "Juan wearing a red shirt.",
+        "Juan wears a red shirt."
+      ],
+      "correct": "Juan is wearing a red shirt."
+    },
+    {
+      "descriptor_code": "A1.SI.02",
+      "prompt": "Quieres saber qué ropa lleva puesta tu hermano ahora mismo. ¿Qué preguntas?",
+      "options": [
+        "What wears your brother?",
+        "What your brother is wearing?",
+        "What is wear your brother?",
+        "What is your brother wearing?"
+      ],
+      "correct": "What is your brother wearing?"
+    },
+    {
+      "descriptor_code": "A1.LI.04",
+      "prompt": "Escuchas: 'Right now I'm eating lunch, but I usually eat at 1 PM.' ¿Cuál es el contraste?",
+      "options": [
+        "Past vs present.",
+        "Weather vs clothes.",
+        "Questions vs answers.",
+        "Present simple vs present continuous."
+      ],
+      "correct": "Present simple vs present continuous."
+    },
+    {
+      "descriptor_code": "A1.LI.04",
+      "prompt": "Escuchas: 'She's not working now. She's watching TV.' ¿Qué está haciendo ella?",
+      "options": [
+        "She works.",
+        "She is watching TV.",
+        "She is working.",
+        "She watch TV."
+      ],
+      "correct": "She is watching TV."
+    },
+    {
+      "descriptor_code": "A1.SP.05",
+      "prompt": "Miras por la ventana y está lloviendo. ¿Cómo lo dices?",
+      "options": [
+        "It's rain.",
+        "It rain.",
+        "It's raining.",
+        "Is raining."
+      ],
+      "correct": "It's raining."
+    },
+    {
+      "descriptor_code": "A1.SI.02",
+      "prompt": "¿Qué estás haciendo ahora? (Tú estás estudiando inglés.)",
+      "options": [
+        "I'm studying English.",
+        "I studies English.",
+        "I am study English.",
+        "I study English."
+      ],
+      "correct": "I'm studying English."
+    }
+  ],
+  "A1.M08": [
+    {
+      "descriptor_code": "A1.SP.06",
+      "prompt": "¿Cómo dices en inglés: 'Fue genial'?",
+      "options": [
+        "It is great.",
+        "It were great.",
+        "It did great.",
+        "It was great."
+      ],
+      "correct": "It was great."
+    },
+    {
+      "descriptor_code": "A1.WR.04",
+      "prompt": "Elige la oración correcta para completar: 'Last Saturday I ___ to the cinema with my friends.'",
+      "options": [
+        "was go",
+        "goed",
+        "go",
+        "went"
+      ],
+      "correct": "went"
+    },
+    {
+      "descriptor_code": "A1.SP.06",
+      "prompt": "¿Cómo dices en inglés: 'El fin de semana pasado fui al parque'?",
+      "options": [
+        "Last weekend I did go to the park.",
+        "Last weekend I go to the park.",
+        "Last weekend I was go to the park.",
+        "Last weekend I went to the park."
+      ],
+      "correct": "Last weekend I went to the park."
+    },
+    {
+      "descriptor_code": "A1.WI.01",
+      "prompt": "¿Cómo respondes a un mensaje que dice: 'What did you do last weekend?' si no hiciste mucho?",
+      "options": [
+        "I don't do much, actually.",
+        "I didn't did much, actually.",
+        "I didn't do much, actually.",
+        "I wasn't do much, actually."
+      ],
+      "correct": "I didn't do much, actually."
+    },
+    {
+      "descriptor_code": "A1.WR.04",
+      "prompt": "Elige la oración correcta: 'I didn´t ___ my homework yesterday.'",
+      "options": [
+        "didn't",
+        "do",
+        "did",
+        "done"
+      ],
+      "correct": "do"
+    },
+    {
+      "descriptor_code": "A1.WI.01",
+      "prompt": "¿Cómo escribes un mensaje corto diciendo que estuviste en casa el domingo pasado?",
+      "options": [
+        "Last Sunday I am at home.",
+        "Last Sunday I were at home.",
+        "Last Sunday I was at home.",
+        "Last Sunday I be at home."
+      ],
+      "correct": "Last Sunday I was at home."
+    },
+    {
+      "descriptor_code": "A1.RE.03",
+      "prompt": "Lee: 'Last Friday I went to the beach. It was sunny and fun.' ¿Qué hizo la persona el viernes pasado?",
+      "options": [
+        "She did went to the beach.",
+        "She went to the beach.",
+        "She was go to the beach.",
+        "She goes to the beach."
+      ],
+      "correct": "She went to the beach."
+    },
+    {
+      "descriptor_code": "A1.RE.03",
+      "prompt": "Lee: 'Last Sunday I was at home. I watched TV and rested.' ¿Qué hizo la persona el domingo pasado?",
+      "options": [
+        "She visited her friends.",
+        "She watched TV and rested.",
+        "She went to the beach.",
+        "She did her homework."
+      ],
+      "correct": "She watched TV and rested."
+    }
+  ],
+  "A1.M09": [
+    {
+      "descriptor_code": "A1.LI.04",
+      "prompt": "Escuchas: 'Do you like watching movies? I love watching movies on weekends.' ¿De qué están hablando?",
+      "options": [
+        "homework",
+        "jobs",
+        "hobbies",
+        "food"
+      ],
+      "correct": "hobbies"
+    },
+    {
+      "descriptor_code": "A1.SI.07",
+      "prompt": "¿Cómo dices que no eres muy bueno en un deporte?",
+      "options": [
+        "I'm not very good tennis.",
+        "I'm not very good for tennis.",
+        "I'm not very good in tennis.",
+        "I'm not very good at tennis."
+      ],
+      "correct": "I'm not very good at tennis."
+    },
+    {
+      "descriptor_code": "A1.WI.02",
+      "prompt": "Recibes este mensaje: 'Would you like to go swimming tomorrow?' Pero no puedes. ¿Cómo respondes declinando de forma educada?",
+      "options": [
+        "I'd love to, but I can't. I'm busy tomorrow.",
+        "I don't like swimming.",
+        "No, I can't.",
+        "I'm not good at swimming."
+      ],
+      "correct": "I'd love to, but I can't. I'm busy tomorrow."
+    },
+    {
+      "descriptor_code": "A1.LI.04",
+      "prompt": "Escuchas: 'Let's go to the park on Sunday. How about 10 o'clock?' ¿Qué están sugiriendo?",
+      "options": [
+        "a plan to study",
+        "a plan to sleep",
+        "a plan to go to the park",
+        "a plan to cook"
+      ],
+      "correct": "a plan to go to the park"
+    },
+    {
+      "descriptor_code": "A1.PR.01",
+      "prompt": "Quieres pedirle a tu amigo que te pase el balón. ¿Cómo lo pides de forma educada en lugar de usar un imperativo?",
+      "options": [
+        "Can you pass me the ball, please?",
+        "Give me the ball.",
+        "You pass me the ball.",
+        "Pass me the ball."
+      ],
+      "correct": "Can you pass me the ball, please?"
+    },
+    {
+      "descriptor_code": "A1.WI.02",
+      "prompt": "Recibes este mensaje: 'Would you like to come to my party on Saturday?' ¿Cómo respondes aceptando?",
+      "options": [
+        "Yes, I'd love to come.",
+        "Yes, I love to come.",
+        "Yes, I like to come.",
+        "Yes, I'd like coming."
+      ],
+      "correct": "Yes, I'd love to come."
+    },
+    {
+      "descriptor_code": "A1.SI.06",
+      "prompt": "¿Cómo invitas a tu amigo a ir al cine el viernes?",
+      "options": [
+        "Would you like going to the cinema on Friday?",
+        "Would you like to go to the cinema on Friday?",
+        "Do you like go to the cinema on Friday?",
+        "Would you like to goes to the cinema on Friday?"
+      ],
+      "correct": "Would you like to go to the cinema on Friday?"
+    },
+    {
+      "descriptor_code": "A1.SI.06",
+      "prompt": "Tu amigo te invita a jugar fútbol, pero estás ocupado. ¿Qué dices de forma educada?",
+      "options": [
+        "I'm not good at football.",
+        "No, I can't.",
+        "I don't like football.",
+        "I'd love to, but I can't. Maybe another day?"
+      ],
+      "correct": "I'd love to, but I can't. Maybe another day?"
+    }
+  ],
+  "A1.M10": [
+    {
+      "descriptor_code": "A1.LX.01",
+      "prompt": "¿Cómo dices 'Voy a aprender inglés el próximo año'?",
+      "options": [
+        "I going to learn English next year.",
+        "I learn English next year.",
+        "I'm going to learn English next year.",
+        "I am go to learn English next year."
+      ],
+      "correct": "I'm going to learn English next year."
+    },
+    {
+      "descriptor_code": "A1.SI.02",
+      "prompt": "¿Cómo preguntas a tu amigo cuál es su plan para el fin de semana?",
+      "options": [
+        "What you do weekend?",
+        "What are you going weekend?",
+        "What your plans weekend?",
+        "What are your plans for the weekend?"
+      ],
+      "correct": "What are your plans for the weekend?"
+    },
+    {
+      "descriptor_code": "A1.SP.07",
+      "prompt": "¿Cómo dices que no vas a estudiar mañana porque estás cansado?",
+      "options": [
+        "I not going to study tomorrow.",
+        "I'm not going to study tomorrow.",
+        "I don't going to study tomorrow.",
+        "I am not go to study tomorrow."
+      ],
+      "correct": "I'm not going to study tomorrow."
+    },
+    {
+      "descriptor_code": "A1.SI.02",
+      "prompt": "Tu amigo te dice: 'I'm going to the park tomorrow.' ¿Cómo respondes para preguntar a qué hora?",
+      "options": [
+        "What time?",
+        "What time you go?",
+        "At what time you going?",
+        "When time?"
+      ],
+      "correct": "What time?"
+    },
+    {
+      "descriptor_code": "A1.WR.02",
+      "prompt": "Completa la oración: 'I ___ going to watch a movie tonight.'",
+      "options": [
+        "be",
+        "am",
+        "are",
+        "is"
+      ],
+      "correct": "am"
+    },
+    {
+      "descriptor_code": "A1.SP.07",
+      "prompt": "¿Cómo dices que no estás seguro de tus planes para el verano?",
+      "options": [
+        "I not sure yet.",
+        "I am not sure still.",
+        "I no sure yet.",
+        "I'm not sure yet."
+      ],
+      "correct": "I'm not sure yet."
+    },
+    {
+      "descriptor_code": "A1.WR.02",
+      "prompt": "Completa la oración: 'She ___ going to cook dinner tomorrow.'",
+      "options": [
+        "am",
+        "is",
+        "be",
+        "are"
+      ],
+      "correct": "is"
+    },
+    {
+      "descriptor_code": "A1.LX.01",
+      "prompt": "¿Cuál es la forma correcta de expresar una rutina (no un plan futuro)?",
+      "options": [
+        "I will go to the gym every day.",
+        "I going to the gym every day.",
+        "I go to the gym every day.",
+        "I'm going to the gym every day."
+      ],
+      "correct": "I go to the gym every day."
+    }
+  ]
+}

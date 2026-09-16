@@ -13,14 +13,20 @@ async def create(
     answer: str,
     score: float,
     feedback: str,
+    exam_sitting: uuid.UUID | None = None,
 ) -> ExerciseAttempt:
     # `response` es JSONB a propósito (ver el modelo): guardamos {"answer": ...}
     # en vez de una columna de texto plana para poder añadir más adelante
     # otros campos (ej. audio_url en ejercicios de speaking) sin migración.
+    response: dict = {"answer": answer}
+    if exam_sitting is not None:
+        # Qué convocatoria de examen es. Las preguntas respondidas juntas
+        # se puntúan juntas (ver enrollment_repository.recompute_mastery).
+        response["exam_sitting"] = str(exam_sitting)
     attempt = ExerciseAttempt(
         user_id=user_id,
         exercise_id=exercise_id,
-        response={"answer": answer},
+        response=response,
         score=score,
         ai_feedback=feedback,
     )

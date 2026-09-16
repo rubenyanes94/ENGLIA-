@@ -52,13 +52,17 @@ async def recompute_mastery(db: AsyncSession, user_id: uuid.UUID, module_id: uui
     mastery_score = promedio del MEJOR intento de CADA ejercicio del
     módulo. Dos decisiones deliberadas:
 
-    - "Mejor" intento, no "último": reintentar y mejorar debe subir la
-      nota, nunca bajarla por un intento peor hecho después solo por
-      practicar.
-    - Los ejercicios sin NINGÚN intento cuentan como 0, no se excluyen
-      del promedio: así mastery_score siempre significa "cuánto del
-      módulo completo domina el alumno", no "cuánto de lo que ya
-      intentó" (que sería trivialmente 1.0 tras un solo acierto).
+    - La nota es la de la MEJOR CONVOCATORIA completa del examen, no el
+      mejor intento de cada pregunta por separado. Antes se tomaba el
+      máximo de cada pregunta entre todos los intentos, así que se podía
+      acertar la mitad en una convocatoria, la otra mitad en otra, y
+      completar el módulo sin haber aprobado nunca un examen. Con un
+      examen que decide si el alumno avanza, eso lo convertía en un
+      juego de ensayo y error.
+    - "Mejor" convocatoria, no "última": volver a presentarse y sacar
+      peor nota no debe quitarle al alumno un módulo que ya aprobó.
+    - Las preguntas que no se respondieron en una convocatoria cuentan
+      como 0: el denominador es el examen entero, no lo que se contestó.
     - Solo se promedian ejercicios stage="exam". Los de práctica se
       corrigen igual (el alumno ve su nota y feedback), pero
       deliberadamente NO mueven mastery_score — practicar y fallar no
@@ -80,14 +84,22 @@ async def recompute_mastery(db: AsyncSession, user_id: uuid.UUID, module_id: uui
     if not exercise_ids:
         return enrollment
 
+    sitting = ExerciseAttempt.response["exam_sitting"].astext
     result = await db.execute(
-        select(ExerciseAttempt.exercise_id, func.max(ExerciseAttempt.score))
-        .where(ExerciseAttempt.user_id == user_id, ExerciseAttempt.exercise_id.in_(exercise_ids))
-        .group_by(ExerciseAttempt.exercise_id)
+        select(sitting, func.sum(ExerciseAttempt.score))
+        .where(
+            ExerciseAttempt.user_id == user_id,
+            ExerciseAttempt.exercise_id.in_(exercise_ids),
+            # Un intento de examen sin convocatoria no debería existir (el
+            # endpoint suelto rechaza las preguntas de examen); si apareciera,
+            # no puede sumar a ninguna convocatoria.
+            sitting.is_not(None),
+        )
+        .group_by(sitting)
     )
-    best_score_by_exercise = dict(result.all())
+    sitting_totals = [total for _, total in result.all()]
 
-    mastery = sum(best_score_by_exercise.get(eid, 0.0) for eid in exercise_ids) / len(exercise_ids)
+    mastery = max(sitting_totals, default=0.0) / len(exercise_ids)
 
     enrollment.mastery_score = mastery
     if mastery >= MASTERY_COMPLETION_THRESHOLD:

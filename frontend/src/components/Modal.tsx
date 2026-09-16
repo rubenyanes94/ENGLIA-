@@ -1,15 +1,26 @@
 import { useEffect } from "react"
 
-/** Diálogo centrado con fondo oscurecido, común a todos los modales de
- * facturación. Existe como pieza aparte porque son cinco pantallas
- * encadenadas y repetir el andamiaje en cada una haría que se separaran
- * solas con el tiempo. */
-export default function Modal({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+/** Diálogo centrado con fondo oscurecido, compartido por los modales de
+ * facturación y el examen de módulo. */
+export default function Modal({
+  onClose,
+  children,
+  wide = false,
+  dismissible = true,
+}: {
+  onClose: () => void
+  children: React.ReactNode
+  /** Más ancho, para contenido que no cabe en una tarjeta estrecha (examen). */
+  wide?: boolean
+  /** Si Escape y el clic en el fondo cierran el diálogo. Se desactiva
+   * mientras hay trabajo sin guardar: un clic despistado fuera del examen
+   * tiraría todas las respuestas marcadas. */
+  dismissible?: boolean
+}) {
   useEffect(() => {
-    // Escape cierra, y el fondo no scrollea mientras el diálogo está
-    // abierto — si no, en móvil el dedo mueve la página de detrás y el
-    // modal parece colgado.
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose()
+    // El fondo no scrollea mientras el diálogo está abierto — si no, en
+    // móvil el dedo mueve la página de detrás y el modal parece colgado.
+    const onKey = (e: KeyboardEvent) => dismissible && e.key === "Escape" && onClose()
     document.addEventListener("keydown", onKey)
     const previous = document.body.style.overflow
     document.body.style.overflow = "hidden"
@@ -17,12 +28,12 @@ export default function Modal({ onClose, children }: { onClose: () => void; chil
       document.removeEventListener("keydown", onKey)
       document.body.style.overflow = previous
     }
-  }, [onClose])
+  }, [onClose, dismissible])
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
-      onClick={onClose}
+      onClick={() => dismissible && onClose()}
       role="dialog"
       aria-modal="true"
     >
@@ -30,7 +41,7 @@ export default function Modal({ onClose, children }: { onClose: () => void; chil
         // stopPropagation: sin esto, un clic dentro del diálogo burbujea
         // al fondo y lo cierra en mitad de escribir.
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"
+        className={`max-h-[92vh] w-full overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl ${wide ? "max-w-xl sm:p-8" : "max-w-sm"}`}
       >
         {children}
       </div>
