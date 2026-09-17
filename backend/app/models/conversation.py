@@ -51,6 +51,12 @@ class ConversationSession(Base):
     # routers/chat.py). Se fija al ABRIR la sesión, no cambia después:
     # practicar otro módulo es abrir otra sesión.
     module_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("modules.id"), nullable=True)
+    # Curso de la Biblioteca que se practica en esta sesión. Excluyente con
+    # module_id: una sesión es o del currículo o de la Biblioteca (lo
+    # comprueba routers/chat.create_session).
+    flash_course_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("flash_courses.id"), nullable=True
+    )
 
     started_at: Mapped[datetime] = mapped_column(server_default=func.now())
     ended_at: Mapped[datetime | None] = mapped_column(nullable=True)
@@ -61,6 +67,7 @@ class ConversationSession(Base):
     user: Mapped["User"] = relationship()
     persona: Mapped["AgentPersona"] = relationship()
     module: Mapped["Module | None"] = relationship()
+    flash_course: Mapped["FlashCourse | None"] = relationship()
     messages: Mapped[list["ConversationMessage"]] = relationship(
         back_populates="session", order_by="ConversationMessage.created_at"
     )

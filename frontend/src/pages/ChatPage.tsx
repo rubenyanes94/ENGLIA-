@@ -1,9 +1,9 @@
-import { faCircleCheck, faPaperPlane, faShieldHalved, faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons"
+import { faArrowLeft, faCircleCheck, faMasksTheater, faPaperPlane, faShieldHalved, faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useRef, useState, type FormEvent } from "react"
-import { useSearchParams } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { api } from "../api/client"
-import type { CreateSessionResponse, SendMessageResponse } from "../api/types"
+import type { CreateSessionResponse, FlashCourseDetail, SendMessageResponse } from "../api/types"
 import { ApiError } from "../api/types"
 
 const LEVEL_CODE = "A1" // único nivel con tutor+currículo sembrado hoy
@@ -19,6 +19,8 @@ interface DisplayMessage {
 export default function ChatPage() {
   const [searchParams] = useSearchParams()
   const moduleId = searchParams.get("module")
+  // Curso de la Biblioteca (su slug). Con `task` indica qué escenario se ensaya.
+  const courseSlug = searchParams.get("course")
   const taskId = searchParams.get("task")
 
   const [session, setSession] = useState<CreateSessionResponse | null>(null)
@@ -28,20 +30,33 @@ export default function ChatPage() {
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const [course, setCourse] = useState<FlashCourseDetail | null>(null)
 
   useEffect(() => {
     setStarting(true)
     setError(null)
     api
-      .post<CreateSessionResponse>("/chat/sessions", { level_code: LEVEL_CODE, module_id: moduleId || undefined })
+      .post<CreateSessionResponse>("/chat/sessions", {
+        level_code: LEVEL_CODE,
+        module_id: moduleId || undefined,
+        flash_course_slug: courseSlug || undefined,
+      })
       .then(setSession)
       .catch((err) => setError(err instanceof ApiError ? err.message : "No se pudo abrir la sesión con el tutor."))
       .finally(() => setStarting(false))
+
+    // El curso se pide aparte para enseñar la instrucción del escenario
+    // durante la conversación: sin ella a la vista, a los dos turnos el
+    // alumno ya no recuerda qué tenía que conseguir.
+    setCourse(null)
+    if (courseSlug) {
+      api.get<FlashCourseDetail>(`/library/courses/${courseSlug}`).then(setCourse).catch(() => setCourse(null))
+    }
     // Nueva sesión si cambia el módulo objetivo (ej. el alumno vuelve al
     // detalle y elige "practicar" otra tarea) — a propósito, no se reusa
     // la sesión anterior entre módulos distintos.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [moduleId])
+  }, [moduleId, courseSlug])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -79,6 +94,9 @@ export default function ChatPage() {
     }
   }
 
+  const scenario = course?.scenarios.find((item) => item.id === taskId) ?? null
+  const scenarioCompleted = messages.some((message) => message.taskCompleted === true)
+
   if (starting) {
     return (
       <div className="flex items-center justify-center py-24 text-slate-400">
@@ -102,14 +120,53 @@ export default function ChatPage() {
           <p className="text-sm text-slate-500">
             Nivel {session.level_code}
             {session.module_title && ` · ${session.module_title}`}
+            {session.course_title && ` · ${session.course_title}`}
           </p>
         </div>
-        {taskId && (
-          <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600">
-            Practicando: {taskId}
-          </span>
+        {courseSlug ? (
+          <Link
+            to={`/library/${courseSlug}`}
+            className="flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-200"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="text-[10px]" /> Volver al curso
+          </Link>
+        ) : (
+          taskId && (
+            <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600">
+              Practicando: {taskId}
+            </span>
+          )
         )}
       </header>
+
+      {scenario && (
+        <div
+          className={`mb-4 rounded-2xl border px-5 py-4 ${
+            scenarioCompleted ? "border-emerald-200 bg-emerald-50" : "border-blue-100 bg-blue-50"
+          }`}
+        >
+          <p
+            className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wide ${
+              scenarioCompleted ? "text-emerald-700" : "text-blue-700"
+            }`}
+          >
+            <FontAwesomeIcon icon={scenarioCompleted ? faCircleCheck : faMasksTheater} />
+            {scenarioCompleted ? "¡Escenario logrado!" : scenario.title}
+          </p>
+          <p className="mt-1 text-sm text-slate-700">{scenario.prompt}</p>
+          <p className="mt-1 text-xs text-slate-500">
+            <span className="font-semibold">El tutor es:</span> {scenario.tutor_role}
+          </p>
+          {scenarioCompleted && (
+            <Link
+              to={`/library/${courseSlug}`}
+              className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500"
+            >
+              Seguir con el curso
+            </Link>
+          )}
+        </div>
+      )}
 
       <div className="flex-1 space-y-4 overflow-y-auto pr-1">
         {messages.length === 0 && (
@@ -172,7 +229,7 @@ export default function ChatPage() {
             <div className="flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-slate-400 shadow-sm">
               <FontAwesomeIcon icon={faSpinner} spin />
               <span className="text-sm">
-                Pensando... (puede tardar hasta un minuto en este entorno de desarrollo sin GPU)
+                Pensando...
               </span>
             </div>
           </div>

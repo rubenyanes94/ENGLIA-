@@ -9,9 +9,15 @@ from app.models import AgentPersona, ConversationMessage, ConversationSession
 
 
 async def create_session(
-    db: AsyncSession, user_id: uuid.UUID, persona: AgentPersona, module_id: uuid.UUID | None = None
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    persona: AgentPersona,
+    module_id: uuid.UUID | None = None,
+    flash_course_id: uuid.UUID | None = None,
 ) -> ConversationSession:
-    session = ConversationSession(user_id=user_id, persona_id=persona.id, module_id=module_id)
+    session = ConversationSession(
+        user_id=user_id, persona_id=persona.id, module_id=module_id, flash_course_id=flash_course_id
+    )
     db.add(session)
     await db.commit()
     await db.refresh(session)
@@ -29,6 +35,7 @@ async def get_session(db: AsyncSession, session_id: uuid.UUID) -> ConversationSe
         .options(
             joinedload(ConversationSession.persona).joinedload(AgentPersona.level),
             joinedload(ConversationSession.module),
+            joinedload(ConversationSession.flash_course),
         )
         .where(ConversationSession.id == session_id)
     )

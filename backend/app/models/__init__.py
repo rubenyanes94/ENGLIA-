@@ -9,6 +9,7 @@ from app.models.conversation import ConversationMessage, ConversationSession
 from app.models.descriptor import Descriptor, DescriptorEvidence
 from app.models.enrollment import Enrollment
 from app.models.exercise import Exercise, ExerciseAttempt
+from app.models.flash_course import FlashCourse, FlashCourseProgress
 from app.models.lesson import Lesson
 from app.models.module import Module
 from app.models.payment import Payment
@@ -27,6 +28,8 @@ __all__ = [
     "Enrollment",
     "Exercise",
     "ExerciseAttempt",
+    "FlashCourse",
+    "FlashCourseProgress",
     "Lesson",
     "Module",
     "Payment",
