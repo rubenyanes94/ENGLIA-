@@ -12,14 +12,16 @@ import { NAV_ITEMS } from "./navItems"
 export default function BottomNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
+      <div className="mx-auto flex max-w-lg items-center justify-around px-1 py-2">
         {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
-            end
+            end={item.end}
+            // flex-1 y poco relleno: con seis secciones, un ancho fijo por
+            // botón desborda la barra en un móvil de 360px.
             className={({ isActive }) =>
-              `flex flex-col items-center gap-1 rounded-xl px-3 py-1.5 text-[11px] font-medium transition ${
+              `flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[10px] font-medium transition ${
                 isActive ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
               }`
             }

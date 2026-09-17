@@ -181,6 +181,8 @@ export interface CreateSessionResponse {
   persona_name: string
   level_code: string
   module_title: string | null
+  /** Título del curso de la Biblioteca, si la sesión es de uno. */
+  course_title: string | null
 }
 
 export interface Correction {
@@ -263,4 +265,65 @@ export interface PagoMovilInfo {
   bank: string
   document: string
   phone: string
+}
+
+// --- Examen de módulo ---
+
+/** Pregunta tal como la ve el alumno: sin la respuesta correcta. */
+export interface ExamQuestion {
+  id: string
+  prompt: string
+  options: string[]
+}
+
+export interface ModuleExam {
+  module_id: string
+  total: number
+  pass_count: number
+  questions: ExamQuestion[]
+}
+
+export interface ExamResult {
+  score: number
+  correct: number
+  total: number
+  pass_count: number
+  passed: boolean
+  module_completed: boolean
+  next_module_id: string | null
+  /** Capacidades que repasar. No incluye la respuesta correcta de cada
+   * pregunta, a propósito: con cuatro opciones, devolverla convertiría el
+   * examen en suspender una vez y aprobar copiando a la segunda. */
+  review: { descriptor_code: string; statement_es: string }[]
+}
+
+// --- Biblioteca ---
+
+export interface FlashCourseSummary {
+  slug: string
+  title: string
+  title_es: string
+  description_es: string
+  category: string
+  icon: string
+  recommended_level: string
+  duration_minutes: number
+  scenario_count: number
+  completed_scenarios: number
+  completed: boolean
+}
+
+export interface FlashScenario {
+  id: string
+  title: string
+  prompt: string
+  /** El papel que interpreta el tutor en la escena (el reclutador, el mesero...). */
+  tutor_role: string
+  completed: boolean
+}
+
+export interface FlashCourseDetail extends FlashCourseSummary {
+  communicative_objectives: string[]
+  key_phrases: { en: string; es: string }[]
+  scenarios: FlashScenario[]
 }

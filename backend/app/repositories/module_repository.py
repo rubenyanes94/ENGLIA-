@@ -74,6 +74,12 @@ async def get_previous_in_level(db: AsyncSession, module: Module) -> Module | No
     return result.scalars().first()
 
 
+async def get_next_in_level(db: AsyncSession, module: Module) -> Module | None:
+    """El módulo justo después de este en el mismo nivel, o None si es el último."""
+    result = await db.execute(select(Module).where(Module.level_id == module.level_id, Module.order == module.order + 1))
+    return result.scalars().first()
+
+
 async def delete(db: AsyncSession, module: Module) -> None:
     # ON DELETE por defecto de SQLAlchemy/Postgres aquí es RESTRICT: si el
     # módulo tiene lecciones (o inscripciones) todavía, esto lanzará un

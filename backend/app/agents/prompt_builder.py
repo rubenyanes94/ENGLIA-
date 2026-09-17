@@ -18,7 +18,7 @@ run_tutor_turn solo montaba (1). Esta es la pieza que convierte
 el currículo".
 """
 
-from app.models import AgentPersona, Module
+from app.models import AgentPersona, FlashCourse, Module
 
 # Se antepone a TODAS las personas, en todos los niveles, en vez de
 # repetirlo en los seis system_prompt de seed_agent_personas.py: así
@@ -67,8 +67,11 @@ def _render_level_policy(policy: dict) -> str:
     return "\n".join(lines)
 
 
-def _render_module_context(module: Module) -> str:
-    lines = [f'Módulo activo: "{module.title}" ({module.title_es or module.title}).']
+def _render_module_context(module: "Module | FlashCourse") -> str:
+    # Un curso de la Biblioteca tiene los mismos campos que lee esta
+    # función, así que se renderiza igual; solo cambia cómo se presenta.
+    kind = "Curso de la Biblioteca" if isinstance(module, FlashCourse) else "Módulo activo"
+    lines = [f'{kind}: "{module.title}" ({module.title_es or module.title}).']
 
     if module.communicative_objectives:
         lines.append("Objetivos comunicativos de este módulo:")
@@ -110,6 +113,15 @@ def _render_active_task(task: dict) -> str:
         "libre. Al final se evaluará si la logró.",
         f"- Instrucción: {task['prompt']}",
     ]
+    if task.get("tutor_role"):
+        # Escenarios de role-play de la Biblioteca. Sin el papel explícito,
+        # el tutor contesta como profesor ("¡Muy bien! Ahora dime...") en
+        # vez de como el reclutador o el mesero al que el alumno se enfrenta,
+        # y el ensayo deja de parecerse a la situación real.
+        lines.append(
+            f"- En este escenario HACES EL PAPEL DE: {task['tutor_role']}. Mantente en ese papel; "
+            "corrige los errores sin romper la escena."
+        )
     if task.get("success_criteria"):
         lines.append(f"- Se considera lograda si: {task['success_criteria']}")
     if task.get("note"):

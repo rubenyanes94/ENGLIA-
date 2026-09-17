@@ -28,3 +28,22 @@
     letter-spacing: -0.02em;
   }
 }
+
+@layer components {
+  /* Panel de la letra de la lección (ver components/LessonScreen.tsx).
+     Sin barra de desplazamiento: la letra se mueve sola con el audio y
+     se puede arrastrar con la rueda o el dedo, así que la barra nativa
+     solo añadía una franja blanca que rompía el panel oscuro.
+     El difuminado de arriba y abajo va con mask-image y no con una capa
+     encima: una capa tapaba el texto con una banda oscura y además
+     interceptaba los clics sobre las frases que quedaban debajo. */
+  .lyrics-scroll {
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 78%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 78%, transparent 100%);
+  }
+
+  .lyrics-scroll::-webkit-scrollbar {
+    display: none;
+  }
+}

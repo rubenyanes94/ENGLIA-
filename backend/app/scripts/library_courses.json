@@ -1,0 +1,557 @@
+[
+  {
+    "slug": "ingles-petroleros",
+    "title": "English for the Oil & Gas Industry",
+    "title_es": "Inglés para petroleros",
+    "description_es": "Preséntate en una plataforma, reporta un problema de seguridad y confirma instrucciones del supervisor.",
+    "category": "trabajo",
+    "icon": "oil-well",
+    "recommended_level": "A2",
+    "duration_minutes": 25,
+    "communicative_objectives": [
+      "Presentarse en el sitio de trabajo indicando puesto y turno",
+      "Reportar un problema de equipo o de seguridad con claridad",
+      "Pedir aclaraciones y confirmar instrucciones de trabajo"
+    ],
+    "key_phrases": [
+      {"en": "I work as a drilling technician.", "es": "Trabajo como técnico de perforación."},
+      {"en": "I'm on the night shift this week.", "es": "Esta semana estoy en el turno de noche."},
+      {"en": "There's a leak in the pipeline.", "es": "Hay una fuga en la tubería."},
+      {"en": "The pressure is too high.", "es": "La presión está demasiado alta."},
+      {"en": "Safety first: we need to stop the work.", "es": "Primero la seguridad: hay que detener el trabajo."},
+      {"en": "Put on your hard hat and safety glasses.", "es": "Ponte el casco y los lentes de seguridad."},
+      {"en": "The equipment is out of order.", "es": "El equipo no funciona."},
+      {"en": "Could you repeat the instructions, please?", "es": "¿Puede repetir las instrucciones, por favor?"},
+      {"en": "I'll report it to the supervisor.", "es": "Voy a reportarlo al supervisor."}
+    ],
+    "scenarios": [
+      {
+        "id": "petro-t1",
+        "title": "Tu primer día en la plataforma",
+        "prompt": "Es tu primer día en una plataforma petrolera. Preséntate con el supervisor: di tu nombre, tu puesto y en qué turno trabajas.",
+        "success_criteria": "El alumno dice su nombre, su puesto de trabajo y su turno (de día o de noche) con frases comprensibles en inglés.",
+        "tutor_role": "el supervisor de turno de una plataforma petrolera, que recibe a un trabajador nuevo"
+      },
+      {
+        "id": "petro-t2",
+        "title": "Reportar un problema de seguridad",
+        "prompt": "Ves una fuga cerca de una válvula y la presión está subiendo. Repórtaselo al supervisor por radio: qué pasa, dónde y qué propones hacer.",
+        "success_criteria": "El alumno explica en inglés qué problema hay (por ejemplo una fuga o presión alta), dónde está y propone una acción, como detener el trabajo o revisar el equipo.",
+        "tutor_role": "el supervisor que recibe un reporte por radio y hace preguntas para entender la emergencia"
+      },
+      {
+        "id": "petro-t3",
+        "title": "Confirmar instrucciones",
+        "prompt": "El supervisor te da instrucciones para cambiar una pieza. Pide que repita lo que no entiendas y confirma los pasos con tus propias palabras.",
+        "success_criteria": "El alumno pide aclaración o repetición al menos una vez y luego confirma en inglés los pasos que tiene que seguir.",
+        "tutor_role": "el supervisor que da instrucciones de mantenimiento en dos o tres pasos, a velocidad normal"
+      }
+    ],
+    "tutor_config": {
+      "persona": "Habla como un supervisor de campo: directo, práctico y con vocabulario real de la industria (rig, drilling, valve, pipeline, shift, permit to work). Explica en español cualquier término técnico que el alumno no conozca.",
+      "correction_policy": "Prioriza los errores que cambian el sentido de un reporte de seguridad; los demás, corrígelos al terminar la escena.",
+      "scaffolds": [
+        "Dar la palabra técnica en inglés si el alumno la dice en español",
+        "Ofrecer un modelo de reporte breve: problema + lugar + acción"
+      ]
+    },
+    "l1_interference": [
+      {"error": "I have 10 years of experience in the petrol", "target": "I have 10 years of experience in the oil industry", "origin": "petróleo → petrol", "severity": "high", "note": "en inglés 'petrol' es gasolina; el petróleo es 'oil'"},
+      {"error": "Where is the security equipment?", "target": "Where is the safety equipment?", "origin": "seguridad → security", "severity": "high", "note": "la seguridad industrial es 'safety'; 'security' es vigilancia"},
+      {"error": "We must to stop the work", "target": "We must stop the work", "origin": "tenemos que → must to", "severity": "medium"},
+      {"error": "I work in the night", "target": "I'm on the night shift", "origin": "trabajo en la noche", "severity": "medium"}
+    ]
+  },
+  {
+    "slug": "ingles-viajes",
+    "title": "Travel English",
+    "title_es": "Inglés práctico para viajes",
+    "description_es": "Haz check-in en el hotel, pide indicaciones en la calle y compra boletos de transporte.",
+    "category": "viajes",
+    "icon": "suitcase-rolling",
+    "recommended_level": "A1",
+    "duration_minutes": 20,
+    "communicative_objectives": [
+      "Registrarse en un hotel y hacer preguntas sobre la estancia",
+      "Pedir y entender indicaciones para llegar a un lugar",
+      "Comprar un boleto de transporte"
+    ],
+    "key_phrases": [
+      {"en": "I have a reservation under the name Pérez.", "es": "Tengo una reservación a nombre de Pérez."},
+      {"en": "Is breakfast included?", "es": "¿Está incluido el desayuno?"},
+      {"en": "What time is check-out?", "es": "¿A qué hora hay que dejar la habitación?"},
+      {"en": "How do I get to the train station?", "es": "¿Cómo llego a la estación de tren?"},
+      {"en": "Is it far from here?", "es": "¿Queda lejos de aquí?"},
+      {"en": "Can you show me on the map?", "es": "¿Me lo puede mostrar en el mapa?"},
+      {"en": "A one-way ticket to downtown, please.", "es": "Un boleto de ida al centro, por favor."},
+      {"en": "Which platform does it leave from?", "es": "¿De qué andén sale?"}
+    ],
+    "scenarios": [
+      {
+        "id": "viajes-t1",
+        "title": "Check-in en el hotel",
+        "prompt": "Llegas a tu hotel. Haz el check-in: di que tienes una reservación, a nombre de quién, y pregunta si el desayuno está incluido.",
+        "success_criteria": "El alumno dice que tiene una reservación, da un nombre y pregunta por el desayuno o por la hora de salida.",
+        "tutor_role": "el recepcionista de un hotel, que pide el pasaporte y confirma la reservación"
+      },
+      {
+        "id": "viajes-t2",
+        "title": "Pedir indicaciones",
+        "prompt": "Estás perdido en la ciudad. Pregúntale a alguien cómo llegar a la estación de tren y confirma si queda lejos.",
+        "success_criteria": "El alumno pregunta cómo llegar a un lugar y repite o confirma al menos una indicación (por ejemplo, girar a la izquierda o seguir derecho).",
+        "tutor_role": "un peatón amable que da indicaciones con 'go straight', 'turn left/right' y 'it's next to'"
+      },
+      {
+        "id": "viajes-t3",
+        "title": "Comprar un boleto",
+        "prompt": "Estás en la taquilla de la estación. Compra un boleto al centro: di si es de ida o de ida y vuelta, y pregunta de qué andén sale.",
+        "success_criteria": "El alumno pide un boleto indicando destino y tipo (ida o ida y vuelta) y pregunta por el andén o la hora de salida.",
+        "tutor_role": "el vendedor de boletos de una estación, que pregunta el tipo de boleto y cómo va a pagar"
+      }
+    ],
+    "tutor_config": {
+      "persona": "Hazlo sentir como un viaje real: amable, con las preguntas típicas de un hotel y de una estación.",
+      "correction_policy": "Deja pasar los errores pequeños si se entiende el mensaje; corrige los que harían que no le entiendan.",
+      "scaffolds": [
+        "Dar la pregunta modelo si el alumno se bloquea",
+        "Repetir las indicaciones más despacio"
+      ]
+    },
+    "l1_interference": [
+      {"error": "How can I arrive to the station?", "target": "How do I get to the station?", "origin": "llegar a → arrive to", "severity": "high"},
+      {"error": "I have a reservation to the name of Ana", "target": "I have a reservation under the name Ana", "origin": "a nombre de", "severity": "medium"},
+      {"error": "A ticket of go and return", "target": "A round-trip ticket", "origin": "ida y vuelta", "severity": "medium"}
+    ]
+  },
+  {
+    "slug": "entrevistas-trabajo",
+    "title": "Job Interview Practice",
+    "title_es": "Entrevistas de trabajo en inglés",
+    "description_es": "Ensaya una entrevista real: preséntate, habla de tu experiencia y haz buenas preguntas al final.",
+    "category": "trabajo",
+    "icon": "user-tie",
+    "recommended_level": "A2",
+    "duration_minutes": 25,
+    "communicative_objectives": [
+      "Presentarse profesionalmente en pocas frases",
+      "Hablar de la experiencia y las fortalezas con un ejemplo concreto",
+      "Hacer preguntas sobre el puesto al final de la entrevista"
+    ],
+    "key_phrases": [
+      {"en": "Tell me about yourself.", "es": "Háblame de ti."},
+      {"en": "I'm currently working as an accountant.", "es": "Actualmente trabajo como contador."},
+      {"en": "I've worked in sales for five years.", "es": "Llevo cinco años trabajando en ventas."},
+      {"en": "One of my strengths is teamwork.", "es": "Una de mis fortalezas es el trabajo en equipo."},
+      {"en": "I'm good at working under pressure.", "es": "Se me da bien trabajar bajo presión."},
+      {"en": "I'm looking for a new challenge.", "es": "Busco un nuevo reto."},
+      {"en": "Could you tell me more about the team?", "es": "¿Me podría contar más sobre el equipo?"},
+      {"en": "What are the next steps?", "es": "¿Cuáles son los siguientes pasos?"}
+    ],
+    "scenarios": [
+      {
+        "id": "entrevista-t1",
+        "title": "Háblame de ti",
+        "prompt": "La entrevistadora empieza con \"Tell me about yourself\". Preséntate en tres o cuatro frases: a qué te dedicas, cuánta experiencia tienes y qué buscas.",
+        "success_criteria": "El alumno menciona su profesión o puesto, su experiencia (en años o en lo que ha hecho) y qué tipo de trabajo busca.",
+        "tutor_role": "una reclutadora de recursos humanos, profesional y cordial, al inicio de una entrevista"
+      },
+      {
+        "id": "entrevista-t2",
+        "title": "Fortalezas y un reto superado",
+        "prompt": "Te preguntan por tus fortalezas y por un problema que resolviste en el trabajo. Responde con un ejemplo concreto.",
+        "success_criteria": "El alumno nombra al menos una fortaleza y da un ejemplo concreto de una situación de trabajo usando pasado (por ejemplo 'I solved' o 'I worked').",
+        "tutor_role": "la reclutadora, que hace preguntas de seguimiento sobre el ejemplo del candidato"
+      },
+      {
+        "id": "entrevista-t3",
+        "title": "Tus preguntas al final",
+        "prompt": "Al final te dicen \"Do you have any questions for us?\". Haz al menos dos preguntas sobre el puesto o la empresa.",
+        "success_criteria": "El alumno hace al menos dos preguntas bien formuladas sobre el puesto, el equipo, el horario o los siguientes pasos.",
+        "tutor_role": "la reclutadora, que responde las preguntas del candidato y cierra la entrevista"
+      }
+    ],
+    "tutor_config": {
+      "persona": "Actúa como una entrevistadora real: haz repreguntas y no aceptes respuestas de una sola palabra. Al terminar cada escena, da un consejo breve en español sobre cómo sonar más profesional.",
+      "correction_policy": "Corrige sobre todo los tiempos verbales al hablar de experiencia (presente perfecto y pasado) y el uso de 'for' y 'since'.",
+      "scaffolds": [
+        "Dar la estructura de la presentación: puesto + experiencia + objetivo",
+        "Sugerir contar el ejemplo con situación, acción y resultado"
+      ]
+    },
+    "l1_interference": [
+      {"error": "I work here since 2020", "target": "I've worked here since 2020", "origin": "presente con 'desde'", "severity": "high"},
+      {"error": "Actually I work in a bank", "target": "Currently I work in a bank", "origin": "actualmente → actually", "severity": "high", "note": "'actually' significa 'en realidad'"},
+      {"error": "I have 5 years working in sales", "target": "I've been working in sales for 5 years", "origin": "llevo 5 años trabajando", "severity": "medium"},
+      {"error": "I'm very responsible person", "target": "I'm a very responsible person", "origin": "artículo omitido", "severity": "medium"}
+    ]
+  },
+  {
+    "slug": "pedir-en-restaurante",
+    "title": "Ordering at a Restaurant",
+    "title_es": "Pedir una orden en un restaurante",
+    "description_es": "Pide una mesa, ordena con cortesía, avisa de una alergia y pide la cuenta.",
+    "category": "vida_diaria",
+    "icon": "utensils",
+    "recommended_level": "A1",
+    "duration_minutes": 15,
+    "communicative_objectives": [
+      "Pedir una mesa y ordenar comida y bebida con cortesía",
+      "Avisar de una alergia y pedir cambios en un plato",
+      "Resolver un error en el pedido y pedir la cuenta"
+    ],
+    "key_phrases": [
+      {"en": "A table for two, please.", "es": "Una mesa para dos, por favor."},
+      {"en": "Can I see the menu, please?", "es": "¿Me trae el menú, por favor?"},
+      {"en": "What do you recommend?", "es": "¿Qué me recomienda?"},
+      {"en": "I'd like the chicken, please.", "es": "Quisiera el pollo, por favor."},
+      {"en": "Does it come with fries?", "es": "¿Viene con papas fritas?"},
+      {"en": "I'm allergic to nuts.", "es": "Soy alérgico a las nueces."},
+      {"en": "Excuse me, this isn't what I ordered.", "es": "Disculpe, esto no es lo que pedí."},
+      {"en": "Can we have the check, please?", "es": "¿Nos trae la cuenta, por favor?"}
+    ],
+    "scenarios": [
+      {
+        "id": "restaurante-t1",
+        "title": "Pedir mesa y ordenar",
+        "prompt": "Entras a un restaurante. Pide una mesa, pregunta qué te recomiendan y ordena un plato principal y una bebida.",
+        "success_criteria": "El alumno pide una mesa o el menú, y ordena al menos un plato y una bebida de forma cortés (por ejemplo con 'I'd like' o 'Can I have').",
+        "tutor_role": "un mesero amable que recibe a los clientes y toma la orden"
+      },
+      {
+        "id": "restaurante-t2",
+        "title": "Una alergia",
+        "prompt": "Eres alérgico a un ingrediente. Pregunta si el plato lo lleva y pide que lo cambien o lo quiten.",
+        "success_criteria": "El alumno menciona una alergia o un ingrediente que no puede comer y pide cambiar o quitar algo del plato.",
+        "tutor_role": "el mesero, que consulta con la cocina y ofrece alternativas"
+      },
+      {
+        "id": "restaurante-t3",
+        "title": "Un error y la cuenta",
+        "prompt": "Te traen un plato equivocado. Díselo al mesero con amabilidad y al final pide la cuenta.",
+        "success_criteria": "El alumno explica que el plato no es el que pidió y pide la cuenta de forma cortés.",
+        "tutor_role": "el mesero, que se disculpa por el error y trae la cuenta"
+      }
+    ],
+    "tutor_config": {
+      "persona": "Ambiente de restaurante real, cálido y ágil, con el vocabulario de un menú de Estados Unidos (appetizer, main course, side, check).",
+      "correction_policy": "Corrige sobre todo la cortesía: 'I want' suena brusco al pedir, sugiere 'I'd like'.",
+      "scaffolds": [
+        "Mostrar el patrón 'I'd like + plato, please'",
+        "Ofrecer dos opciones del menú si el alumno no sabe qué pedir"
+      ]
+    },
+    "l1_interference": [
+      {"error": "Can you bring me the account?", "target": "Can I have the check, please?", "origin": "la cuenta → account", "severity": "high"},
+      {"error": "I want a coffee", "target": "I'd like a coffee, please", "origin": "quiero → I want", "severity": "medium", "note": "correcto, pero suena brusco al pedir"},
+      {"error": "I'm allergic of nuts", "target": "I'm allergic to nuts", "origin": "alérgico a", "severity": "medium"}
+    ]
+  },
+  {
+    "slug": "aeropuerto-migracion",
+    "title": "At the Airport & Immigration",
+    "title_es": "Aeropuerto y migración",
+    "description_es": "Haz el check-in, responde las preguntas del oficial de migración y reporta una maleta perdida.",
+    "category": "viajes",
+    "icon": "passport",
+    "recommended_level": "A1",
+    "duration_minutes": 20,
+    "communicative_objectives": [
+      "Hacer el check-in y pedir un asiento",
+      "Responder con claridad las preguntas del control migratorio",
+      "Reportar y describir una maleta perdida"
+    ],
+    "key_phrases": [
+      {"en": "Here's my passport and boarding pass.", "es": "Aquí tiene mi pasaporte y mi pase de abordar."},
+      {"en": "I'd like a window seat, please.", "es": "Quisiera un asiento de ventana, por favor."},
+      {"en": "I'm here on vacation.", "es": "Vengo de vacaciones."},
+      {"en": "I'm staying for two weeks.", "es": "Me quedo dos semanas."},
+      {"en": "I'm staying at a hotel downtown.", "es": "Me hospedo en un hotel en el centro."},
+      {"en": "I have nothing to declare.", "es": "No tengo nada que declarar."},
+      {"en": "Where is the baggage claim?", "es": "¿Dónde está la zona de recogida de equipaje?"},
+      {"en": "My suitcase didn't arrive.", "es": "Mi maleta no llegó."}
+    ],
+    "scenarios": [
+      {
+        "id": "aeropuerto-t1",
+        "title": "Check-in en el mostrador",
+        "prompt": "Estás en el mostrador de la aerolínea. Entrega tus documentos, di cuántas maletas llevas y pide un asiento.",
+        "success_criteria": "El alumno entrega o menciona sus documentos, dice cuántas maletas lleva y pide un tipo de asiento.",
+        "tutor_role": "el agente del mostrador de la aerolínea"
+      },
+      {
+        "id": "aeropuerto-t2",
+        "title": "Control de migración",
+        "prompt": "El oficial de migración te hace preguntas. Responde a qué vienes, cuánto tiempo te quedas y dónde te vas a hospedar.",
+        "success_criteria": "El alumno responde con claridad el motivo del viaje, la duración de la estancia y dónde se va a hospedar.",
+        "tutor_role": "un oficial de migración, serio y breve, que hace preguntas directas"
+      },
+      {
+        "id": "aeropuerto-t3",
+        "title": "Maleta perdida",
+        "prompt": "Tu maleta no salió en la banda. Ve a la oficina de equipaje, explica el problema y describe tu maleta.",
+        "success_criteria": "El alumno explica que su maleta no llegó y la describe con al menos dos detalles (color, tamaño o marca).",
+        "tutor_role": "el empleado de la oficina de equipaje perdido, que toma los datos"
+      }
+    ],
+    "tutor_config": {
+      "persona": "Imita el tono real de cada lugar: el personal de la aerolínea es amable; el oficial de migración, serio y breve.",
+      "correction_policy": "En la escena de migración, corrige solo lo que cambiaría el sentido de una respuesta: ahí importa responder con claridad y calma.",
+      "scaffolds": [
+        "Dar la respuesta modelo 'I'm here on vacation for two weeks'",
+        "Repetir la pregunta del oficial más despacio"
+      ]
+    },
+    "l1_interference": [
+      {"error": "My luggages are lost", "target": "My luggage is lost", "origin": "equipaje → luggages", "severity": "high", "note": "'luggage' no tiene plural"},
+      {"error": "I come for vacations", "target": "I'm here on vacation", "origin": "vengo de vacaciones", "severity": "medium"},
+      {"error": "I stay in a hotel", "target": "I'm staying at a hotel", "origin": "presente simple por 'me hospedo'", "severity": "medium"}
+    ]
+  },
+  {
+    "slug": "atencion-al-cliente",
+    "title": "Customer Service English",
+    "title_es": "Inglés para atención al cliente",
+    "description_es": "Atiende llamadas como en un call center: abre la llamada, calma a un cliente molesto y cierra con profesionalismo.",
+    "category": "trabajo",
+    "icon": "headset",
+    "recommended_level": "A2",
+    "duration_minutes": 25,
+    "communicative_objectives": [
+      "Abrir una llamada de soporte y ofrecer ayuda",
+      "Atender una queja con empatía y proponer una solución",
+      "Confirmar datos y cerrar la llamada de forma profesional"
+    ],
+    "key_phrases": [
+      {"en": "Thank you for calling. How can I help you today?", "es": "Gracias por llamar. ¿En qué le puedo ayudar hoy?"},
+      {"en": "Could I have your account number, please?", "es": "¿Me da su número de cuenta, por favor?"},
+      {"en": "I'm sorry for the inconvenience.", "es": "Disculpe las molestias."},
+      {"en": "Let me check that for you.", "es": "Déjeme revisarlo."},
+      {"en": "Could you spell your last name, please?", "es": "¿Me deletrea su apellido, por favor?"},
+      {"en": "Please hold for a moment.", "es": "Espere un momento en la línea, por favor."},
+      {"en": "Is there anything else I can help you with?", "es": "¿Hay algo más en lo que le pueda ayudar?"},
+      {"en": "Have a great day!", "es": "¡Que tenga un excelente día!"}
+    ],
+    "scenarios": [
+      {
+        "id": "cliente-t1",
+        "title": "Abrir la llamada",
+        "prompt": "Contestas la llamada de un cliente. Salúdalo, preséntate y pregúntale en qué le puedes ayudar.",
+        "success_criteria": "El alumno saluda, dice su nombre o el de la empresa y ofrece ayuda con una pregunta cortés.",
+        "tutor_role": "un cliente que llama porque no puede entrar a su cuenta"
+      },
+      {
+        "id": "cliente-t2",
+        "title": "Un cliente molesto",
+        "prompt": "El cliente está molesto porque le cobraron dos veces. Discúlpate, pide sus datos y explica qué vas a hacer.",
+        "success_criteria": "El alumno se disculpa, pide al menos un dato para verificar (nombre, correo o número de cuenta) y explica una acción concreta para resolverlo.",
+        "tutor_role": "un cliente molesto que al principio interrumpe, pero se calma si lo tratan con empatía"
+      },
+      {
+        "id": "cliente-t3",
+        "title": "Confirmar y cerrar",
+        "prompt": "Resuelve el caso: confirma los datos del cliente pidiéndole que deletree su apellido, pregunta si necesita algo más y cierra la llamada.",
+        "success_criteria": "El alumno pide deletrear o confirma un dato, pregunta si hay algo más en lo que ayudar y se despide de forma profesional.",
+        "tutor_role": "el cliente, ya tranquilo, que tiene un apellido difícil de deletrear"
+      }
+    ],
+    "tutor_config": {
+      "persona": "Simula llamadas reales de soporte. Valora también el tono: empatía, claridad y frases profesionales.",
+      "correction_policy": "Corrige la cortesía y la claridad antes que la gramática perfecta: un agente cortés con un error pequeño resuelve más que uno correcto y seco.",
+      "scaffolds": [
+        "Dar la frase de apertura modelo",
+        "Recordar cómo deletrear con palabras de apoyo (A as in Apple)"
+      ]
+    },
+    "l1_interference": [
+      {"error": "Sorry for molesting you", "target": "Sorry for the inconvenience", "origin": "molestia → molest", "severity": "critical", "note": "'molest' significa abusar sexualmente de alguien"},
+      {"error": "Say me your number", "target": "Could you tell me your number?", "origin": "dígame → say me", "severity": "high"},
+      {"error": "Wait a moment, please", "target": "Please hold for a moment", "origin": "espere → wait", "severity": "low", "note": "se entiende, pero al teléfono se dice 'hold'"}
+    ]
+  },
+  {
+    "slug": "trabajo-remoto",
+    "title": "Remote Work & Video Calls",
+    "title_es": "Reuniones y trabajo remoto",
+    "description_es": "Desenvuélvete en videollamadas con equipos internacionales: problemas técnicos, reunión diaria y seguimiento.",
+    "category": "trabajo",
+    "icon": "laptop",
+    "recommended_level": "A2",
+    "duration_minutes": 20,
+    "communicative_objectives": [
+      "Resolver problemas técnicos habituales en una videollamada",
+      "Dar una actualización breve del trabajo en la reunión diaria",
+      "Proponer una llamada y dar seguimiento por escrito"
+    ],
+    "key_phrases": [
+      {"en": "Can everyone hear me?", "es": "¿Todos me escuchan?"},
+      {"en": "You're on mute.", "es": "Tienes el micrófono silenciado."},
+      {"en": "Sorry, you're breaking up.", "es": "Perdón, se te corta el audio."},
+      {"en": "Let me share my screen.", "es": "Déjame compartir mi pantalla."},
+      {"en": "Here's a quick update on my tasks.", "es": "Les doy una actualización rápida de mis tareas."},
+      {"en": "I'm working on the new report.", "es": "Estoy trabajando en el nuevo reporte."},
+      {"en": "Could we schedule a call for tomorrow?", "es": "¿Podemos agendar una llamada para mañana?"},
+      {"en": "I'll send you an email with the details.", "es": "Te mando un correo con los detalles."}
+    ],
+    "scenarios": [
+      {
+        "id": "remoto-t1",
+        "title": "Problemas técnicos",
+        "prompt": "Empieza una videollamada y hay problemas: no te escuchan bien y a alguien se le corta el audio. Resuélvelo con las frases típicas.",
+        "success_criteria": "El alumno usa al menos dos frases de videollamada para resolver problemas técnicos (por ejemplo, preguntar si lo escuchan o avisar de que alguien está silenciado).",
+        "tutor_role": "la líder del equipo en una videollamada con problemas de conexión"
+      },
+      {
+        "id": "remoto-t2",
+        "title": "La reunión diaria",
+        "prompt": "En la reunión diaria te toca hablar: di qué hiciste ayer, en qué trabajas hoy y si tienes algún bloqueo.",
+        "success_criteria": "El alumno menciona algo que hizo (en pasado), algo en lo que trabaja ahora (en presente continuo) y si tiene o no algún problema.",
+        "tutor_role": "la líder del equipo, que dirige la reunión diaria"
+      },
+      {
+        "id": "remoto-t3",
+        "title": "Agendar y dar seguimiento",
+        "prompt": "Tu líder te pide revisar un tema. Propón una llamada para otro día y di que enviarás los detalles por correo.",
+        "success_criteria": "El alumno propone un día u hora para una llamada y dice que enviará la información por correo o por mensaje.",
+        "tutor_role": "la líder del equipo, que tiene la agenda llena y propone otro horario"
+      }
+    ],
+    "tutor_config": {
+      "persona": "Ambiente de equipo internacional remoto: informal pero profesional.",
+      "correction_policy": "Corrige sobre todo los tiempos verbales de la actualización: lo de ayer en pasado y lo de hoy en presente continuo.",
+      "scaffolds": [
+        "Dar la estructura de la reunión diaria: yesterday, today, blockers",
+        "Ofrecer la frase técnica en inglés si el alumno la dice en español"
+      ]
+    },
+    "l1_interference": [
+      {"error": "Yesterday I finish the report", "target": "Yesterday I finished the report", "origin": "pasado sin -ed", "severity": "high"},
+      {"error": "We can make a call tomorrow?", "target": "Can we have a call tomorrow?", "origin": "pregunta sin inversión", "severity": "medium"},
+      {"error": "I'm going to send you a mail", "target": "I'll send you an email", "origin": "mail por email", "severity": "low"}
+    ]
+  },
+  {
+    "slug": "medico-farmacia",
+    "title": "At the Doctor & Pharmacy",
+    "title_es": "En el médico y la farmacia",
+    "description_es": "Explica tus síntomas, entiende cómo tomar un medicamento y pide ayuda en una emergencia.",
+    "category": "vida_diaria",
+    "icon": "stethoscope",
+    "recommended_level": "A1",
+    "duration_minutes": 20,
+    "communicative_objectives": [
+      "Describir síntomas y desde cuándo se tienen",
+      "Entender y confirmar cómo tomar un medicamento",
+      "Pedir ayuda y dar la ubicación en una emergencia"
+    ],
+    "key_phrases": [
+      {"en": "I don't feel well.", "es": "No me siento bien."},
+      {"en": "I have a headache.", "es": "Me duele la cabeza."},
+      {"en": "My stomach hurts.", "es": "Me duele el estómago."},
+      {"en": "I've had a fever since yesterday.", "es": "Tengo fiebre desde ayer."},
+      {"en": "I'm allergic to penicillin.", "es": "Soy alérgico a la penicilina."},
+      {"en": "How often should I take it?", "es": "¿Cada cuánto me lo tengo que tomar?"},
+      {"en": "Take one pill every eight hours.", "es": "Tome una pastilla cada ocho horas."},
+      {"en": "Please call an ambulance!", "es": "¡Llamen una ambulancia, por favor!"}
+    ],
+    "scenarios": [
+      {
+        "id": "medico-t1",
+        "title": "En la consulta",
+        "prompt": "Estás en el médico. Explica qué síntomas tienes y desde cuándo.",
+        "success_criteria": "El alumno describe al menos dos síntomas y dice desde cuándo los tiene.",
+        "tutor_role": "una doctora de medicina general que pregunta por los síntomas"
+      },
+      {
+        "id": "medico-t2",
+        "title": "En la farmacia",
+        "prompt": "Vas a la farmacia con una receta. Pregunta cómo tomar el medicamento y avisa si tienes alguna alergia.",
+        "success_criteria": "El alumno pregunta cómo o cada cuánto tomar el medicamento y menciona una alergia o pregunta por efectos secundarios.",
+        "tutor_role": "el farmacéutico, que explica la dosis con 'every ... hours' y 'with food'"
+      },
+      {
+        "id": "medico-t3",
+        "title": "Una emergencia",
+        "prompt": "Alguien se siente muy mal en la calle. Llama para pedir ayuda: explica qué le pasa y dónde están.",
+        "success_criteria": "El alumno pide ayuda con urgencia, describe lo que le pasa a la persona y da su ubicación.",
+        "tutor_role": "la operadora de emergencias, que hace preguntas rápidas y claras"
+      }
+    ],
+    "tutor_config": {
+      "persona": "Tono tranquilo y claro, como el personal de salud. Aclara en español cualquier palabra médica.",
+      "correction_policy": "Corrige primero lo que pueda causar un malentendido de salud (dosis, síntomas, alergias); lo demás, al terminar la escena.",
+      "scaffolds": [
+        "Dar los patrones 'My ... hurts' y 'I have a ...ache'",
+        "Recordar 'since' para decir desde cuándo"
+      ],
+      "forbidden": [
+        "Dar diagnósticos o consejos médicos reales: es un ensayo de idioma, no una consulta"
+      ]
+    },
+    "l1_interference": [
+      {"error": "I have pain of head", "target": "I have a headache", "origin": "dolor de cabeza", "severity": "high"},
+      {"error": "I'm constipated", "target": "I have a cold", "origin": "constipado → constipated", "severity": "high", "note": "en inglés 'constipated' significa estreñido"},
+      {"error": "I have fever since yesterday", "target": "I've had a fever since yesterday", "origin": "presente con 'desde'", "severity": "medium"}
+    ]
+  },
+  {
+    "slug": "small-talk",
+    "title": "Small Talk & Making Friends",
+    "title_es": "Conversar y hacer amigos",
+    "description_es": "Rompe el hielo con alguien nuevo, mantén la conversación y despídete con naturalidad.",
+    "category": "social",
+    "icon": "comments",
+    "recommended_level": "A1",
+    "duration_minutes": 15,
+    "communicative_objectives": [
+      "Iniciar una conversación con alguien que no conoces",
+      "Hablar de gustos y de lo que hiciste el fin de semana",
+      "Despedirse y proponer seguir en contacto"
+    ],
+    "key_phrases": [
+      {"en": "Hi, I don't think we've met. I'm Carlos.", "es": "Hola, creo que no nos conocemos. Soy Carlos."},
+      {"en": "How's it going?", "es": "¿Qué tal?"},
+      {"en": "What do you do for fun?", "es": "¿Qué haces para divertirte?"},
+      {"en": "Did you do anything fun last weekend?", "es": "¿Hiciste algo divertido el fin de semana?"},
+      {"en": "Me too!", "es": "¡Yo también!"},
+      {"en": "That sounds great.", "es": "Suena genial."},
+      {"en": "It was nice talking to you.", "es": "Fue un gusto hablar contigo."},
+      {"en": "Let's keep in touch.", "es": "Sigamos en contacto."}
+    ],
+    "scenarios": [
+      {
+        "id": "social-t1",
+        "title": "Romper el hielo",
+        "prompt": "Estás en una fiesta y no conoces a nadie. Acércate a alguien, preséntate y hazle una pregunta para empezar a conversar.",
+        "success_criteria": "El alumno saluda, se presenta y hace al menos una pregunta para iniciar la conversación.",
+        "tutor_role": "una persona simpática en una fiesta que tampoco conoce a mucha gente"
+      },
+      {
+        "id": "social-t2",
+        "title": "Gustos y fin de semana",
+        "prompt": "Sigue la conversación: pregúntale qué le gusta hacer y cuéntale qué hiciste el fin de semana pasado.",
+        "success_criteria": "El alumno hace una pregunta sobre gustos o planes y cuenta algo que hizo usando pasado.",
+        "tutor_role": "la persona de la fiesta, que responde y también hace preguntas"
+      },
+      {
+        "id": "social-t3",
+        "title": "Despedirse bien",
+        "prompt": "Es hora de irte. Despídete con amabilidad y propón seguir en contacto.",
+        "success_criteria": "El alumno se despide de forma natural y propone volver a verse o seguir en contacto.",
+        "tutor_role": "la persona de la fiesta, que se alegra de haberte conocido"
+      }
+    ],
+    "tutor_config": {
+      "persona": "Conversación relajada y natural, con reacciones como 'Oh, really?' y 'That's cool'. Anima al alumno a hacer preguntas, no solo a responder.",
+      "correction_policy": "Corrige poco y con suavidad: en una charla importa más mantener la conversación que la gramática perfecta.",
+      "scaffolds": [
+        "Sugerir una pregunta de seguimiento si la conversación se corta",
+        "Dar reacciones útiles: 'Me too', 'That sounds fun'"
+      ]
+    },
+    "l1_interference": [
+      {"error": "I'm agree", "target": "I agree", "origin": "estoy de acuerdo", "severity": "high"},
+      {"error": "It was a pleasure to know you", "target": "It was nice to meet you", "origin": "conocer → know", "severity": "medium"},
+      {"error": "What did you do the last weekend?", "target": "What did you do last weekend?", "origin": "artículo de más", "severity": "medium"}
+    ]
+  }
+]

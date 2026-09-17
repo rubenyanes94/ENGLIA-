@@ -9,6 +9,8 @@ import ProgressPage from "./pages/ProgressPage"
 import ProfilePage from "./pages/ProfilePage"
 import ModuleWorkspacePage from "./pages/ModuleWorkspacePage"
 import ChatPage from "./pages/ChatPage"
+import FlashCoursePage from "./pages/FlashCoursePage"
+import LibraryPage from "./pages/LibraryPage"
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/modules/:moduleId" element={<ModuleWorkspacePage />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/library" element={<LibraryPage />} />
+          <Route path="/library/:slug" element={<FlashCoursePage />} />
         </Route>
       </Route>
 

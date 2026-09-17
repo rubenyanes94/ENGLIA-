@@ -9,7 +9,6 @@ from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.models import Enrollment, ExerciseAttempt, User
 from app.repositories import (
-    descriptor_evidence_repository,
     enrollment_repository,
     event_repository,
     exercise_attempt_repository,
@@ -19,10 +18,11 @@ from app.repositories import (
 )
 from app.repositories.enrollment_repository import MASTERY_COMPLETION_THRESHOLD
 from app.schemas.enrollment import EnrollmentOut
+from app.schemas.exam import ExamOut, ExamQuestionOut, ExamResultOut, ExamSubmitRequest
 from app.schemas.exercise import ExerciseAttemptOut, SubmitExerciseAttemptRequest
 from app.schemas.lesson import LessonDetailOut
 from app.schemas.module import ModuleDetailOut
-from app.services import certification as certification_service
+from app.services import module_exam as exam_service
 
 router = APIRouter(prefix="/modules", tags=["curriculum"])
 
@@ -67,23 +67,14 @@ async def enroll_in_module(
     if existing is not None:
         return existing
 
-    # Bloqueo secuencial: para certificar un nivel en orden, no se puede
-    # empezar el módulo N sin haber completado (examen aprobado) el N-1
-    # del MISMO nivel. Solo se compara contra el inmediato anterior, no
-    # contra todos los previos — si esos ya se completaron en su momento,
-    # encadenar la comprobación hacia atrás sería redundante.
-    previous_module = await module_repository.get_previous_in_level(db, module)
-    if previous_module is not None:
-        previous_enrollment = await enrollment_repository.get(db, current_user.id, previous_module.id)
-        if previous_enrollment is None or previous_enrollment.status != "completed":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Debes completar el módulo '{previous_module.title}' antes de inscribirte en este.",
-            )
+    # El bloqueo secuencial vive en el servicio, compartido con el examen:
+    # si cada camino tuviera su copia, acabarían exigiendo cosas distintas.
+    try:
+        new_enrollment = await exam_service.ensure_enrollment(db, current_user.id, module)
+    except exam_service.ModuleLockedError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
 
     response.status_code = status.HTTP_201_CREATED
-    new_enrollment = await enrollment_repository.create(db, current_user.id, module_id)
-    await event_repository.record(db, current_user.id, "module_enrolled", {"module_id": str(module_id)})
     return new_enrollment
 
 
@@ -105,6 +96,15 @@ async def submit_exercise_attempt(
     exercise = await exercise_repository.get_for_lesson(db, module_id, lesson_id, exercise_id)
     if exercise is None:
         raise HTTPException(status_code=404, detail="Ejercicio no encontrado.")
+
+    # Las preguntas de examen solo se responden todas juntas, en
+    # POST /modules/{id}/exam. Por aquí se podría ir probando opción a
+    # opción, pregunta a pregunta, hasta aprobar sin saber nada.
+    if exercise.stage == "exam":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Las preguntas de examen se responden desde el examen del módulo.",
+        )
 
     # Exigimos inscripción previa a propósito: mastery_score se calcula
     # sobre una Enrollment que tiene que existir ya (ver
@@ -140,25 +140,9 @@ async def submit_exercise_attempt(
     # sesión de estudio real). Nunca hay andamiaje posible en un ejercicio
     # autocalificado, así que scaffolded=False siempre aquí.
     passed = result.score >= MASTERY_COMPLETION_THRESHOLD
-    for descriptor_code in exercise.descriptor_codes:
-        await descriptor_evidence_repository.record(
-            db,
-            current_user.id,
-            descriptor_code,
-            context=str(exercise_id),
-            session_key=str(attempt.id),
-            success=passed,
-            source="exercise_attempt",
-            scaffolded=False,
-        )
-        if passed:
-            # Esta evidencia puede ser justo la que cierra el gate de
-            # salida del nivel al que pertenece el descriptor — lo
-            # comprueba y certifica sola si corresponde, sin esperar a
-            # que nadie llame a POST /users/me/certify a mano (ver
-            # app.services.certification). Solo si `passed`: un intento
-            # fallido no puede haber mejorado el mastery de nadie.
-            await certification_service.try_auto_certify_from_descriptor(db, current_user.id, descriptor_code)
+    await exam_service.record_descriptor_evidence(
+        db, current_user.id, exercise, attempt, passed, session_key=str(attempt.id)
+    )
 
     await event_repository.record(
         db,
@@ -206,3 +190,66 @@ async def list_exercise_attempts(
         raise HTTPException(status_code=404, detail="Ejercicio no encontrado.")
 
     return await exercise_attempt_repository.list_for_exercise(db, current_user.id, exercise_id)
+
+
+@router.get("/{module_id}/exam", response_model=ExamOut)
+async def get_module_exam(
+    module_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ExamOut:
+    """Las preguntas del examen del módulo, sin respuestas."""
+    module = await module_repository.get_by_id(db, module_id)
+    if module is None:
+        raise HTTPException(status_code=404, detail="Módulo no encontrado.")
+
+    exercises = await exam_service.list_exam_exercises(db, module_id)
+    if not exercises:
+        raise HTTPException(status_code=404, detail="Este módulo todavía no tiene examen.")
+
+    return ExamOut(
+        module_id=module_id,
+        total=len(exercises),
+        pass_count=exam_service.pass_count_for(len(exercises)),
+        questions=[
+            ExamQuestionOut(id=exercise.id, prompt=exercise.prompt, options=exercise.answer_key.get("options", []))
+            for exercise in exercises
+        ],
+    )
+
+
+@router.post("/{module_id}/exam", response_model=ExamResultOut)
+async def submit_module_exam(
+    module_id: uuid.UUID,
+    payload: ExamSubmitRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ExamResultOut:
+    """Corrige una convocatoria completa. Si aprueba, el módulo queda
+    completado y el siguiente se desbloquea.
+
+    Inscribe al alumno si no lo estaba: presentarse al examen es empezar
+    el módulo, y exigir antes el botón "Empezar módulo" sería un paso que
+    no aporta nada. El bloqueo secuencial se respeta igual.
+    """
+    module = await module_repository.get_by_id(db, module_id)
+    if module is None:
+        raise HTTPException(status_code=404, detail="Módulo no encontrado.")
+
+    try:
+        result = await exam_service.submit_exam(db, current_user.id, module, payload.answers)
+    except exam_service.ExamNotAvailableError:
+        raise HTTPException(status_code=404, detail="Este módulo todavía no tiene examen.")
+    except exam_service.ModuleLockedError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
+
+    return ExamResultOut(
+        score=result.score,
+        correct=result.correct,
+        total=result.total,
+        pass_count=result.pass_count,
+        passed=result.passed,
+        module_completed=result.module_completed,
+        next_module_id=result.next_module_id,
+        review=[{"descriptor_code": item.descriptor_code, "statement_es": item.statement_es} for item in result.review],
+    )

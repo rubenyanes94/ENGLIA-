@@ -12,6 +12,9 @@ class CreateSessionRequest(BaseModel):
     # ESE módulo (ver app/agents/prompt_builder.py) y se pueden marcar
     # tareas activas turno a turno (ver SendMessageRequest.task_id).
     module_id: uuid.UUID | None = None
+    # Curso de la Biblioteca que se practica (su slug). Excluyente con
+    # module_id: una sesión es del currículo o de la Biblioteca, no de los dos.
+    flash_course_slug: str | None = None
 
 
 class CreateSessionResponse(BaseModel):
@@ -19,13 +22,14 @@ class CreateSessionResponse(BaseModel):
     persona_name: str
     level_code: str
     module_title: str | None = None
+    course_title: str | None = None
 
 
 class SendMessageRequest(BaseModel):
     message: str = Field(examples=["Hello! How do I say 'buenos días'?"])
-    # id de una tarea de Module.tasks (ej. "a1-01-t1") que el alumno está
-    # practicando EN ESTE turno — requiere que la sesión tenga módulo
-    # (ver CreateSessionRequest.module_id). Si se manda, el tutor evalúa
+    # id de una tarea de Module.tasks (ej. "a1-01-t1") o de un escenario de
+    # FlashCourse.scenarios que el alumno está practicando EN ESTE turno —
+    # requiere que la sesión tenga módulo o curso (ver CreateSessionRequest). Si se manda, el tutor evalúa
     # si el turno cumple la tarea y, de ser así, registra evidencia hacia
     # el descriptor MCER que esa tarea declara (ver routers/chat.py).
     task_id: str | None = None

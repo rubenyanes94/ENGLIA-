@@ -14,6 +14,7 @@ from app.repositories import (
     conversation_repository,
     descriptor_evidence_repository,
     event_repository,
+    flash_course_repository,
     module_repository,
     persona_repository,
 )
@@ -65,6 +66,18 @@ async def create_session(
             detail=f"No hay un tutor activo configurado para el nivel '{payload.level_code}'.",
         )
 
+    if payload.module_id is not None and payload.flash_course_slug is not None:
+        raise HTTPException(
+            status_code=400,
+            detail="Una sesión se ata a un módulo o a un curso de la Biblioteca, no a los dos.",
+        )
+
+    flash_course = None
+    if payload.flash_course_slug is not None:
+        flash_course = await flash_course_repository.get_by_slug(db, payload.flash_course_slug)
+        if flash_course is None:
+            raise HTTPException(status_code=404, detail="Curso no encontrado.")
+
     module = None
     if payload.module_id is not None:
         module = await module_repository.get_by_id(db, payload.module_id)
@@ -77,7 +90,11 @@ async def create_session(
             )
 
     session = await conversation_repository.create_session(
-        db, current_user.id, persona, module_id=module.id if module else None
+        db,
+        current_user.id,
+        persona,
+        module_id=module.id if module else None,
+        flash_course_id=flash_course.id if flash_course else None,
     )
 
     return CreateSessionResponse(
@@ -85,6 +102,7 @@ async def create_session(
         persona_name=persona.name,
         level_code=payload.level_code.upper(),
         module_title=module.title if module else None,
+        course_title=flash_course.title_es if flash_course else None,
     )
 
 
@@ -105,18 +123,22 @@ async def send_message(
     #    dentro de Module.tasks del módulo de ESTA sesión — no basta con
     #    que el id "suene" a una tarea real, evita que un id de otro
     #    módulo cuele evidencia hacia un descriptor que no corresponde.
+    # Un módulo del currículo o un curso de la Biblioteca: el tutor los
+    # trata igual (tienen los mismos campos de configuración y de tareas).
+    practice = session.module or session.flash_course
+
     active_task = None
     if payload.task_id is not None:
-        if session.module is None:
+        if practice is None:
             raise HTTPException(
                 status_code=400,
-                detail="Esta sesión no tiene módulo asignado; no se le puede marcar una tarea activa.",
+                detail="Esta sesión no tiene módulo ni curso asignado; no se le puede marcar una tarea activa.",
             )
-        active_task = next((t for t in session.module.tasks if t.get("id") == payload.task_id), None)
+        active_task = next((t for t in practice.tasks if t.get("id") == payload.task_id), None)
         if active_task is None:
             raise HTTPException(
                 status_code=400,
-                detail=f"La tarea '{payload.task_id}' no existe en el módulo activo de esta sesión.",
+                detail=f"La tarea '{payload.task_id}' no existe en el módulo o curso de esta sesión.",
             )
 
     # 1. Recuperamos el historial de la sesión (memoria de corto plazo, Redis).
@@ -142,7 +164,7 @@ async def send_message(
         history,
         payload.message,
         level_code=session.persona.level.code,
-        module=session.module,
+        module=practice,
         active_task=active_task,
         long_term_context=long_term_context,
     )
@@ -196,6 +218,14 @@ async def send_message(
                 "completed": turn["task_completed"],
                 "scaffolded": turn["task_scaffolded"],
             },
+        )
+
+    # Escenario de la Biblioteca logrado: cuenta para el progreso del
+    # curso. No pasa por la evidencia MCER de arriba (sus escenarios no
+    # declaran descriptor), a propósito: ver models/flash_course.py.
+    if active_task is not None and session.flash_course is not None and turn["task_completed"]:
+        await flash_course_repository.mark_scenario_completed(
+            db, current_user.id, session.flash_course, active_task["id"]
         )
 
     return SendMessageResponse(

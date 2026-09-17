@@ -7,7 +7,6 @@ import {
   faClipboardCheck,
   faComments,
   faHeadphones,
-  faLock,
   faQuoteLeft,
   faSpinner,
   faTriangleExclamation,
@@ -21,6 +20,7 @@ import { api } from "../api/client"
 import type { CertificationProgress, LessonDetail, ModuleDetail, ModuleProgress } from "../api/types"
 import { ApiError } from "../api/types"
 import AudioLesson from "../components/AudioLesson"
+import ModuleExamModal from "../components/ModuleExamModal"
 
 const LEVEL_CODE = "A1"
 
@@ -50,6 +50,7 @@ export default function ModuleWorkspacePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [enrolling, setEnrolling] = useState(false)
+  const [examOpen, setExamOpen] = useState(false)
 
   useEffect(() => {
     if (!moduleId) return
@@ -76,6 +77,11 @@ export default function ModuleWorkspacePage() {
   const enrolled = self ? self.status !== "available" && self.status !== "locked" : false
   const completed = self?.status === "completed"
 
+  async function refreshProgress() {
+    const progressData = await api.get<CertificationProgress>(`/levels/${LEVEL_CODE}/certification-progress`)
+    setSiblings(progressData.modules)
+  }
+
   async function handleStart() {
     if (!moduleId) return
     setEnrolling(true)
@@ -85,8 +91,7 @@ export default function ModuleWorkspacePage() {
       // Refrescamos el estado real desde el servidor en vez de asumirlo:
       // el backend aplica bloqueo secuencial y podría rechazar la
       // inscripción, y fingir "inscrito" en local dejaría la UI mintiendo.
-      const progressData = await api.get<CertificationProgress>(`/levels/${LEVEL_CODE}/certification-progress`)
-      setSiblings(progressData.modules)
+      await refreshProgress()
       setTab("practica")
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "No se pudo empezar el módulo.")
@@ -136,7 +141,7 @@ export default function ModuleWorkspacePage() {
               <span>
                 Módulo {position} de {total || "—"}
               </span>
-              <NavArrow to={next} direction="next" />
+              <NavArrow to={next} direction="next" onLocked={() => setExamOpen(true)} />
             </div>
 
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400 text-xs font-black text-slate-900">
@@ -212,7 +217,21 @@ export default function ModuleWorkspacePage() {
       {/* ---- Contenido ---- */}
       {tab === "leccion" && <LessonTab module={module} onGoPractice={() => setTab("practica")} />}
       {tab === "practica" && <PracticeTab module={module} enrolled={enrolled} onStart={handleStart} />}
-      {tab === "examen" && <ExamTab module={module} />}
+      {tab === "examen" && <ExamTab module={module} completed={completed} onStartExam={() => setExamOpen(true)} />}
+
+      {examOpen && moduleId && (
+        <ModuleExamModal
+          moduleId={moduleId}
+          moduleTitle={module.title_es ?? module.title}
+          position={position}
+          onClose={() => setExamOpen(false)}
+          onCompleted={() => void refreshProgress()}
+          onGoToNext={(nextId) => {
+            setExamOpen(false)
+            navigate(`/modules/${nextId}`)
+          }}
+        />
+      )}
 
       {/* ---- Navegación entre módulos ---- */}
       <div className="flex items-center justify-between gap-3 border-t border-slate-200 pt-6">
@@ -228,9 +247,12 @@ export default function ModuleWorkspacePage() {
         )}
         {next &&
           (next.status === "locked" ? (
-            <span className="flex items-center gap-2 rounded-full bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-400">
-              <FontAwesomeIcon icon={faLock} className="text-xs" /> Completa este módulo
-            </span>
+            <button
+              onClick={() => setExamOpen(true)}
+              className="flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500"
+            >
+              <FontAwesomeIcon icon={faClipboardCheck} className="text-xs" /> Aprobar con examen
+            </button>
           ) : (
             <button
               onClick={() => navigate(`/modules/${next.id}`)}
@@ -244,17 +266,41 @@ export default function ModuleWorkspacePage() {
   )
 }
 
-function NavArrow({ to, direction }: { to?: ModuleProgress; direction: "prev" | "next" }) {
+function NavArrow({
+  to,
+  direction,
+  onLocked,
+}: {
+  to?: ModuleProgress
+  direction: "prev" | "next"
+  /** Qué hacer si el módulo de destino está bloqueado. Si se da, la flecha
+   * no se desactiva: abre el examen del módulo actual, que es la forma de
+   * desbloquearlo. */
+  onLocked?: () => void
+}) {
   const navigate = useNavigate()
-  const disabled = !to || to.status === "locked"
+  const locked = to?.status === "locked"
+  const opensExam = locked && onLocked !== undefined
+  const disabled = !to || (locked && !opensExam)
   return (
     <button
-      onClick={() => to && navigate(`/modules/${to.id}`)}
+      onClick={() => {
+        if (opensExam) onLocked()
+        else if (to) navigate(`/modules/${to.id}`)
+      }}
       disabled={disabled}
       className={`flex h-6 w-6 items-center justify-center rounded-full transition ${
         disabled ? "cursor-not-allowed bg-white/5 text-slate-600" : "bg-white/10 text-white hover:bg-white/20"
       }`}
-      title={disabled ? "No disponible" : direction === "prev" ? "Módulo anterior" : "Módulo siguiente"}
+      title={
+        disabled
+          ? "No disponible"
+          : opensExam
+            ? "Aprueba el examen para pasar al siguiente módulo"
+            : direction === "prev"
+              ? "Módulo anterior"
+              : "Módulo siguiente"
+      }
     >
       <FontAwesomeIcon icon={direction === "prev" ? faArrowLeft : faArrowRight} className="text-[10px]" />
     </button>
@@ -473,25 +519,78 @@ function PracticeTab({
 
 /* -------------------------- Pestaña: Examen ------------------------- */
 
-function ExamTab({ module }: { module: ModuleDetail }) {
+function ExamTab({
+  module,
+  completed,
+  onStartExam,
+}: {
+  module: ModuleDetail
+  completed: boolean
+  onStartExam: () => void
+}) {
   const gate = module.assessment.gate_descriptors ?? []
-  const required = module.assessment.evidence_required
 
   return (
     <div className="space-y-4">
-      <Card title="Cómo se aprueba este módulo" icon={faClipboardCheck}>
-        <p className="text-slate-600">
-          No hay un examen de una sola vez. El módulo se supera acumulando evidencia: demostrar cada capacidad clave en
-          contextos y sesiones distintas, practicando con tu tutor.
-        </p>
-        {required && (
-          <p className="mt-4 flex items-center gap-2 rounded-2xl bg-blue-50 px-4 py-3 text-sm font-medium text-blue-800">
+      {completed ? (
+        <section className="flex flex-col items-center rounded-3xl border border-emerald-200 bg-emerald-50 p-8 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-2xl text-emerald-500 shadow-sm">
             <FontAwesomeIcon icon={faCircleCheck} />
-            Se requieren {required} demostraciones exitosas por capacidad.
-          </p>
-        )}
+          </span>
+          <h2 className="mt-4 text-xl font-extrabold text-slate-900">Ya aprobaste este módulo</h2>
+          <p className="mt-1 text-sm text-slate-600">Puedes presentar el examen otra vez para repasar.</p>
+          <button
+            onClick={onStartExam}
+            className="mt-5 rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          >
+            Repetir examen
+          </button>
+        </section>
+      ) : (
+        <section className="relative overflow-hidden rounded-3xl bg-slate-900 p-7 text-white shadow-lg sm:p-8">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-blue-500/25 blur-3xl"
+          />
+          <div className="relative">
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-blue-300">
+              <FontAwesomeIcon icon={faClipboardCheck} /> Examen del módulo
+            </p>
+            <h2 className="mt-3 text-2xl font-extrabold tracking-tight">¿Ya dominas este módulo?</h2>
+            <p className="mt-2 max-w-lg text-slate-300">
+              Aprueba el examen y pasas directo al siguiente módulo, sin esperar a completar toda la práctica.
+            </p>
+            <button
+              onClick={onStartExam}
+              className="mt-6 flex items-center justify-center gap-2 rounded-full bg-blue-600 px-7 py-3.5 font-bold text-white shadow-lg shadow-blue-600/30 transition active:scale-[0.98] hover:bg-blue-500"
+            >
+              Presentar examen <FontAwesomeIcon icon={faArrowRight} className="text-sm" />
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Antes esta pestaña decía "No hay un examen de una sola vez". Ya
+          lo hay, así que se explican las dos vías en vez de negar una. */}
+      <Card title="Dos formas de aprobar" icon={faCircleCheck}>
+        <ul className="space-y-3 text-slate-600">
+          <li className="flex gap-3">
+            <FontAwesomeIcon icon={faClipboardCheck} className="mt-1 shrink-0 text-blue-500" />
+            <span>
+              <strong className="text-slate-800">Con el examen:</strong> respondes las preguntas en una sola
+              convocatoria. Si apruebas, el módulo queda completado al momento.
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <FontAwesomeIcon icon={faComments} className="mt-1 shrink-0 text-blue-500" />
+            <span>
+              <strong className="text-slate-800">Practicando con el tutor:</strong> cada capacidad que demuestras
+              en contextos distintos suma evidencia hacia tu nivel.
+            </span>
+          </li>
+        </ul>
         {gate.length > 0 && (
-          <div className="mt-4">
+          <div className="mt-5">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Capacidades que se evalúan</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {gate.map((code) => (
@@ -504,18 +603,12 @@ function ExamTab({ module }: { module: ModuleDetail }) {
         )}
         <Link
           to="/progress"
-          className="mt-5 flex items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-slate-800"
+          className="mt-5 flex items-center justify-center gap-2 rounded-full bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-700 transition active:scale-[0.98] hover:bg-slate-200"
         >
           Ver mi evidencia acumulada
           <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
         </Link>
       </Card>
-
-      <EmptyState
-        icon={faClipboardCheck}
-        title="Sin ejercicios calificados todavía"
-        text="Este módulo aún no tiene ejercicios de examen cargados. Mientras tanto, la práctica con el tutor es la que suma evidencia."
-      />
     </div>
   )
 }
