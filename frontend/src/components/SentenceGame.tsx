@@ -162,18 +162,6 @@ export default function SentenceGame({ onStateChange }: { onStateChange?: (state
 
       {/* Oración y opciones */}
       <div className="flex flex-1 flex-col justify-center p-6 sm:p-8">
-        {result?.leveled_up && state && (
-          <div className="mb-5 flex items-center gap-3 rounded-2xl bg-indigo-600 px-5 py-4 text-white shadow-md shadow-indigo-600/20">
-            <FontAwesomeIcon icon={faTrophy} className="text-xl text-amber-300" />
-            <div>
-              <p className="font-bold">¡Subiste al nivel {state.level}!</p>
-              <p className="text-sm text-indigo-100">
-                Ahora: {state.level_name} · {state.level_topic}
-              </p>
-            </div>
-          </div>
-        )}
-
         {error && (
           <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
             <p className="text-sm text-red-500">{error}</p>
@@ -194,11 +182,17 @@ export default function SentenceGame({ onStateChange }: { onStateChange?: (state
 
         {!error && item && (
           <>
-            <p className="text-center text-2xl font-bold leading-relaxed text-slate-900 sm:text-3xl">
-              <Sentence sentence={item.sentence} chosen={chosen} result={result} />
-            </p>
+            {/* Alto reservado para dos líneas: al fallar se muestran dos
+                palabras en el hueco (la elegida tachada y la correcta), y en
+                una oración larga eso la parte en dos líneas. Sin reserva,
+                la tarjeta crecería justo al responder. */}
+            <div className="flex min-h-[6.5rem] items-center justify-center">
+              <p className="text-center text-2xl font-bold leading-relaxed text-slate-900 sm:text-3xl">
+                <Sentence sentence={item.sentence} chosen={chosen} result={result} />
+              </p>
+            </div>
 
-            <div className="mx-auto mt-8 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="mx-auto mt-6 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
               {item.options.map((option, index) => (
                 <OptionButton
                   key={option}
@@ -212,34 +206,55 @@ export default function SentenceGame({ onStateChange }: { onStateChange?: (state
               ))}
             </div>
 
-            {result && (
-              <div className="mx-auto mt-6 w-full max-w-2xl">
-                <div
-                  className={`flex items-start gap-3 rounded-2xl px-5 py-4 ${
-                    result.correct ? "bg-emerald-50 text-emerald-900" : "bg-rose-50 text-rose-900"
-                  }`}
-                >
-                  <FontAwesomeIcon
-                    icon={result.correct ? faCircleCheck : faCircleXmark}
-                    className={`mt-0.5 text-lg ${result.correct ? "text-emerald-500" : "text-rose-500"}`}
-                  />
-                  <div>
-                    <p className="font-bold">
-                      {result.correct ? "¡Correcto!" : `La respuesta era "${result.correct_answer}"`}
-                    </p>
-                    <p className="mt-0.5 text-sm opacity-80">{result.explanation_es}</p>
+            {/* Hueco de altura fija para la corrección, ocupado SIEMPRE.
+                La tarjeta del juego comparte fila con Teacher David y la
+                práctica de hoy, y la fila mide lo que la más alta: si este
+                bloque apareciera al responder y desapareciera al pedir la
+                siguiente, la tarjeta cambiaría de alto y arrastraría el
+                botón "Practicar con Teacher David" arriba y abajo. */}
+            <div className="mx-auto mt-6 flex min-h-[13rem] w-full max-w-2xl flex-col">
+              {result ? (
+                <>
+                  <div
+                    className={`flex items-start gap-3 rounded-2xl px-5 py-4 ${
+                      result.correct ? "bg-emerald-50 text-emerald-900" : "bg-rose-50 text-rose-900"
+                    }`}
+                  >
+                    <FontAwesomeIcon
+                      icon={result.correct ? faCircleCheck : faCircleXmark}
+                      className={`mt-0.5 text-lg ${result.correct ? "text-emerald-500" : "text-rose-500"}`}
+                    />
+                    <div>
+                      <p className="font-bold">
+                        {result.correct ? "¡Correcto!" : `La respuesta era "${result.correct_answer}"`}
+                      </p>
+                      <p className="mt-0.5 text-sm opacity-80">{result.explanation_es}</p>
+                      {/* La subida de nivel va aquí dentro y no en un aviso
+                          aparte encima de la oración: aparte, añadía altura
+                          justo en el turno en que se sube. */}
+                      {result.leveled_up && state && (
+                        <p className="mt-2 flex items-center gap-2 text-sm font-bold text-indigo-700">
+                          <FontAwesomeIcon icon={faTrophy} className="text-amber-500" />
+                          ¡Subiste al nivel {state.level}: {state.level_name}!
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <button
-                  onClick={() => void loadNext()}
-                  disabled={busy}
-                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 py-3.5 font-semibold text-white transition active:scale-[0.99] hover:bg-slate-800 disabled:opacity-60"
-                >
-                  Siguiente oración <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
-                  <kbd className="ml-2 hidden rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-medium sm:inline">Enter</kbd>
-                </button>
-              </div>
-            )}
+                  <button
+                    onClick={() => void loadNext()}
+                    disabled={busy}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 py-3.5 font-semibold text-white transition active:scale-[0.99] hover:bg-slate-800 disabled:opacity-60"
+                  >
+                    Siguiente oración <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
+                    <kbd className="ml-2 hidden rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-medium sm:inline">Enter</kbd>
+                  </button>
+                </>
+              ) : (
+                <p className="pt-6 text-center text-sm text-slate-400">
+                  Elige una opción<span className="hidden sm:inline"> o pulsa las teclas 1 a 4</span>
+                </p>
+              )}
+            </div>
           </>
         )}
       </div>
