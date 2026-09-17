@@ -1,14 +1,21 @@
 import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom"
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../auth/AuthContext"
+import AppFooter from "./AppFooter"
 import Avatar from "./Avatar"
 import BottomNav from "./BottomNav"
 import { NAV_ITEMS } from "./navItems"
+import { PAGE_GUTTER } from "./pageGutter"
 
 export default function Layout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
+  // El chat ocupa exactamente el alto de la pantalla (la caja de mensajes
+  // tiene su propio scroll); un footer debajo obligaría a desplazar la
+  // página entera para ver lo que se escribe.
+  const showFooter = !pathname.startsWith("/chat")
 
   function handleLogout() {
     logout()
@@ -18,9 +25,9 @@ export default function Layout() {
   return (
     // pb-20 solo en móvil: es el hueco que necesita la barra inferior
     // fija, que en escritorio no existe (la navegación vive en el header).
-    <div className="min-h-screen bg-slate-50 pb-20 text-slate-900 md:pb-0">
+    <div className="flex min-h-screen flex-col bg-slate-50 pb-20 text-slate-900 md:pb-0">
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
+        <div className={`flex w-full items-center justify-between gap-6 py-3 ${PAGE_GUTTER}`}>
           <Link to="/dashboard" className="flex shrink-0 items-center gap-2.5 font-extrabold tracking-tight text-slate-900">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 text-sm font-black text-white shadow-sm">
               E
@@ -68,9 +75,11 @@ export default function Layout() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+      <main className={`w-full flex-1 py-8 lg:py-10 ${PAGE_GUTTER}`}>
         <Outlet />
       </main>
+
+      {showFooter && <AppFooter />}
 
       <BottomNav />
     </div>

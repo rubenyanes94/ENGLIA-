@@ -13,7 +13,6 @@ import { Link, useParams } from "react-router-dom"
 import { api } from "../api/client"
 import type { FlashCourseDetail } from "../api/types"
 import { ApiError } from "../api/types"
-import AppFooter from "../components/AppFooter"
 import { categoryMeta, courseIcon } from "../components/library/courseMeta"
 
 /** Un curso flash: la chuleta de frases y los escenarios para practicar.
@@ -180,8 +179,6 @@ export default function FlashCoursePage() {
           </section>
         </div>
       </div>
-
-      <AppFooter />
     </div>
   )
 }

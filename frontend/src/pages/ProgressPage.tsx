@@ -13,7 +13,6 @@ import type {
 } from "../api/types"
 import { ApiError } from "../api/types"
 import { useAuth } from "../auth/AuthContext"
-import AppFooter from "../components/AppFooter"
 import Avatar from "../components/Avatar"
 import LevelMap from "../components/progress/LevelMap"
 import SkillsCard from "../components/progress/SkillsCard"
@@ -208,8 +207,6 @@ export default function ProgressPage() {
         )}
         </div>
       </div>
-
-      <AppFooter />
     </div>
   )
 }

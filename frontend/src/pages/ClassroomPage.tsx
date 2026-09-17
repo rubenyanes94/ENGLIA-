@@ -16,7 +16,6 @@ import { Link } from "react-router-dom"
 import { api } from "../api/client"
 import type { CertificationProgress, ModuleProgress, Progress } from "../api/types"
 import { ApiError } from "../api/types"
-import AppFooter from "../components/AppFooter"
 
 const LEVEL_CODE = "A1" // único nivel con currículo sembrado hoy
 
@@ -292,8 +291,6 @@ export default function ClassroomPage() {
           </div>
         </div>
       </div>
-
-      <AppFooter />
     </div>
   )
 }

@@ -22,9 +22,9 @@ const SPEEDS = [0.75, 1, 1.25, 1.5]
 
 const SKIP_SECONDS = 10
 
-// Nombre con el que se presenta el tutor en la lección narrada. Fijo aquí
-// y no leído de la persona del nivel: en la base de datos el tutor de A1
-// se llama "Tutor Emma (A1)", que no es el nombre que se quiere mostrar.
+// Mismo nombre que la persona del tutor en la base de datos (ver
+// backend seed_agent_personas.TUTOR_NAME). Fijo aquí porque la lección no
+// abre una sesión con el tutor y no tiene de dónde leerlo.
 const TUTOR_NAME = "Teacher David"
 
 /** Divide el guión en fragmentos, marcando cuáles son inglés (los que el

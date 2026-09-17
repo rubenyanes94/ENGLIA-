@@ -5,7 +5,6 @@ import { Link } from "react-router-dom"
 import { api } from "../api/client"
 import type { FlashCourseSummary } from "../api/types"
 import { ApiError } from "../api/types"
-import AppFooter from "../components/AppFooter"
 import { CATEGORIES, categoryMeta, courseIcon } from "../components/library/courseMeta"
 
 /** La Biblioteca: cursos cortos por tema que se practican con el tutor.
@@ -100,8 +99,6 @@ export default function LibraryPage() {
           </>
         )}
       </div>
-
-      <AppFooter />
     </div>
   )
 }

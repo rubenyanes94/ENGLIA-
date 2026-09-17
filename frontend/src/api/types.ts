@@ -327,3 +327,39 @@ export interface FlashCourseDetail extends FlashCourseSummary {
   key_phrases: { en: string; es: string }[]
   scenarios: FlashScenario[]
 }
+
+// --- Juego de completar oraciones ---
+
+export interface GameState {
+  level: number
+  max_level: number
+  level_name: string
+  level_topic: string
+  /** Aciertos acumulados en el nivel actual, hacia `level_goal`. */
+  level_progress: number
+  level_goal: number
+  total_answered: number
+  total_correct: number
+  streak: number
+  best_streak: number
+}
+
+export interface GameItem {
+  id: string
+  /** La oración con "___" donde va la palabra. */
+  sentence: string
+  options: string[]
+}
+
+export interface GameNext {
+  item: GameItem
+  state: GameState
+}
+
+export interface GameAnswer {
+  correct: boolean
+  correct_answer: string
+  explanation_es: string
+  leveled_up: boolean
+  state: GameState
+}
