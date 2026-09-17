@@ -25,7 +25,7 @@ export default function PayPalScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <>
-      <ScreenHeader icon={faPaypal} tone="bg-indigo-500 text-white" title="PayPal Academy" subtitle="Suscripción mensual" />
+      <ScreenHeader icon={faPaypal} tone="bg-brand-500 text-white" title="PayPal Academy" subtitle="Suscripción mensual" />
 
       <p className="mt-4 text-center text-sm text-slate-500">
         Serás redirigido a PayPal para autorizar la suscripción mensual.
@@ -36,7 +36,7 @@ export default function PayPalScreen({ onBack }: { onBack: () => void }) {
       <button
         onClick={start}
         disabled={loading}
-        className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 transition active:scale-[0.98] hover:bg-indigo-400 disabled:opacity-60"
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition active:scale-[0.98] hover:bg-brand-400 disabled:opacity-60"
       >
         {loading && <FontAwesomeIcon icon={faSpinner} spin />}
         Continuar a PayPal

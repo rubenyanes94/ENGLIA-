@@ -91,7 +91,7 @@ export default function ModuleExamModal({
     // perderían todas las respuestas marcadas. Para salir está la X.
     <Modal onClose={onClose} wide dismissible={step !== "answering" && step !== "submitting"}>
       <div className="flex items-start justify-between gap-4">
-        <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-blue-600">
+        <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-brand-600">
           <FontAwesomeIcon icon={faClipboardCheck} /> Examen · Módulo {position}
         </p>
         {step !== "submitting" && (
@@ -142,7 +142,7 @@ export default function ModuleExamModal({
 
           <button
             onClick={() => setStep("answering")}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-4 font-bold text-white shadow-lg shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-4 font-bold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500"
           >
             Empezar examen <FontAwesomeIcon icon={faArrowRight} className="text-sm" />
           </button>
@@ -159,7 +159,7 @@ export default function ModuleExamModal({
           </div>
           <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
             <div
-              className="h-full rounded-full bg-blue-600 transition-[width] duration-300"
+              className="h-full rounded-full bg-brand-600 transition-[width] duration-300"
               style={{ width: `${((index + 1) / questions.length) * 100}%` }}
             />
           </div>
@@ -178,13 +178,13 @@ export default function ModuleExamModal({
                   onClick={() => setAnswers((prev) => ({ ...prev, [current.id]: option }))}
                   className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left font-semibold transition active:scale-[0.99] ${
                     selected
-                      ? "border-blue-600 bg-blue-50 text-blue-900"
+                      ? "border-brand-600 bg-brand-50 text-brand-900"
                       : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
                   }`}
                 >
                   <span
                     className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                      selected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
+                      selected ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-500"
                     }`}
                   >
                     {String.fromCharCode(65 + optionIndex)}
@@ -208,7 +208,7 @@ export default function ModuleExamModal({
               <button
                 onClick={() => setIndex((i) => i + 1)}
                 disabled={!answers[current.id]}
-                className="flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
+                className="flex items-center gap-2 rounded-full bg-ink-900 px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-ink-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
               >
                 Siguiente <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
               </button>
@@ -218,7 +218,7 @@ export default function ModuleExamModal({
                 // Solo con todo respondido: una pregunta en blanco cuenta
                 // como fallo, y entregar sin darse cuenta costaría el aprobado.
                 disabled={!allAnswered || step === "submitting"}
-                className="flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+                className="flex items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
               >
                 {step === "submitting" ? (
                   <>
@@ -270,7 +270,7 @@ function ResultView({
         {result.next_module_id ? (
           <button
             onClick={onGoToNext}
-            className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-4 font-bold text-white shadow-lg shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500"
+            className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-4 font-bold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500"
           >
             Ir al módulo siguiente <FontAwesomeIcon icon={faArrowRight} className="text-sm" />
           </button>
@@ -279,7 +279,7 @@ function ResultView({
             <p className="mt-4 text-sm text-slate-500">Era el último módulo del nivel.</p>
             <button
               onClick={onClose}
-              className="mt-6 w-full rounded-2xl bg-slate-900 py-4 font-bold text-white transition hover:bg-slate-800"
+              className="mt-6 w-full rounded-2xl bg-ink-900 py-4 font-bold text-white transition hover:bg-ink-800"
             >
               Cerrar
             </button>
@@ -325,7 +325,7 @@ function ResultView({
         </button>
         <button
           onClick={onRetry}
-          className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white transition active:scale-[0.98] hover:bg-blue-500"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-brand-600 py-3.5 text-sm font-bold text-white transition active:scale-[0.98] hover:bg-brand-500"
         >
           <FontAwesomeIcon icon={faRotateRight} className="text-xs" /> Intentar de nuevo
         </button>

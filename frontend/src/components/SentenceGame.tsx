@@ -111,10 +111,10 @@ export default function SentenceGame({ onStateChange }: { onStateChange?: (state
   return (
     <section className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
       {/* Cabecera: nivel, tema y avance hacia el siguiente */}
-      <div className="border-b border-slate-100 bg-gradient-to-br from-indigo-50 via-white to-sky-50 p-6 sm:p-7">
+      <div className="border-b border-slate-100 bg-gradient-to-br from-brand-50 via-white to-brand-50 p-6 sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-md shadow-indigo-600/25">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-md shadow-brand-600/25">
               <FontAwesomeIcon icon={faPuzzlePiece} />
             </span>
             <div>
@@ -124,7 +124,7 @@ export default function SentenceGame({ onStateChange }: { onStateChange?: (state
           </div>
           {state && (
             <div className="text-right">
-              <p className="text-xs font-bold uppercase tracking-wide text-indigo-600">
+              <p className="text-xs font-bold uppercase tracking-wide text-brand-600">
                 Nivel {state.level} de {state.max_level}
               </p>
               <p className="font-bold text-slate-900">{state.level_name}</p>
@@ -147,7 +147,7 @@ export default function SentenceGame({ onStateChange }: { onStateChange?: (state
                   <span
                     key={index}
                     className={`h-2 rounded-full transition-colors duration-300 ${
-                      index < state.level_progress ? "bg-indigo-600" : "bg-slate-200"
+                      index < state.level_progress ? "bg-brand-600" : "bg-slate-200"
                     }`}
                   />
                 ))}
@@ -206,20 +206,39 @@ export default function SentenceGame({ onStateChange }: { onStateChange?: (state
               ))}
             </div>
 
-            {/* Hueco de altura fija para la corrección, ocupado SIEMPRE.
-                La tarjeta del juego comparte fila con Teacher David y la
-                práctica de hoy, y la fila mide lo que la más alta: si este
-                bloque apareciera al responder y desapareciera al pedir la
+            {/* Zona de corrección: SIEMPRE visible y del mismo tamaño.
+                La tarjeta comparte fila con Teacher David y la práctica de
+                hoy, y la fila mide lo que la más alta: si la corrección
+                apareciera al responder y desapareciera al pedir la
                 siguiente, la tarjeta cambiaría de alto y arrastraría el
-                botón "Practicar con Teacher David" arriba y abajo. */}
-            <div className="mx-auto mt-6 flex min-h-[13rem] w-full max-w-2xl flex-col">
-              {result ? (
-                <>
-                  <div
-                    className={`flex items-start gap-3 rounded-2xl px-5 py-4 ${
-                      result.correct ? "bg-emerald-50 text-emerald-900" : "bg-rose-50 text-rose-900"
-                    }`}
-                  >
+                botón "Practicar con Teacher David".
+
+                Antes esto se resolvía reservando el hueco en blanco, y el
+                espacio vacío bajo las opciones parecía un error. Ahora el
+                hueco está ocupado desde el principio: un panel con la
+                instrucción que luego se convierte en la corrección, y el
+                botón "Siguiente" presente pero desactivado hasta responder. */}
+            <div className="mx-auto mt-6 w-full max-w-2xl">
+              <div
+                // min-h calculado para el caso más alto en escritorio:
+                // título + la explicación más larga del banco (77
+                // caracteres, una línea) + el aviso de subida de nivel.
+                className={`flex min-h-[7.5rem] items-start gap-3 rounded-2xl px-5 py-4 transition-colors duration-200 ${
+                  !result
+                    ? "items-center justify-center border border-dashed border-slate-200 bg-slate-50/70 text-slate-500"
+                    : result.correct
+                      ? "bg-emerald-50 text-emerald-900"
+                      : "bg-rose-50 text-rose-900"
+                }`}
+              >
+                {!result ? (
+                  <p className="text-center text-sm">
+                    <FontAwesomeIcon icon={faPuzzlePiece} className="mr-2 text-brand-400" />
+                    Elige la palabra que completa la oración
+                    <span className="hidden sm:inline"> · o pulsa las teclas 1 a 4</span>
+                  </p>
+                ) : (
+                  <>
                     <FontAwesomeIcon
                       icon={result.correct ? faCircleCheck : faCircleXmark}
                       className={`mt-0.5 text-lg ${result.correct ? "text-emerald-500" : "text-rose-500"}`}
@@ -229,31 +248,33 @@ export default function SentenceGame({ onStateChange }: { onStateChange?: (state
                         {result.correct ? "¡Correcto!" : `La respuesta era "${result.correct_answer}"`}
                       </p>
                       <p className="mt-0.5 text-sm opacity-80">{result.explanation_es}</p>
-                      {/* La subida de nivel va aquí dentro y no en un aviso
-                          aparte encima de la oración: aparte, añadía altura
-                          justo en el turno en que se sube. */}
                       {result.leveled_up && state && (
-                        <p className="mt-2 flex items-center gap-2 text-sm font-bold text-indigo-700">
+                        <p className="mt-2 flex items-center gap-2 text-sm font-bold text-brand-700">
                           <FontAwesomeIcon icon={faTrophy} className="text-amber-500" />
                           ¡Subiste al nivel {state.level}: {state.level_name}!
                         </p>
                       )}
                     </div>
-                  </div>
-                  <button
-                    onClick={() => void loadNext()}
-                    disabled={busy}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 py-3.5 font-semibold text-white transition active:scale-[0.99] hover:bg-slate-800 disabled:opacity-60"
-                  >
+                  </>
+                )}
+              </div>
+
+              <button
+                onClick={() => void loadNext()}
+                disabled={busy || !result}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-ink-900 py-3.5 font-semibold text-white transition active:scale-[0.99] hover:bg-ink-800 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+              >
+                {result ? (
+                  <>
                     Siguiente oración <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
-                    <kbd className="ml-2 hidden rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-medium sm:inline">Enter</kbd>
-                  </button>
-                </>
-              ) : (
-                <p className="pt-6 text-center text-sm text-slate-400">
-                  Elige una opción<span className="hidden sm:inline"> o pulsa las teclas 1 a 4</span>
-                </p>
-              )}
+                    <kbd className="ml-2 hidden rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-medium sm:inline">
+                      Enter
+                    </kbd>
+                  </>
+                ) : (
+                  "Responde para continuar"
+                )}
+              </button>
             </div>
           </>
         )}
@@ -269,7 +290,7 @@ function Sentence({ sentence, chosen, result }: { sentence: string; chosen: stri
   const slotTone = !chosen
     ? "border-dashed border-slate-300 bg-slate-50 text-transparent"
     : !result
-      ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+      ? "border-brand-300 bg-brand-50 text-brand-700"
       : result.correct
         ? "border-emerald-300 bg-emerald-50 text-emerald-700"
         : "border-rose-300 bg-rose-50 text-rose-700 line-through decoration-2"
@@ -312,8 +333,8 @@ function OptionButton({
   const tone =
     result === null
       ? isChosen
-        ? "border-indigo-500 bg-indigo-50 text-indigo-900"
-        : "border-slate-200 bg-white text-slate-800 hover:border-indigo-300 hover:bg-indigo-50/40"
+        ? "border-brand-500 bg-brand-50 text-brand-900"
+        : "border-slate-200 bg-white text-slate-800 hover:border-brand-300 hover:bg-brand-50/40"
       : isCorrect
         ? "border-emerald-400 bg-emerald-50 text-emerald-900"
         : isChosen

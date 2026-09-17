@@ -51,10 +51,10 @@ export default function FlashCoursePage() {
   return (
     <div>
       <div className="space-y-6">
-        <header className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-lg sm:p-8">
+        <header className="relative overflow-hidden rounded-3xl bg-ink-900 p-6 text-white shadow-lg sm:p-8">
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl"
+            className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-brand-500/20 blur-3xl"
           />
           <div className="relative">
             <Link
@@ -69,7 +69,7 @@ export default function FlashCoursePage() {
                 <FontAwesomeIcon icon={courseIcon(course.icon)} />
               </span>
               <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-wide text-blue-300">{meta.label}</p>
+                <p className="text-xs font-bold uppercase tracking-wide text-brand-300">{meta.label}</p>
                 <h1 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">{course.title_es}</h1>
                 <p className="mt-0.5 text-sm text-slate-400">{course.title}</p>
               </div>
@@ -100,7 +100,7 @@ export default function FlashCoursePage() {
               </div>
               <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/10">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-sky-400 transition-[width] duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-400 transition-[width] duration-500"
                   style={{ width: `${percent}%` }}
                 />
               </div>
@@ -111,7 +111,7 @@ export default function FlashCoursePage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
             <h2 className="flex items-center gap-2.5 text-lg font-bold tracking-tight text-slate-900">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-sm text-blue-600">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-sm text-brand-600">
                 <FontAwesomeIcon icon={faLanguage} />
               </span>
               Frases clave
@@ -130,7 +130,7 @@ export default function FlashCoursePage() {
           <section className="space-y-4 lg:col-span-3">
             <div>
               <h2 className="flex items-center gap-2.5 text-lg font-bold tracking-tight text-slate-900">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-sm text-blue-600">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-sm text-brand-600">
                   <FontAwesomeIcon icon={faMasksTheater} />
                 </span>
                 Practica con el tutor
@@ -168,7 +168,7 @@ export default function FlashCoursePage() {
                   className={`mt-4 flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition active:scale-[0.98] ${
                     scenario.completed
                       ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      : "bg-blue-600 text-white shadow-md shadow-blue-600/20 hover:bg-blue-500"
+                      : "bg-brand-600 text-white shadow-md shadow-brand-600/20 hover:bg-brand-500"
                   }`}
                 >
                   <FontAwesomeIcon icon={faComments} />

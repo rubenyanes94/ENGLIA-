@@ -59,7 +59,7 @@ export default function PronunciationPractice({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Repite en voz alta</p>
-          <p className="mt-1 text-xl font-bold text-blue-700">{phrase}</p>
+          <p className="mt-1 text-xl font-bold text-brand-700">{phrase}</p>
         </div>
         <button onClick={onClose} aria-label="Cerrar" className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100">
           <FontAwesomeIcon icon={faXmark} />
@@ -71,7 +71,7 @@ export default function PronunciationPractice({
           onClick={toggle}
           disabled={busy}
           className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg text-white shadow-lg transition active:scale-95 disabled:opacity-60 ${
-            state === "recording" ? "animate-pulse bg-red-500 shadow-red-500/30" : "bg-blue-600 shadow-blue-600/30 hover:bg-blue-500"
+            state === "recording" ? "animate-pulse bg-red-500 shadow-red-500/30" : "bg-brand-600 shadow-brand-600/30 hover:bg-brand-500"
           }`}
         >
           <FontAwesomeIcon icon={busy ? faSpinner : state === "recording" ? faStop : faMicrophone} spin={busy} />

@@ -168,7 +168,7 @@ export default function PlacementTest({ onClose }: { onClose: () => void }) {
           >
             <FontAwesomeIcon icon={faXmark} />
           </button>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
             {finished ? "Tu resultado" : "Prueba de nivel"}
           </p>
           <span className="w-9" />
@@ -177,7 +177,7 @@ export default function PlacementTest({ onClose }: { onClose: () => void }) {
         {!finished && (
           <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
             <div
-              className="h-full rounded-full bg-blue-600 transition-all duration-300"
+              className="h-full rounded-full bg-brand-600 transition-all duration-300"
               style={{ width: `${(current / QUESTIONS.length) * 100}%` }}
             />
           </div>
@@ -198,7 +198,7 @@ export default function PlacementTest({ onClose }: { onClose: () => void }) {
                 <button
                   key={option}
                   onClick={() => answer(i)}
-                  className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left font-medium text-slate-800 shadow-sm transition active:scale-[0.99] hover:border-blue-400 hover:bg-blue-50"
+                  className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left font-medium text-slate-800 shadow-sm transition active:scale-[0.99] hover:border-brand-400 hover:bg-brand-50"
                 >
                   {option}
                   <FontAwesomeIcon icon={faArrowRight} className="text-xs text-slate-300" />
@@ -212,11 +212,11 @@ export default function PlacementTest({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <div className="flex-1 py-8">
-            <div className="rounded-3xl bg-gradient-to-br from-blue-600 to-blue-500 p-8 text-center text-white">
-              <p className="text-xs font-semibold uppercase tracking-wide text-blue-100">Nivel orientativo</p>
+            <div className="rounded-3xl bg-gradient-to-br from-brand-600 to-brand-500 p-8 text-center text-white">
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-100">Nivel orientativo</p>
               <p className="mt-2 text-6xl font-extrabold">{band.code}</p>
               <p className="mt-1 text-lg font-semibold">{band.name}</p>
-              <p className="mx-auto mt-3 max-w-sm text-sm text-blue-100">{band.blurb}</p>
+              <p className="mx-auto mt-3 max-w-sm text-sm text-brand-100">{band.blurb}</p>
               <p className="mt-5 inline-block rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold">
                 {score} de {QUESTIONS.length} correctas
               </p>
@@ -258,7 +258,7 @@ export default function PlacementTest({ onClose }: { onClose: () => void }) {
             <div className="mt-8 space-y-3">
               <Link
                 to="/login?mode=register"
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-4 font-semibold text-white shadow-sm transition active:scale-[0.98] hover:bg-blue-500"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-4 font-semibold text-white shadow-sm transition active:scale-[0.98] hover:bg-brand-500"
               >
                 Empezar en {band.code} por $10/mes
                 <FontAwesomeIcon icon={faArrowRight} />

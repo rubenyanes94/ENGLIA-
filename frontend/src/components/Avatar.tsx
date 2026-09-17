@@ -39,7 +39,7 @@ export default function Avatar({
   return (
     <span
       style={{ width: size, height: size, fontSize: Math.max(12, size * 0.4) }}
-      className={`flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-500 font-bold text-white ${className}`}
+      className={`flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-600 to-brand-500 font-bold text-white ${className}`}
     >
       {initial}
     </span>

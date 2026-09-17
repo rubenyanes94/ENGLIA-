@@ -49,7 +49,7 @@ export default function LevelMap({
               {!isLast && (
                 <span
                   aria-hidden
-                  className={`absolute left-[9px] top-6 h-full w-0.5 ${done ? "bg-blue-600" : "bg-slate-200"}`}
+                  className={`absolute left-[9px] top-6 h-full w-0.5 ${done ? "bg-brand-600" : "bg-slate-200"}`}
                 />
               )}
 
@@ -57,40 +57,40 @@ export default function LevelMap({
                 aria-hidden
                 className={`relative z-10 mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
                   done
-                    ? "border-blue-600 bg-blue-600"
+                    ? "border-brand-600 bg-brand-600"
                     : current
-                      ? "border-blue-600 bg-white"
+                      ? "border-brand-600 bg-white"
                       : "border-slate-200 bg-white"
                 }`}
               >
-                {current && <span className="h-2 w-2 rounded-full bg-blue-600" />}
+                {current && <span className="h-2 w-2 rounded-full bg-brand-600" />}
               </span>
 
               <div
                 className={`min-w-0 flex-1 ${
-                  current ? "rounded-2xl border border-blue-100 bg-blue-50/60 p-4" : "pt-0.5"
+                  current ? "rounded-2xl border border-brand-100 bg-brand-50/60 p-4" : "pt-0.5"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <h3
                     className={`font-bold ${
-                      current ? "text-blue-700" : done ? "text-slate-900" : "text-slate-300"
+                      current ? "text-brand-700" : done ? "text-slate-900" : "text-slate-300"
                     }`}
                   >
                     {level.code} — {level.name}
                   </h3>
                   {current ? (
-                    <span className="shrink-0 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                    <span className="shrink-0 rounded-full bg-brand-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                       Meta
                     </span>
                   ) : done ? (
-                    <FontAwesomeIcon icon={faCircleCheck} className="shrink-0 text-blue-600" />
+                    <FontAwesomeIcon icon={faCircleCheck} className="shrink-0 text-brand-600" />
                   ) : (
                     <FontAwesomeIcon icon={faLock} className="shrink-0 text-xs text-slate-300" />
                   )}
                 </div>
 
-                <p className={`mt-1 text-sm ${current ? "text-blue-600/80" : done ? "text-slate-500" : "text-slate-300"}`}>
+                <p className={`mt-1 text-sm ${current ? "text-brand-600/80" : done ? "text-slate-500" : "text-slate-300"}`}>
                   {level.description}
                 </p>
 

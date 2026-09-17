@@ -109,14 +109,14 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 lg:space-y-8">
       {/* ---------------- Franja superior: saludo y métricas ---------------- */}
-      <section className="relative overflow-hidden rounded-3xl bg-slate-900 text-white shadow-xl">
+      <section className="relative overflow-hidden rounded-3xl bg-ink-900 text-white shadow-xl">
         <div
           aria-hidden
-          className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-blue-600/30 blur-3xl"
+          className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-brand-600/30 blur-3xl"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-32 right-0 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl"
+          className="pointer-events-none absolute -bottom-32 right-0 h-96 w-96 rounded-full bg-brand-500/20 blur-3xl"
         />
 
         <div className="relative grid grid-cols-1 gap-8 p-6 sm:p-8 lg:grid-cols-12 lg:items-center lg:gap-10 lg:p-10">
@@ -124,7 +124,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-4">
               <Avatar name={user?.full_name ?? ""} avatarUrl={user?.avatar_url} size={64} />
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wider text-blue-300">Bienvenido de vuelta</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-brand-300">Bienvenido de vuelta</p>
                 <h1 className="truncate text-3xl font-extrabold tracking-tight lg:text-4xl">¡Hola, {firstName}!</h1>
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function DashboardPage() {
               {nextModule && (
                 <Link
                   to={`/modules/${nextModule.id}`}
-                  className="flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition active:scale-[0.98] hover:bg-blue-500"
+                  className="flex items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-600/30 transition active:scale-[0.98] hover:bg-brand-500"
                 >
                   <FontAwesomeIcon icon={faBookOpen} className="text-xs" />
                   {nextModule.status === "in_progress" ? "Continuar módulo" : "Empezar módulo"}
@@ -160,7 +160,7 @@ export default function DashboardPage() {
               {loading ? (
                 <div className="h-14 w-14 animate-pulse rounded-full bg-white/10" />
               ) : (
-                <CircularProgress percentage={progress?.percentage ?? 0} size={56} strokeWidth={6} progressColor="#60a5fa" />
+                <CircularProgress percentage={progress?.percentage ?? 0} size={56} strokeWidth={6} progressColor="#A184FB" />
               )}
               <div>
                 <p className="text-xl font-extrabold sm:text-2xl">Nivel {LEVEL_CODE}</p>
@@ -198,7 +198,7 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-6 xl:col-span-4">
           {/* Tutor: oscuro y destacado. El nombre sale de la base de datos
               (GET /levels/{code}/tutor), no de una constante. */}
-          <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-700 p-6 text-white shadow-lg shadow-blue-600/20 lg:p-7">
+          <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 p-6 text-white shadow-lg shadow-brand-600/20 lg:p-7">
             <div
               aria-hidden
               className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/10 blur-2xl"
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                 <div className="min-w-0">
                   {/* El estado va junto a la etiqueta y no encima del icono:
                       superpuesto, la insignia tapaba casi todo el robot. */}
-                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-100">
+                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-100">
                     Tu tutor de IA
                     <span className="flex items-center gap-1 rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] text-emerald-200">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" /> En línea
@@ -222,21 +222,21 @@ export default function DashboardPage() {
               </div>
 
               {/* Solo lo que el tutor hace de verdad hoy. */}
-              <ul className="mt-5 space-y-2.5 text-sm text-blue-50">
+              <ul className="mt-5 space-y-2.5 text-sm text-brand-50">
                 <li className="flex items-center gap-2.5">
-                  <FontAwesomeIcon icon={faComments} className="w-4 text-blue-200" /> Conversa contigo y corrige al momento
+                  <FontAwesomeIcon icon={faComments} className="w-4 text-brand-200" /> Conversa contigo y corrige al momento
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <FontAwesomeIcon icon={faBookOpen} className="w-4 text-blue-200" /> Te da las lecciones narradas
+                  <FontAwesomeIcon icon={faBookOpen} className="w-4 text-brand-200" /> Te da las lecciones narradas
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <FontAwesomeIcon icon={faMicrophone} className="w-4 text-blue-200" /> Escucha y evalúa tu pronunciación
+                  <FontAwesomeIcon icon={faMicrophone} className="w-4 text-brand-200" /> Escucha y evalúa tu pronunciación
                 </li>
               </ul>
 
               <Link
                 to="/chat"
-                className="mt-6 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-white px-6 py-3.5 font-bold text-blue-700 transition active:scale-[0.98] hover:bg-blue-50"
+                className="mt-6 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-white px-6 py-3.5 font-bold text-brand-700 transition active:scale-[0.98] hover:bg-brand-50"
               >
                 <FontAwesomeIcon icon={faGraduationCap} />
                 Continuar mi clase
@@ -254,7 +254,7 @@ export default function DashboardPage() {
                 <p className="mt-3 flex-1 leading-relaxed text-slate-700">{dailyTask.prompt}</p>
                 <Link
                   to={`/chat?module=${activeModule?.id}&task=${dailyTask.id}`}
-                  className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-slate-800"
+                  className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-ink-900 px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-ink-800"
                 >
                   <FontAwesomeIcon icon={faComments} /> Practicar con {tutorName}
                 </Link>
@@ -276,7 +276,7 @@ export default function DashboardPage() {
               <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Tu camino</p>
               <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900">Nivel {LEVEL_CODE}</h2>
             </div>
-            <Link to="/classroom" className="flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-500">
+            <Link to="/classroom" className="flex items-center gap-2 text-sm font-semibold text-brand-600 hover:text-brand-500">
               Ver classroom <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
             </Link>
           </div>
@@ -298,7 +298,7 @@ export default function DashboardPage() {
               </div>
               <Link
                 to={`/modules/${nextModule.id}`}
-                className="flex shrink-0 items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500"
+                className="flex shrink-0 items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-brand-500"
               >
                 Abrir módulo <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
               </Link>
@@ -314,7 +314,7 @@ export default function DashboardPage() {
               </p>
               <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900">Cursos flash</h2>
             </div>
-            <Link to="/library" className="flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-500">
+            <Link to="/library" className="flex items-center gap-2 text-sm font-semibold text-brand-600 hover:text-brand-500">
               Ver todos <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
             </Link>
           </div>
@@ -367,7 +367,7 @@ function ModulePath({ modules }: { modules: ModuleProgress[] }) {
           module.status === "completed"
             ? "bg-emerald-500 text-white"
             : module.status === "in_progress" || module.status === "available"
-              ? "bg-blue-600 text-white ring-4 ring-blue-100"
+              ? "bg-brand-600 text-white ring-4 ring-brand-100"
               : "bg-slate-100 text-slate-400"
         return (
           <li key={module.id}>
@@ -409,7 +409,7 @@ function Metric({
 }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-      <FontAwesomeIcon icon={icon} className="text-blue-300" />
+      <FontAwesomeIcon icon={icon} className="text-brand-300" />
       {loading ? (
         <div className="mt-3 h-7 w-16 animate-pulse rounded bg-white/10" />
       ) : (

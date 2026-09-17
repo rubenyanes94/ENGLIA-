@@ -2,6 +2,7 @@ import { faBookBookmark, faBookOpen, faChartLine, faComments, faEnvelope, faUser
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Link } from "react-router-dom"
 import { PAGE_GUTTER } from "./pageGutter"
+import Logo from "./brand/Logo"
 
 const LEARN_LINKS = [
   { to: "/classroom", label: "Classroom", icon: faBookOpen },
@@ -21,12 +22,7 @@ export default function AppFooter() {
     <footer className="mt-16 border-t border-slate-200 bg-white">
       <div className={`grid grid-cols-1 gap-10 py-12 md:grid-cols-12 ${PAGE_GUTTER}`}>
         <div className="md:col-span-5">
-          <span className="flex items-center gap-2.5">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 font-black text-white">
-              E
-            </span>
-            <span className="text-lg font-extrabold tracking-tight text-slate-900">Espikin</span>
-          </span>
+          <Logo size={40} textClassName="text-xl" />
           <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-500">
             Inglés con Teacher David, tu tutor de IA, diseñado para hispanohablantes y estructurado según el Marco
             Común Europeo de Referencia, de A1 a C2.
@@ -44,7 +40,7 @@ export default function AppFooter() {
           <ul className="mt-4 space-y-3 text-sm">
             {LEARN_LINKS.map((link) => (
               <li key={link.to}>
-                <Link to={link.to} className="flex items-center gap-2.5 text-slate-600 transition hover:text-blue-600">
+                <Link to={link.to} className="flex items-center gap-2.5 text-slate-600 transition hover:text-brand-600">
                   <FontAwesomeIcon icon={link.icon} className="w-3.5 text-xs text-slate-300" />
                   {link.label}
                 </Link>

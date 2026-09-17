@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { ApiError } from "../api/types"
 import { useAuth } from "../auth/AuthContext"
+import Logo from "../components/brand/Logo"
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams()
@@ -44,21 +45,20 @@ export default function AuthPage() {
     // la derecha), una sola columna en móvil — patrón web estándar para
     // login, en vez de una tarjeta pequeña flotando en medio de 1400px.
     <div className="grid min-h-screen grid-cols-1 bg-slate-50 text-slate-900 lg:grid-cols-2">
-      <aside className="hidden flex-col justify-between bg-gradient-to-br from-blue-600 to-blue-500 p-12 text-white lg:flex">
-        <span className="flex items-center gap-2 font-bold">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm">E</span>
-          Espikin
-        </span>
+      {/* Fondo marino a violeta, el mismo del manual de marca, con el logo
+          en su versión para fondo oscuro. */}
+      <aside className="hidden flex-col justify-between bg-gradient-to-br from-ink-950 via-ink-900 to-brand-900 p-12 text-white lg:flex">
+        <Logo tone="dark" size={44} textClassName="text-2xl" />
         <div>
           <h2 className="text-4xl font-extrabold leading-tight">
             De A1 a C2, con un tutor que entiende cómo aprende un hispanohablante.
           </h2>
-          <p className="mt-4 max-w-md text-blue-100">
+          <p className="mt-4 max-w-md text-brand-100">
             Tu progreso se mide en capacidades reales del Marco Común Europeo, demostradas varias veces — no en
             lecciones vistas.
           </p>
         </div>
-        <p className="text-sm text-blue-200">Espikin © 2026</p>
+        <p className="text-sm text-brand-200">Espikin © 2026</p>
       </aside>
 
       <div className="flex items-center justify-center p-6 sm:p-10">
@@ -68,12 +68,7 @@ export default function AuthPage() {
           </Link>
 
           <div className="lg:hidden">
-            <span className="mb-4 flex items-center gap-2 text-sm font-extrabold text-slate-900">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-[11px] font-black text-white">
-                E
-              </span>
-              Espikin
-            </span>
+            <Logo size={32} className="mb-5" />
           </div>
 
           <h1 className="text-3xl font-extrabold">{mode === "login" ? "¡Qué bueno verte!" : "Únete a la academia"}</h1>
@@ -85,14 +80,14 @@ export default function AuthPage() {
             <button
               type="button"
               onClick={() => setMode("login")}
-              className={`rounded-full py-2.5 transition ${mode === "login" ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}
+              className={`rounded-full py-2.5 transition ${mode === "login" ? "bg-white text-brand-600 shadow-sm" : "text-slate-400"}`}
             >
               Entrar
             </button>
             <button
               type="button"
               onClick={() => setMode("register")}
-              className={`rounded-full py-2.5 transition ${mode === "register" ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}
+              className={`rounded-full py-2.5 transition ${mode === "register" ? "bg-white text-brand-600 shadow-sm" : "text-slate-400"}`}
             >
               Registrarse
             </button>
@@ -119,7 +114,7 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500 disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-brand-500 disabled:opacity-60"
             >
               {submitting ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faArrowRight} />}
               {mode === "login" ? "Entrar ahora" : "Crear cuenta"}
@@ -155,7 +150,7 @@ function Field({
         minLength={minLength}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none ring-blue-500 focus:ring-2"
+        className="w-full rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none ring-brand-500 focus:ring-2"
       />
     </label>
   )

@@ -41,10 +41,10 @@ const STATUS_META: Record<
   },
   available: {
     label: "Disponible",
-    badge: "bg-blue-100 text-blue-700",
+    badge: "bg-brand-100 text-brand-700",
     cta: "Empezar",
     icon: faPlay,
-    ring: "border-blue-200 bg-white ring-2 ring-blue-100",
+    ring: "border-brand-200 bg-white ring-2 ring-brand-100",
   },
   locked: {
     label: "Bloqueado",
@@ -104,15 +104,15 @@ export default function ClassroomPage() {
     <div>
       <div className="space-y-8">
         {/* ---- Cabecera: progreso del nivel ---- */}
-        <header className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-blue-900 p-6 text-white shadow-xl sm:p-8">
+        <header className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-ink-900 via-ink-900 to-brand-900 p-6 text-white shadow-xl sm:p-8">
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-blue-500/25 blur-3xl"
+            className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-brand-500/25 blur-3xl"
           />
           <div className="relative">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-300">Tu ruta de certificación</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-300">Tu ruta de certificación</p>
                 <h1 className="mt-1.5 text-3xl font-extrabold tracking-tight sm:text-4xl">Classroom {progress.level_code}</h1>
                 <p className="mt-2 text-slate-300">
                   {completedCount} de {modules.length} módulos · {progress.hours_completed}h de{" "}
@@ -127,7 +127,7 @@ export default function ClassroomPage() {
 
             <div className="mt-6 h-2.5 w-full overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-blue-400 to-emerald-400 transition-all duration-700"
+                className="h-full rounded-full bg-gradient-to-r from-brand-400 to-emerald-400 transition-all duration-700"
                 style={{ width: `${Math.max(progress.percentage, 1.5)}%` }}
               />
             </div>
@@ -144,21 +144,21 @@ export default function ClassroomPage() {
         {current && (
           <Link
             to={`/modules/${current.id}`}
-            className="group flex flex-col gap-4 rounded-3xl border-2 border-blue-600 bg-white p-5 shadow-lg shadow-blue-600/10 transition hover:shadow-xl sm:flex-row sm:items-center sm:justify-between sm:p-6"
+            className="group flex flex-col gap-4 rounded-3xl border-2 border-brand-600 bg-white p-5 shadow-lg shadow-brand-600/10 transition hover:shadow-xl sm:flex-row sm:items-center sm:justify-between sm:p-6"
           >
             <div className="flex items-center gap-4">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500 text-xl font-black text-white shadow-md">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 text-xl font-black text-white shadow-md">
                 {current.order}
               </span>
               <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
+                <p className="text-xs font-bold uppercase tracking-wide text-brand-600">
                   {current.status === "in_progress" ? "Continúa donde lo dejaste" : "Tu siguiente paso"}
                 </p>
                 <h2 className="mt-0.5 text-xl font-extrabold tracking-tight text-slate-900">{current.title}</h2>
                 <p className="text-sm text-slate-500">{current.title_es}</p>
               </div>
             </div>
-            <span className="flex shrink-0 items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3.5 font-bold text-white transition group-hover:bg-blue-500">
+            <span className="flex shrink-0 items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3.5 font-bold text-white transition group-hover:bg-brand-500">
               {STATUS_META[current.status].cta}
               <FontAwesomeIcon icon={faArrowRight} className="text-xs transition group-hover:translate-x-1" />
             </span>
@@ -189,7 +189,7 @@ export default function ClassroomPage() {
                           ? "bg-emerald-500 text-white"
                           : module.status === "locked"
                             ? "bg-slate-200 text-slate-400"
-                            : "bg-gradient-to-br from-blue-600 to-blue-500 text-white"
+                            : "bg-gradient-to-br from-brand-600 to-brand-500 text-white"
                       }`}
                     >
                       {module.status === "completed" ? <FontAwesomeIcon icon={faCircleCheck} /> : module.order}
@@ -250,7 +250,7 @@ export default function ClassroomPage() {
                         className={`mt-3 flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition ${
                           module.status === "completed"
                             ? "bg-emerald-100 text-emerald-700"
-                            : "bg-slate-900 text-white"
+                            : "bg-ink-900 text-white"
                         }`}
                       >
                         <FontAwesomeIcon icon={meta.icon} className="text-xs" />
@@ -284,7 +284,7 @@ export default function ClassroomPage() {
             <p className="mt-0.5 text-sm text-slate-500">
               Al completar los {modules.length} módulos y demostrar tus capacidades clave, certificas el nivel y pasas al
               siguiente.{" "}
-              <Link to="/progress" className="font-semibold text-blue-600 hover:text-blue-500">
+              <Link to="/progress" className="font-semibold text-brand-600 hover:text-brand-500">
                 Ver mis requisitos →
               </Link>
             </p>
@@ -298,7 +298,7 @@ export default function ClassroomPage() {
 function MiniStat({ icon, value, label }: { icon: typeof faClock; value: string; label: string }) {
   return (
     <div>
-      <FontAwesomeIcon icon={icon} className="text-blue-300" />
+      <FontAwesomeIcon icon={icon} className="text-brand-300" />
       <p className="mt-1 text-lg font-extrabold">{value}</p>
       <p className="text-[11px] text-slate-400">{label}</p>
     </div>

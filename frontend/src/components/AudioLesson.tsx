@@ -108,13 +108,13 @@ export default function AudioLesson({ lesson, levelCode = "A1" }: { lesson: Less
   return (
     <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
       {/* Reproductor */}
-      <div className="relative bg-slate-900 p-6 text-white sm:p-8">
+      <div className="relative bg-ink-900 p-6 text-white sm:p-8">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-blue-500/20 blur-3xl"
+          className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-500/20 blur-3xl"
         />
         <div className="relative">
-          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-300">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-brand-300">
             <FontAwesomeIcon icon={faHeadphones} /> Lección con {TUTOR_NAME}
           </p>
           <h3 className="mt-2 text-xl font-extrabold tracking-tight">{lesson.title}</h3>
@@ -144,7 +144,7 @@ export default function AudioLesson({ lesson, levelCode = "A1" }: { lesson: Less
           <div className="mt-6 flex items-center gap-4">
             <button
               onClick={toggle}
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xl text-white shadow-lg shadow-blue-600/30 transition active:scale-95 hover:bg-blue-500"
+              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xl text-white shadow-lg shadow-brand-600/30 transition active:scale-95 hover:bg-brand-500"
               aria-label={playing ? "Pausar" : "Reproducir"}
             >
               <FontAwesomeIcon icon={playing ? faPause : faPlay} className={playing ? "" : "ml-1"} />
@@ -158,7 +158,7 @@ export default function AudioLesson({ lesson, levelCode = "A1" }: { lesson: Less
                 aria-valuenow={Math.round(progress)}
               >
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-blue-400 to-sky-300 transition-[width] duration-200"
+                  className="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-300 transition-[width] duration-200"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -228,7 +228,7 @@ export default function AudioLesson({ lesson, levelCode = "A1" }: { lesson: Less
               part.english ? (
                 <strong
                   key={i}
-                  className="mx-0.5 rounded-md bg-blue-50 px-1.5 py-0.5 font-semibold text-blue-700"
+                  className="mx-0.5 rounded-md bg-brand-50 px-1.5 py-0.5 font-semibold text-brand-700"
                 >
                   {part.text}
                 </strong>

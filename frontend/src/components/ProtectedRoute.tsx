@@ -8,7 +8,7 @@ export default function ProtectedRoute() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-400">
+      <div className="flex min-h-screen items-center justify-center bg-ink-950 text-slate-400">
         <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
         Comprobando sesión...
       </div>

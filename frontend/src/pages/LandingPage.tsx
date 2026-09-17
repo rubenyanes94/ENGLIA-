@@ -17,6 +17,7 @@ import { api } from "../api/client"
 import type { CEFRLevel } from "../api/types"
 import { useAuth } from "../auth/AuthContext"
 import PlacementTest from "../components/PlacementTest"
+import Logo from "../components/brand/Logo"
 
 // El precio no se inventa aquí: es el plan "premium_monthly" que ya define
 // el backend (backend/app/scripts/seed_plans.py, price_cents=1000 USD/mes).
@@ -47,11 +48,8 @@ export default function LandingPage() {
       {/* ---------------- Nav ---------------- */}
       <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur-lg">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-3.5 sm:px-6 lg:px-8">
-          <a href="#top" className="flex shrink-0 items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 text-sm font-black text-white shadow-sm">
-              E
-            </span>
-            <span className="text-lg font-extrabold tracking-tight">Espikin</span>
+          <a href="#top" className="shrink-0" aria-label="Espikin: ir arriba">
+            <Logo size={36} textClassName="text-xl" />
           </a>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -74,7 +72,7 @@ export default function LandingPage() {
           <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={() => setTestOpen(true)}
-              className="hidden rounded-full px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 sm:block"
+              className="hidden rounded-full px-4 py-2.5 text-sm font-semibold text-brand-600 transition hover:bg-brand-50 sm:block"
             >
               Prueba tu nivel
             </button>
@@ -86,7 +84,7 @@ export default function LandingPage() {
             </Link>
             <Link
               to="/login?mode=register"
-              className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-slate-800"
+              className="rounded-full bg-ink-900 px-5 py-2.5 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-ink-800"
             >
               Empezar
             </Link>
@@ -100,17 +98,17 @@ export default function LandingPage() {
           {/* Halo de color detrás del hero, sin imágenes: gradiente difuminado. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-[-12rem] h-[32rem] w-[52rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-blue-200 via-sky-100 to-transparent blur-3xl"
+            className="pointer-events-none absolute left-1/2 top-[-12rem] h-[32rem] w-[52rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand-200 via-brand-100 to-transparent blur-3xl"
           />
           <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-16 text-center sm:px-6 lg:px-8 lg:pb-24 lg:pt-24">
-            <span className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-1.5 text-xs font-semibold text-blue-700">
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-brand-50 px-4 py-1.5 text-xs font-semibold text-brand-700">
               <FontAwesomeIcon icon={faWandMagicSparkles} />
               Tutor de IA · Certificación MCER (A1–C2)
             </span>
 
             <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
               Habla inglés de verdad con un tutor que{" "}
-              <span className="bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand-600 to-brand-500 bg-clip-text text-transparent">
                 entiende tus errores de hispanohablante
               </span>
             </h1>
@@ -123,7 +121,7 @@ export default function LandingPage() {
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <button
                 onClick={() => setTestOpen(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-8 py-4 font-semibold text-white shadow-lg shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500 sm:w-auto"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-8 py-4 font-semibold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500 sm:w-auto"
               >
                 <FontAwesomeIcon icon={faGaugeHigh} />
                 Prueba tu nivel gratis
@@ -190,7 +188,7 @@ export default function LandingPage() {
         {/* ---------------- Cómo funciona ---------------- */}
         <section id="como-funciona" className="mx-auto w-full max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">Cómo funciona</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-brand-600">Cómo funciona</span>
             <h2 className="mt-2 text-3xl font-extrabold tracking-tight lg:text-4xl">De cero a certificado, en tres pasos</h2>
           </div>
 
@@ -216,8 +214,8 @@ export default function LandingPage() {
               },
             ].map((item) => (
               <div key={item.step} className="relative rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-                <span className="text-sm font-black text-blue-200">{item.step}</span>
-                <span className="mt-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                <span className="text-sm font-black text-brand-200">{item.step}</span>
+                <span className="mt-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
                   <FontAwesomeIcon icon={item.icon} />
                 </span>
                 <h3 className="mt-4 text-lg font-bold">{item.title}</h3>
@@ -229,7 +227,7 @@ export default function LandingPage() {
           <div className="mt-10 text-center">
             <button
               onClick={() => setTestOpen(true)}
-              className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-7 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500"
+              className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-7 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-brand-500"
             >
               <FontAwesomeIcon icon={faBolt} />
               Empezar por la prueba de nivel
@@ -242,7 +240,7 @@ export default function LandingPage() {
           <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+                <span className="text-xs font-semibold uppercase tracking-wide text-brand-600">
                   <FontAwesomeIcon icon={faRoute} className="mr-1.5" />
                   Ruta de certificación
                 </span>
@@ -252,7 +250,7 @@ export default function LandingPage() {
                   no promesas de “fluidez en 30 días”.
                 </p>
               </div>
-              <span className="rounded-full border border-blue-100 bg-white px-4 py-2 text-xs font-semibold text-blue-700">
+              <span className="rounded-full border border-brand-100 bg-white px-4 py-2 text-xs font-semibold text-brand-700">
                 ~1.050 h de A1 a C2
               </span>
             </div>
@@ -261,10 +259,10 @@ export default function LandingPage() {
               {shownLevels.map((level) => (
                 <div
                   key={level.code}
-                  className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg"
+                  className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-brand-200 hover:shadow-lg"
                 >
                   <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-extrabold text-blue-600">{level.code}</span>
+                    <span className="text-2xl font-extrabold text-brand-600">{level.code}</span>
                     <span className="text-xs font-medium text-slate-400">
                       {level.target_hours_min}–{level.target_hours_max} h
                     </span>
@@ -280,7 +278,7 @@ export default function LandingPage() {
         {/* ---------------- Precio ---------------- */}
         <section id="precio" className="mx-auto w-full max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">Precio</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-brand-600">Precio</span>
             <h2 className="mt-2 text-3xl font-extrabold tracking-tight lg:text-4xl">Un plan. Todo incluido.</h2>
             <p className="mt-3 text-slate-500">
               Sin niveles de suscripción, sin cobrar aparte por hablar con tu tutor, sin permanencia.
@@ -288,14 +286,14 @@ export default function LandingPage() {
           </div>
 
           <div className="mx-auto mt-12 max-w-lg">
-            <div className="overflow-hidden rounded-3xl border-2 border-blue-600 bg-white shadow-xl shadow-blue-600/10">
-              <div className="bg-gradient-to-br from-blue-600 to-blue-500 px-8 py-8 text-center text-white">
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-100">Premium mensual</p>
+            <div className="overflow-hidden rounded-3xl border-2 border-brand-600 bg-white shadow-xl shadow-brand-600/10">
+              <div className="bg-gradient-to-br from-brand-600 to-brand-500 px-8 py-8 text-center text-white">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-100">Premium mensual</p>
                 <p className="mt-3 flex items-baseline justify-center gap-1">
                   <span className="text-6xl font-extrabold">${PRICE_USD}</span>
-                  <span className="text-lg font-medium text-blue-100">/mes</span>
+                  <span className="text-lg font-medium text-brand-100">/mes</span>
                 </p>
-                <p className="mt-2 text-sm text-blue-100">Cancela cuando quieras</p>
+                <p className="mt-2 text-sm text-brand-100">Cancela cuando quieras</p>
               </div>
 
               <div className="px-8 py-8">
@@ -310,7 +308,7 @@ export default function LandingPage() {
                     "Prueba de nivel y reubicación cuando avances",
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-3 text-sm text-slate-600">
-                      <FontAwesomeIcon icon={faCircleCheck} className="mt-0.5 shrink-0 text-blue-600" />
+                      <FontAwesomeIcon icon={faCircleCheck} className="mt-0.5 shrink-0 text-brand-600" />
                       {item}
                     </li>
                   ))}
@@ -318,7 +316,7 @@ export default function LandingPage() {
 
                 <Link
                   to="/login?mode=register"
-                  className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-4 font-semibold text-white shadow-lg shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500"
+                  className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-4 font-semibold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500"
                 >
                   Empezar ahora
                   <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
@@ -373,7 +371,7 @@ export default function LandingPage() {
                     {item.q}
                     {/* El "+" gira 45° al abrir y se convierte en una "×":
                         el gesto de acordeón que todo el mundo reconoce. */}
-                    <span className="shrink-0 text-blue-600 transition-transform duration-200 group-open:rotate-45">
+                    <span className="shrink-0 text-brand-600 transition-transform duration-200 group-open:rotate-45">
                       <FontAwesomeIcon icon={faPlus} />
                     </span>
                   </summary>
@@ -388,7 +386,7 @@ export default function LandingPage() {
         <section className="relative overflow-hidden border-t border-slate-200">
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[24rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-blue-200 via-sky-100 to-transparent blur-3xl"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[24rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-brand-200 via-brand-100 to-transparent blur-3xl"
           />
           <div className="relative mx-auto w-full max-w-3xl px-4 py-20 text-center sm:px-6 lg:px-8">
             <h2 className="text-3xl font-extrabold tracking-tight lg:text-4xl">
@@ -399,7 +397,7 @@ export default function LandingPage() {
             </p>
             <button
               onClick={() => setTestOpen(true)}
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-blue-600 px-8 py-4 font-semibold text-white shadow-lg shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500"
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-brand-600 px-8 py-4 font-semibold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500"
             >
               <FontAwesomeIcon icon={faGaugeHigh} />
               Hacer la prueba gratis
@@ -410,18 +408,13 @@ export default function LandingPage() {
 
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
-          <span className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-xs font-black text-white">
-              E
-            </span>
-            <span className="font-bold">Espikin</span>
-          </span>
+          <Logo size={32} />
           <p className="text-xs text-slate-400">Inglés con tutores de IA · Marco Común Europeo · © 2026</p>
           <div className="flex items-center gap-4 text-sm">
             <Link to="/login" className="text-slate-500 hover:text-slate-900">
               Entrar
             </Link>
-            <Link to="/login?mode=register" className="font-semibold text-blue-600 hover:text-blue-500">
+            <Link to="/login?mode=register" className="font-semibold text-brand-600 hover:text-brand-500">
               Crear cuenta
             </Link>
           </div>
@@ -434,7 +427,7 @@ export default function LandingPage() {
 function Feature({ icon, title, text }: { icon: typeof faLanguage; title: string; text: string }) {
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-sm">
+      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 text-white shadow-sm">
         <FontAwesomeIcon icon={icon} />
       </span>
       <h3 className="mt-5 text-lg font-bold">{title}</h3>
