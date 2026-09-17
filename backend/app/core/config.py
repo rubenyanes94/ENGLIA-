@@ -1,4 +1,23 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Rutas ABSOLUTAS al .env, no el ".env" relativo que había antes. El
+# relativo se resuelve contra el directorio desde el que arrancas el
+# proceso, y en Codespaces el flujo documentado es justamente "cd backend
+# && uvicorn ..." (ver CLAUDE.md), así que buscaba backend/.env — que no
+# existe — y se saltaba en silencio el .env de la raíz del repo. El
+# backend quedaba entonces a merced de las variables congeladas en el
+# contenedor, que es como el chat del tutor acabó pidiéndole a NVIDIA un
+# modelo de embeddings de Ollama ("nomic-embed-text" -> 404).
+#
+# Dentro del contenedor de compose solo se monta ./backend en /app, así
+# que el de la raíz no está y simplemente no se encuentra: pydantic
+# ignora los ficheros que no existen. Los dos casos quedan cubiertos con
+# una sola lista, y el de dentro de backend/ tiene prioridad por ir el
+# último (en pydantic-settings gana el último fichero de la tupla).
+_BACKEND_DIR = Path(__file__).resolve().parents[2]
+_REPO_ROOT = _BACKEND_DIR.parent
 
 
 class Settings(BaseSettings):
@@ -9,7 +28,10 @@ class Settings(BaseSettings):
     no existe en el entorno, usa el valor por defecto de aquí abajo.
     """
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=(_REPO_ROOT / ".env", _BACKEND_DIR / ".env"),
+        extra="ignore",
+    )
 
     database_url: str = "postgresql+asyncpg://englia:englia_dev_password@db:5432/englia"
     redis_url: str = "redis://redis:6379/0"

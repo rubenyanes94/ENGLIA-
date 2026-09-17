@@ -1,5 +1,6 @@
 import {
   faArrowRight,
+  faBars,
   faBolt,
   faCircleCheck,
   faComments,
@@ -9,6 +10,7 @@ import {
   faPlus,
   faRoute,
   faWandMagicSparkles,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useState } from "react"
@@ -17,6 +19,7 @@ import { api } from "../api/client"
 import type { CEFRLevel } from "../api/types"
 import { useAuth } from "../auth/AuthContext"
 import PlacementTest from "../components/PlacementTest"
+import { PAGE_GUTTER } from "../components/pageGutter"
 import Logo from "../components/brand/Logo"
 
 // El precio no se inventa aquí: es el plan "premium_monthly" que ya define
@@ -24,10 +27,20 @@ import Logo from "../components/brand/Logo"
 // Si allí cambia, esto tiene que cambiar con él.
 const PRICE_USD = 10
 
+// Fuera del componente porque los pintan dos sitios — la barra de
+// escritorio y el menú desplegable de móvil — y tienen que decir lo mismo.
+const SECTION_LINKS = [
+  { href: "#como-funciona", label: "Cómo funciona" },
+  { href: "#niveles", label: "Niveles" },
+  { href: "#precio", label: "Precio" },
+  { href: "#faq", label: "Preguntas" },
+]
+
 export default function LandingPage() {
   const { user, isLoading } = useAuth()
   const [levels, setLevels] = useState<CEFRLevel[]>([])
   const [testOpen, setTestOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     api
@@ -47,49 +60,99 @@ export default function LandingPage() {
 
       {/* ---------------- Nav ---------------- */}
       <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur-lg">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-3.5 sm:px-6 lg:px-8">
+        {/* Sin max-w: la barra ocupa la ventana entera y comparte el
+            relleno lateral con el resto de la app (PAGE_GUTTER), así el
+            logo queda alineado con el contenido y con el pie. */}
+        <div className={`flex w-full items-center justify-between gap-3 py-3.5 sm:gap-6 ${PAGE_GUTTER}`}>
           <a href="#top" className="shrink-0" aria-label="Espikin: ir arriba">
-            <Logo size={36} textClassName="text-xl" />
+            {/* El nombre se oculta en pantallas muy estrechas (<360px):
+                con el isotipo, "Entrar", "Empezar" y el botón de menú en
+                la misma fila, es lo primero que provoca desbordamiento. */}
+            <Logo size={36} textClassName="hidden text-xl min-[360px]:inline" />
           </a>
 
-          <nav className="hidden items-center gap-1 md:flex">
-            {[
-              { href: "#como-funciona", label: "Cómo funciona" },
-              { href: "#niveles", label: "Niveles" },
-              { href: "#precio", label: "Precio" },
-              { href: "#faq", label: "Preguntas" },
-            ].map((link) => (
+          <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
+            {SECTION_LINKS.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                className="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 lg:px-4"
               >
                 {link.label}
               </a>
             ))}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             <button
               onClick={() => setTestOpen(true)}
-              className="hidden rounded-full px-4 py-2.5 text-sm font-semibold text-brand-600 transition hover:bg-brand-50 sm:block"
+              className="hidden whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-semibold text-brand-600 transition hover:bg-brand-50 lg:block"
             >
               Prueba tu nivel
             </button>
             <Link
               to="/login"
-              className="rounded-full px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+              className="hidden whitespace-nowrap rounded-full px-3 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 sm:block lg:px-4"
             >
               Entrar
             </Link>
             <Link
               to="/login?mode=register"
-              className="rounded-full bg-ink-900 px-5 py-2.5 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-ink-800"
+              className="whitespace-nowrap rounded-full bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-ink-800 sm:px-5"
             >
               Empezar
             </Link>
+
+            {/* Botón de menú solo en móvil/tablet. Antes, por debajo de
+                md, los enlaces de sección simplemente no existían: no
+                había forma de llegar a precio o preguntas salvo
+                desplazándose a ciegas por toda la página. */}
+            <button
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-expanded={menuOpen}
+              aria-controls="landing-menu"
+              aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 lg:hidden"
+            >
+              <FontAwesomeIcon icon={menuOpen ? faXmark : faBars} />
+            </button>
           </div>
         </div>
+
+        {menuOpen && (
+          <div id="landing-menu" className={`border-t border-slate-200 bg-white py-3 lg:hidden ${PAGE_GUTTER}`}>
+            <nav className="flex flex-col">
+              {SECTION_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-xl px-3 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+            <div className="mt-2 flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row">
+              <button
+                onClick={() => {
+                  setMenuOpen(false)
+                  setTestOpen(true)
+                }}
+                className="w-full rounded-full bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-600 transition hover:bg-brand-100 sm:w-auto"
+              >
+                Prueba tu nivel
+              </button>
+              <Link
+                to="/login"
+                onClick={() => setMenuOpen(false)}
+                className="w-full rounded-full px-4 py-3 text-center text-sm font-semibold text-slate-600 transition hover:bg-slate-100 sm:w-auto"
+              >
+                Entrar
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       <main id="top">
@@ -98,22 +161,22 @@ export default function LandingPage() {
           {/* Halo de color detrás del hero, sin imágenes: gradiente difuminado. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-[-12rem] h-[32rem] w-[52rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand-200 via-brand-100 to-transparent blur-3xl"
+            className="pointer-events-none absolute left-1/2 top-[-12rem] h-[32rem] w-[140vw] max-w-[68rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand-200 via-brand-100 to-transparent blur-3xl"
           />
-          <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-16 text-center sm:px-6 lg:px-8 lg:pb-24 lg:pt-24">
+          <div className={`relative w-full pb-16 pt-16 text-center lg:pb-24 lg:pt-24 ${PAGE_GUTTER}`}>
             <span className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-brand-50 px-4 py-1.5 text-xs font-semibold text-brand-700">
               <FontAwesomeIcon icon={faWandMagicSparkles} />
               Tutor de IA · Certificación MCER (A1–C2)
             </span>
 
-            <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+            <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl 2xl:max-w-5xl 2xl:text-7xl">
               Habla inglés de verdad con un tutor que{" "}
               <span className="bg-gradient-to-r from-brand-600 to-brand-500 bg-clip-text text-transparent">
                 entiende tus errores de hispanohablante
               </span>
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-500">
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-slate-500 sm:text-lg 2xl:max-w-3xl 2xl:text-xl">
               No es un chatbot genérico. Espikin sabe que dirás <em>“I have 25 years”</em> antes de que lo digas, y que
               tu <em>“Give me a coffee”</em> suena grosero sin que nadie te lo haya dicho nunca.
             </p>
@@ -138,7 +201,7 @@ export default function LandingPage() {
               La prueba tarda 2 minutos · sin tarjeta · sin registro
             </p>
 
-            <div className="mx-auto mt-14 grid max-w-3xl grid-cols-3 gap-4 border-t border-slate-100 pt-8">
+            <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-6 border-t border-slate-100 pt-8 min-[420px]:grid-cols-3 min-[420px]:gap-4 2xl:max-w-4xl">
               {[
                 { value: "6", label: "niveles, de A1 a C2" },
                 { value: "24/7", label: "tu tutor, sin agenda" },
@@ -155,7 +218,7 @@ export default function LandingPage() {
 
         {/* ---------------- Diferenciadores ---------------- */}
         <section className="border-y border-slate-200 bg-slate-50">
-          <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className={`w-full py-16 lg:py-24 ${PAGE_GUTTER}`}>
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-extrabold tracking-tight lg:text-4xl">
                 Por qué aprendes más rápido aquí
@@ -165,7 +228,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3 2xl:gap-8">
               <Feature
                 icon={faLanguage}
                 title="Diseñado para tu idioma, no traducido"
@@ -186,13 +249,13 @@ export default function LandingPage() {
         </section>
 
         {/* ---------------- Cómo funciona ---------------- */}
-        <section id="como-funciona" className="mx-auto w-full max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <section id="como-funciona" className={`w-full scroll-mt-20 py-16 lg:py-24 ${PAGE_GUTTER}`}>
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-xs font-semibold uppercase tracking-wide text-brand-600">Cómo funciona</span>
             <h2 className="mt-2 text-3xl font-extrabold tracking-tight lg:text-4xl">De cero a certificado, en tres pasos</h2>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3 2xl:gap-8">
             {[
               {
                 step: "01",
@@ -237,7 +300,7 @@ export default function LandingPage() {
 
         {/* ---------------- Niveles ---------------- */}
         <section id="niveles" className="scroll-mt-20 border-y border-slate-200 bg-slate-50">
-          <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className={`w-full py-16 lg:py-24 ${PAGE_GUTTER}`}>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wide text-brand-600">
@@ -255,7 +318,7 @@ export default function LandingPage() {
               </span>
             </div>
 
-            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
               {shownLevels.map((level) => (
                 <div
                   key={level.code}
@@ -276,71 +339,79 @@ export default function LandingPage() {
         </section>
 
         {/* ---------------- Precio ---------------- */}
-        <section id="precio" className="mx-auto w-full max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mx-auto max-w-2xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-wide text-brand-600">Precio</span>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight lg:text-4xl">Un plan. Todo incluido.</h2>
-            <p className="mt-3 text-slate-500">
-              Sin niveles de suscripción, sin cobrar aparte por hablar con tu tutor, sin permanencia.
-            </p>
-          </div>
-
-          <div className="mx-auto mt-12 max-w-lg">
-            <div className="overflow-hidden rounded-3xl border-2 border-brand-600 bg-white shadow-xl shadow-brand-600/10">
-              <div className="bg-gradient-to-br from-brand-600 to-brand-500 px-8 py-8 text-center text-white">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-100">Premium mensual</p>
-                <p className="mt-3 flex items-baseline justify-center gap-1">
-                  <span className="text-6xl font-extrabold">${PRICE_USD}</span>
-                  <span className="text-lg font-medium text-brand-100">/mes</span>
-                </p>
-                <p className="mt-2 text-sm text-brand-100">Cancela cuando quieras</p>
-              </div>
-
-              <div className="px-8 py-8">
-                <ul className="space-y-3.5">
-                  {[
-                    "Acceso completo a los 6 niveles, de A1 a C2",
-                    "Tutor de IA ilimitado, 24/7, sin reservar hora",
-                    "Corrección explicada: qué fallaste y por qué tu español te llevó ahí",
-                    "Certificación MCER por evidencia acumulada, nivel a nivel",
-                    "Currículo de 60+ módulos con tareas comunicativas reales",
-                    "Seguimiento por capacidad: sabes exactamente qué dominas",
-                    "Prueba de nivel y reubicación cuando avances",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-sm text-slate-600">
-                      <FontAwesomeIcon icon={faCircleCheck} className="mt-0.5 shrink-0 text-brand-600" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  to="/login?mode=register"
-                  className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-4 font-semibold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500"
-                >
-                  Empezar ahora
-                  <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
-                </Link>
-                <button
-                  onClick={() => setTestOpen(true)}
-                  className="mt-3 w-full rounded-full px-6 py-3 text-sm font-semibold text-slate-500 transition hover:bg-slate-100"
-                >
-                  Antes quiero probar mi nivel
-                </button>
-              </div>
+        <section id="precio" className={`w-full scroll-mt-20 py-16 lg:py-24 ${PAGE_GUTTER}`}>
+          <div className="grid items-center gap-12 xl:grid-cols-2 xl:gap-16">
+            <div className="mx-auto max-w-2xl text-center xl:mx-0 xl:text-left">
+              <span className="text-xs font-semibold uppercase tracking-wide text-brand-600">Precio</span>
+              <h2 className="mt-2 text-3xl font-extrabold tracking-tight lg:text-4xl 2xl:text-5xl">
+                Un plan. Todo incluido.
+              </h2>
+              <p className="mt-3 text-slate-500">
+                Sin niveles de suscripción, sin cobrar aparte por hablar con tu tutor, sin permanencia.
+              </p>
+              <p className="mt-4 hidden text-slate-500 xl:block">
+                Lo que cuesta una hora suelta con un profesor particular te da aquí un mes entero de tutor disponible a
+                cualquier hora, con el currículo completo de A1 a C2.
+              </p>
             </div>
 
-            <p className="mt-5 text-center text-xs text-slate-400">
-              Pago con tarjeta, PayPal, Binance Pay o Pago Móvil (Venezuela).
-            </p>
+            <div className="mx-auto w-full max-w-lg xl:mx-0">
+              <div className="overflow-hidden rounded-3xl border-2 border-brand-600 bg-white shadow-xl shadow-brand-600/10">
+                <div className="bg-gradient-to-br from-brand-600 to-brand-500 px-8 py-8 text-center text-white">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-brand-100">Premium mensual</p>
+                  <p className="mt-3 flex items-baseline justify-center gap-1">
+                    <span className="text-6xl font-extrabold">${PRICE_USD}</span>
+                    <span className="text-lg font-medium text-brand-100">/mes</span>
+                  </p>
+                  <p className="mt-2 text-sm text-brand-100">Cancela cuando quieras</p>
+                </div>
+
+                <div className="px-8 py-8">
+                  <ul className="space-y-3.5">
+                    {[
+                      "Acceso completo a los 6 niveles, de A1 a C2",
+                      "Tutor de IA ilimitado, 24/7, sin reservar hora",
+                      "Corrección explicada: qué fallaste y por qué tu español te llevó ahí",
+                      "Certificación MCER por evidencia acumulada, nivel a nivel",
+                      "Currículo de 60+ módulos con tareas comunicativas reales",
+                      "Seguimiento por capacidad: sabes exactamente qué dominas",
+                      "Prueba de nivel y reubicación cuando avances",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-3 text-sm text-slate-600">
+                        <FontAwesomeIcon icon={faCircleCheck} className="mt-0.5 shrink-0 text-brand-600" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    to="/login?mode=register"
+                    className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-4 font-semibold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500"
+                  >
+                    Empezar ahora
+                    <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
+                  </Link>
+                  <button
+                    onClick={() => setTestOpen(true)}
+                    className="mt-3 w-full rounded-full px-6 py-3 text-sm font-semibold text-slate-500 transition hover:bg-slate-100"
+                  >
+                    Antes quiero probar mi nivel
+                  </button>
+                </div>
+              </div>
+
+              <p className="mt-5 text-center text-xs text-slate-400">
+                Pago con tarjeta, PayPal, Binance Pay o Pago Móvil (Venezuela).
+              </p>
+            </div>
           </div>
         </section>
 
         {/* ---------------- FAQ ---------------- */}
         <section id="faq" className="scroll-mt-20 border-t border-slate-200 bg-slate-50">
-          <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className={`w-full py-16 lg:py-24 ${PAGE_GUTTER}`}>
             <h2 className="text-center text-3xl font-extrabold tracking-tight lg:text-4xl">Preguntas frecuentes</h2>
-            <div className="mt-10 space-y-4">
+            <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
               {[
                 {
                   q: "¿La prueba de nivel me certifica?",
@@ -386,28 +457,30 @@ export default function LandingPage() {
         <section className="relative overflow-hidden border-t border-slate-200">
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[24rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-brand-200 via-brand-100 to-transparent blur-3xl"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[24rem] w-[120vw] max-w-[56rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-brand-200 via-brand-100 to-transparent blur-3xl"
           />
-          <div className="relative mx-auto w-full max-w-3xl px-4 py-20 text-center sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-extrabold tracking-tight lg:text-4xl">
-              Descubre tu nivel real en 2 minutos
-            </h2>
-            <p className="mx-auto mt-4 max-w-lg text-slate-500">
-              Sin tarjeta, sin registro. Solo doce preguntas que te dirán exactamente dónde estás y qué te está frenando.
-            </p>
-            <button
-              onClick={() => setTestOpen(true)}
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-brand-600 px-8 py-4 font-semibold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500"
-            >
-              <FontAwesomeIcon icon={faGaugeHigh} />
-              Hacer la prueba gratis
-            </button>
+          <div className={`relative w-full py-20 text-center ${PAGE_GUTTER}`}>
+            <div className="mx-auto max-w-3xl">
+              <h2 className="text-3xl font-extrabold tracking-tight lg:text-4xl">
+                Descubre tu nivel real en 2 minutos
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg text-slate-500">
+                Sin tarjeta, sin registro. Solo doce preguntas que te dirán exactamente dónde estás y qué te está frenando.
+              </p>
+              <button
+                onClick={() => setTestOpen(true)}
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-brand-600 px-8 py-4 font-semibold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500"
+              >
+                <FontAwesomeIcon icon={faGaugeHigh} />
+                Hacer la prueba gratis
+              </button>
+            </div>
           </div>
         </section>
       </main>
 
       <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
+        <div className={`flex w-full flex-col items-center justify-between gap-4 py-8 text-center sm:flex-row sm:text-left ${PAGE_GUTTER}`}>
           <Logo size={32} />
           <p className="text-xs text-slate-400">Inglés con tutores de IA · Marco Común Europeo · © 2026</p>
           <div className="flex items-center gap-4 text-sm">
