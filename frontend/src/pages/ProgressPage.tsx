@@ -13,7 +13,6 @@ import type {
 } from "../api/types"
 import { ApiError } from "../api/types"
 import { useAuth } from "../auth/AuthContext"
-import AppFooter from "../components/AppFooter"
 import Avatar from "../components/Avatar"
 import LevelMap from "../components/progress/LevelMap"
 import SkillsCard from "../components/progress/SkillsCard"
@@ -107,11 +106,11 @@ export default function ProgressPage() {
             <h1 className="truncate text-2xl font-extrabold tracking-tight text-slate-900">
               ¡Hola, {firstName}! <span aria-hidden>👋</span>
             </h1>
-            <p className="text-sm font-semibold text-blue-600">
+            <p className="text-sm font-semibold text-brand-600">
               {nextLevel ? `Ruta hacia el nivel ${nextLevel.code}` : `Trabajando en ${levelCode}`}
             </p>
           </div>
-          <span className="ml-auto shrink-0 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white">
+          <span className="ml-auto shrink-0 rounded-full bg-brand-600 px-3 py-1 text-xs font-bold text-white">
             {levelCode}
           </span>
         </header>
@@ -137,10 +136,10 @@ export default function ProgressPage() {
                   {descriptors.threshold}
                 </p>
               </div>
-              <span className="text-2xl font-extrabold text-blue-600">{descriptors.percentage}%</span>
+              <span className="text-2xl font-extrabold text-brand-600">{descriptors.percentage}%</span>
             </div>
             <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-200">
-              <div className="h-full rounded-full bg-blue-600" style={{ width: `${descriptors.percentage}%` }} />
+              <div className="h-full rounded-full bg-brand-600" style={{ width: `${descriptors.percentage}%` }} />
             </div>
 
             <ul className="mt-6 grid grid-cols-1 gap-x-8 gap-y-2 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -196,7 +195,7 @@ export default function ProgressPage() {
               <button
                 onClick={handleCertify}
                 disabled={!gate.eligible || certifying}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-brand-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
               >
                 {certifying && <FontAwesomeIcon icon={faSpinner} spin />}
                 Certificar mi nivel
@@ -208,8 +207,6 @@ export default function ProgressPage() {
         )}
         </div>
       </div>
-
-      <AppFooter />
     </div>
   )
 }

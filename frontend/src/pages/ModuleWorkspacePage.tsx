@@ -121,10 +121,10 @@ export default function ModuleWorkspacePage() {
   return (
     <div className="space-y-6">
       {/* ---- Cabecera oscura del aula ---- */}
-      <header className="relative overflow-hidden rounded-3xl bg-slate-900 p-5 text-white shadow-lg sm:p-7">
+      <header className="relative overflow-hidden rounded-3xl bg-ink-900 p-5 text-white shadow-lg sm:p-7">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-blue-500/20 blur-3xl"
+          className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand-500/20 blur-3xl"
         />
         <div className="relative">
           <div className="flex items-center justify-between gap-3">
@@ -136,7 +136,7 @@ export default function ModuleWorkspacePage() {
               <FontAwesomeIcon icon={faXmark} />
             </Link>
 
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-300">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-brand-300">
               <NavArrow to={prev} direction="prev" />
               <span>
                 Módulo {position} de {total || "—"}
@@ -177,14 +177,14 @@ export default function ModuleWorkspacePage() {
               onClick={() => setTab(t.id)}
               className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-xs font-bold uppercase tracking-wide transition active:scale-[0.98] ${
                 active
-                  ? "border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                  ? "border-brand-600 bg-brand-600 text-white shadow-md shadow-brand-600/20"
                   : "border-slate-200 bg-white text-slate-400 hover:border-slate-300 hover:text-slate-600"
               }`}
             >
               <FontAwesomeIcon icon={t.icon} className="text-base" />
               {t.label}
               {t.count !== undefined && (
-                <span className={`text-[10px] font-semibold ${active ? "text-blue-100" : "text-slate-400"}`}>
+                <span className={`text-[10px] font-semibold ${active ? "text-brand-100" : "text-slate-400"}`}>
                   {t.count} {t.count === 1 ? "tarea" : "tareas"}
                 </span>
               )}
@@ -195,7 +195,7 @@ export default function ModuleWorkspacePage() {
 
       {/* ---- Barra de arranque / estado ---- */}
       {!enrolled && (
-        <div className="flex flex-col gap-3 rounded-3xl border border-blue-200 bg-blue-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-3xl border border-brand-200 bg-brand-50 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-bold text-slate-900">¿Listo para empezar este módulo?</p>
             <p className="mt-0.5 text-sm text-slate-600">
@@ -205,7 +205,7 @@ export default function ModuleWorkspacePage() {
           <button
             onClick={handleStart}
             disabled={enrolling}
-            className="flex shrink-0 items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3 font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500 disabled:opacity-60"
+            className="flex shrink-0 items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3 font-semibold text-white transition active:scale-[0.98] hover:bg-brand-500 disabled:opacity-60"
           >
             {enrolling ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faBolt} />}
             Empezar módulo
@@ -249,14 +249,14 @@ export default function ModuleWorkspacePage() {
           (next.status === "locked" ? (
             <button
               onClick={() => setExamOpen(true)}
-              className="flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500"
+              className="flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500"
             >
               <FontAwesomeIcon icon={faClipboardCheck} className="text-xs" /> Aprobar con examen
             </button>
           ) : (
             <button
               onClick={() => navigate(`/modules/${next.id}`)}
-              className="flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-slate-800"
+              className="flex items-center gap-2 rounded-full bg-ink-900 px-5 py-2.5 text-sm font-semibold text-white transition active:scale-[0.98] hover:bg-ink-800"
             >
               Siguiente <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
             </button>
@@ -361,7 +361,7 @@ function LessonTab({ module, onGoPractice }: { module: ModuleDetail; onGoPractic
             {module.lexis.chunks.map((chunk) => (
               <p
                 key={chunk}
-                className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 font-medium text-blue-800"
+                className="rounded-2xl border border-brand-100 bg-brand-50 px-4 py-3 font-medium text-brand-800"
               >
                 “{chunk}”
               </p>
@@ -432,7 +432,7 @@ function LessonTab({ module, onGoPractice }: { module: ModuleDetail; onGoPractic
 
       <button
         onClick={onGoPractice}
-        className="flex w-full items-center justify-center gap-2 rounded-3xl bg-slate-900 px-6 py-4 font-bold text-white transition active:scale-[0.98] hover:bg-slate-800"
+        className="flex w-full items-center justify-center gap-2 rounded-3xl bg-ink-900 px-6 py-4 font-bold text-white transition active:scale-[0.98] hover:bg-ink-800"
       >
         Ya lo tengo — ir a la práctica
         <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
@@ -474,13 +474,13 @@ function PracticeTab({
       {module.tasks.map((task, i) => (
         <div key={task.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">
               {i + 1}
             </span>
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">
               {task.type.replace(/_/g, " ")}
             </span>
-            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-blue-700">
+            <span className="rounded-full bg-brand-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-700">
               {task.descriptor}
             </span>
           </div>
@@ -497,7 +497,7 @@ function PracticeTab({
           {enrolled ? (
             <Link
               to={`/chat?module=${module.id}&task=${task.id}`}
-              className="mt-4 flex items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-blue-500"
+              className="mt-4 flex items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-brand-500"
             >
               <FontAwesomeIcon icon={faComments} />
               Practicar con el tutor
@@ -505,7 +505,7 @@ function PracticeTab({
           ) : (
             <button
               onClick={onStart}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-slate-800"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-ink-900 px-6 py-3.5 font-semibold text-white transition active:scale-[0.98] hover:bg-ink-800"
             >
               <FontAwesomeIcon icon={faBolt} />
               Empezar el módulo para practicar
@@ -547,13 +547,13 @@ function ExamTab({
           </button>
         </section>
       ) : (
-        <section className="relative overflow-hidden rounded-3xl bg-slate-900 p-7 text-white shadow-lg sm:p-8">
+        <section className="relative overflow-hidden rounded-3xl bg-ink-900 p-7 text-white shadow-lg sm:p-8">
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-blue-500/25 blur-3xl"
+            className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-500/25 blur-3xl"
           />
           <div className="relative">
-            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-blue-300">
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-brand-300">
               <FontAwesomeIcon icon={faClipboardCheck} /> Examen del módulo
             </p>
             <h2 className="mt-3 text-2xl font-extrabold tracking-tight">¿Ya dominas este módulo?</h2>
@@ -562,7 +562,7 @@ function ExamTab({
             </p>
             <button
               onClick={onStartExam}
-              className="mt-6 flex items-center justify-center gap-2 rounded-full bg-blue-600 px-7 py-3.5 font-bold text-white shadow-lg shadow-blue-600/30 transition active:scale-[0.98] hover:bg-blue-500"
+              className="mt-6 flex items-center justify-center gap-2 rounded-full bg-brand-600 px-7 py-3.5 font-bold text-white shadow-lg shadow-brand-600/30 transition active:scale-[0.98] hover:bg-brand-500"
             >
               Presentar examen <FontAwesomeIcon icon={faArrowRight} className="text-sm" />
             </button>
@@ -575,14 +575,14 @@ function ExamTab({
       <Card title="Dos formas de aprobar" icon={faCircleCheck}>
         <ul className="space-y-3 text-slate-600">
           <li className="flex gap-3">
-            <FontAwesomeIcon icon={faClipboardCheck} className="mt-1 shrink-0 text-blue-500" />
+            <FontAwesomeIcon icon={faClipboardCheck} className="mt-1 shrink-0 text-brand-500" />
             <span>
               <strong className="text-slate-800">Con el examen:</strong> respondes las preguntas en una sola
               convocatoria. Si apruebas, el módulo queda completado al momento.
             </span>
           </li>
           <li className="flex gap-3">
-            <FontAwesomeIcon icon={faComments} className="mt-1 shrink-0 text-blue-500" />
+            <FontAwesomeIcon icon={faComments} className="mt-1 shrink-0 text-brand-500" />
             <span>
               <strong className="text-slate-800">Practicando con el tutor:</strong> cada capacidad que demuestras
               en contextos distintos suma evidencia hacia tu nivel.
@@ -620,7 +620,7 @@ function Card({ title, icon, children }: { title: string; icon?: typeof faBookOp
     <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <h2 className="mb-4 flex items-center gap-2.5 text-lg font-bold tracking-tight text-slate-900">
         {icon && (
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-sm text-blue-600">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-sm text-brand-600">
             <FontAwesomeIcon icon={icon} />
           </span>
         )}

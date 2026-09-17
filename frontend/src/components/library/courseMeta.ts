@@ -37,11 +37,15 @@ export function courseIcon(name: string): IconDefinition {
   return ICONS[name] ?? faBookBookmark
 }
 
+// Un color por categoría, distinto entre sí: dentro de la paleta de la marca
+// (violeta y marino) para Trabajo y Viajes, y dos tonos que armonizan con el
+// violeta para las otras. Con el cambio de marca, Viajes y Social habían
+// quedado del mismo color y las tarjetas dejaban de distinguirse de un vistazo.
 export const CATEGORIES: Record<string, { label: string; icon: IconDefinition; tile: string; accent: string }> = {
-  trabajo: { label: "Trabajo", icon: faBriefcase, tile: "bg-blue-600 text-white", accent: "text-blue-600" },
-  viajes: { label: "Viajes", icon: faPlane, tile: "bg-sky-500 text-white", accent: "text-sky-600" },
+  trabajo: { label: "Trabajo", icon: faBriefcase, tile: "bg-brand-600 text-white", accent: "text-brand-600" },
+  viajes: { label: "Viajes", icon: faPlane, tile: "bg-ink-800 text-white", accent: "text-ink-800" },
   vida_diaria: { label: "Vida diaria", icon: faHouse, tile: "bg-emerald-500 text-white", accent: "text-emerald-600" },
-  social: { label: "Social", icon: faComments, tile: "bg-violet-500 text-white", accent: "text-violet-600" },
+  social: { label: "Social", icon: faComments, tile: "bg-fuchsia-500 text-white", accent: "text-fuchsia-600" },
 }
 
 export function categoryMeta(category: string) {

@@ -17,7 +17,6 @@ import { api } from "../api/client"
 import type { User } from "../api/types"
 import { ApiError } from "../api/types"
 import { useAuth } from "../auth/AuthContext"
-import AppFooter from "../components/AppFooter"
 import Avatar from "../components/Avatar"
 import BillingModal from "../components/billing/BillingModal"
 
@@ -84,7 +83,7 @@ export default function ProfilePage() {
             <button
               onClick={() => fileInput.current?.click()}
               disabled={uploading}
-              className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-sm text-white shadow-md transition active:scale-95 hover:bg-blue-500 disabled:opacity-60"
+              className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-brand-600 text-sm text-white shadow-md transition active:scale-95 hover:bg-brand-500 disabled:opacity-60"
               title="Cambiar foto"
             >
               <FontAwesomeIcon icon={uploading ? faSpinner : faCamera} spin={uploading} />
@@ -107,7 +106,7 @@ export default function ProfilePage() {
               <button
                 onClick={() => fileInput.current?.click()}
                 disabled={uploading}
-                className="text-sm font-semibold text-blue-600 hover:text-blue-500 disabled:opacity-60"
+                className="text-sm font-semibold text-brand-600 hover:text-brand-500 disabled:opacity-60"
               >
                 {user.avatar_url ? "Cambiar foto" : "Subir foto"}
               </button>
@@ -195,8 +194,6 @@ export default function ProfilePage() {
       </div>
 
       {billingOpen && <BillingModal onClose={() => setBillingOpen(false)} />}
-
-      <AppFooter />
     </div>
   )
 }
@@ -220,7 +217,7 @@ function Toggle({
       aria-label="Notificaciones"
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-50 ${checked ? "bg-blue-600" : "bg-slate-200"}`}
+      className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-50 ${checked ? "bg-brand-600" : "bg-slate-200"}`}
     >
       <span
         className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all ${checked ? "left-6" : "left-1"}`}

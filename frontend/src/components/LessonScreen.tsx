@@ -141,7 +141,7 @@ export default function LessonScreen({
       ref={containerRef}
       onWheel={markUserScroll}
       onTouchMove={markUserScroll}
-      className="lyrics-scroll relative h-80 overflow-y-auto rounded-3xl bg-gradient-to-br from-blue-900 via-blue-950 to-slate-950 px-6 sm:h-96 sm:px-10"
+      className="lyrics-scroll relative h-80 overflow-y-auto rounded-3xl bg-gradient-to-br from-brand-900 via-brand-950 to-ink-950 px-6 sm:h-96 sm:px-10"
     >
       {/* Relleno arriba y abajo para que la primera y la última frase
           también puedan subir a su sitio en vez de quedarse pegadas al
@@ -183,7 +183,7 @@ export default function LessonScreen({
                   // Solo visible al pasar el ratón o en la frase activa: un
                   // micrófono en cada línea convertiría la letra en una
                   // botonera y taparía lo que se está diciendo.
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm text-sky-200 transition hover:bg-white/20 hover:text-white ${
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm text-brand-200 transition hover:bg-white/20 hover:text-white ${
                     isActive ? "opacity-100" : "opacity-0 group-hover/line:opacity-100"
                   }`}
                 >
@@ -213,9 +213,9 @@ const ACTIVE_LINE_POSITION = 0.3
  * todo igual, pero aquí distinguir la frase inglesa es lo que le dice al
  * alumno "esto es lo que tienes que repetir". */
 function lineColor(english: boolean, active: boolean, past: boolean): string {
-  if (active) return english ? "text-sky-300" : "text-white"
-  if (past) return english ? "text-sky-300/50 hover:text-sky-300/80" : "text-white/50 hover:text-white/80"
-  return english ? "text-sky-300/30 hover:text-sky-300/70" : "text-white/25 hover:text-white/70"
+  if (active) return english ? "text-brand-300" : "text-white"
+  if (past) return english ? "text-brand-300/50 hover:text-brand-300/80" : "text-white/50 hover:text-white/80"
+  return english ? "text-brand-300/30 hover:text-brand-300/70" : "text-white/25 hover:text-white/70"
 }
 
 /** Índice del fragmento que suena AHORA. Devuelve -1 antes de empezar.

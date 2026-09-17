@@ -14,6 +14,7 @@ from app.models.lesson import Lesson
 from app.models.module import Module
 from app.models.payment import Payment
 from app.models.plan import Plan
+from app.models.sentence_game import SentenceGameProgress
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.models.user_event import UserEvent
@@ -34,6 +35,7 @@ __all__ = [
     "Module",
     "Payment",
     "Plan",
+    "SentenceGameProgress",
     "Subscription",
     "User",
     "UserEvent",

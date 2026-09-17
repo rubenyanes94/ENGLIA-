@@ -1,0 +1,1054 @@
+{
+  "levels": [
+    {
+      "level": 1,
+      "name": "Primeros pasos",
+      "topic": "Verbo to be, artículos y posesivos",
+      "items": [
+        {
+          "id": "l1-01",
+          "sentence": "I ___ a student.",
+          "answer": "am",
+          "options": [
+            "am",
+            "is",
+            "are",
+            "be"
+          ],
+          "explanation_es": "Con 'I' el verbo to be es 'am'."
+        },
+        {
+          "id": "l1-02",
+          "sentence": "She ___ from Venezuela.",
+          "answer": "is",
+          "options": [
+            "is",
+            "are",
+            "am",
+            "be"
+          ],
+          "explanation_es": "Con 'she', 'he' e 'it' se usa 'is'."
+        },
+        {
+          "id": "l1-03",
+          "sentence": "They ___ my friends.",
+          "answer": "are",
+          "options": [
+            "are",
+            "is",
+            "am",
+            "be"
+          ],
+          "explanation_es": "Con 'they', 'we' y 'you' se usa 'are'."
+        },
+        {
+          "id": "l1-04",
+          "sentence": "This is ___ apple.",
+          "answer": "an",
+          "options": [
+            "an",
+            "a",
+            "many",
+            "these"
+          ],
+          "explanation_es": "'An' va antes de sonido vocal: an apple, an orange."
+        },
+        {
+          "id": "l1-05",
+          "sentence": "___ name is Carlos.",
+          "answer": "My",
+          "options": [
+            "My",
+            "I",
+            "Me",
+            "Mine"
+          ],
+          "explanation_es": "'My' es el posesivo que va delante del sustantivo: my name."
+        },
+        {
+          "id": "l1-06",
+          "sentence": "Where ___ you from?",
+          "answer": "are",
+          "options": [
+            "are",
+            "is",
+            "do",
+            "am"
+          ],
+          "explanation_es": "La pregunta con 'you' usa 'are': Where are you from?"
+        },
+        {
+          "id": "l1-07",
+          "sentence": "How old ___ your brother?",
+          "answer": "is",
+          "options": [
+            "is",
+            "are",
+            "has",
+            "does"
+          ],
+          "explanation_es": "La edad se pregunta con to be, no con 'have': How old is he?"
+        },
+        {
+          "id": "l1-08",
+          "sentence": "These ___ my keys.",
+          "answer": "are",
+          "options": [
+            "are",
+            "is",
+            "am",
+            "be"
+          ],
+          "explanation_es": "'These' es plural, así que va con 'are'."
+        },
+        {
+          "id": "l1-09",
+          "sentence": "We ___ hungry.",
+          "answer": "are",
+          "options": [
+            "are",
+            "have",
+            "is",
+            "am"
+          ],
+          "explanation_es": "En inglés el hambre se expresa con to be: we are hungry, no 'we have hungry'."
+        },
+        {
+          "id": "l1-10",
+          "sentence": "I ___ 25 years old.",
+          "answer": "am",
+          "options": [
+            "am",
+            "have",
+            "is",
+            "are"
+          ],
+          "explanation_es": "La edad va con to be: I am 25, nunca 'I have 25 years'."
+        },
+        {
+          "id": "l1-11",
+          "sentence": "My sister ___ a doctor.",
+          "answer": "is",
+          "options": [
+            "is",
+            "are",
+            "have",
+            "am"
+          ],
+          "explanation_es": "'My sister' equivale a 'she', así que se usa 'is'."
+        },
+        {
+          "id": "l1-12",
+          "sentence": "___ you a teacher?",
+          "answer": "Are",
+          "options": [
+            "Are",
+            "Do",
+            "Is",
+            "Am"
+          ],
+          "explanation_es": "Para preguntar con to be se invierte el orden: Are you...?"
+        },
+        {
+          "id": "l1-13",
+          "sentence": "He isn't ___ home.",
+          "answer": "at",
+          "options": [
+            "at",
+            "in",
+            "on",
+            "to"
+          ],
+          "explanation_es": "'Estar en casa' es 'at home'."
+        },
+        {
+          "id": "l1-14",
+          "sentence": "They're ___ Mexico.",
+          "answer": "from",
+          "options": [
+            "from",
+            "of",
+            "at",
+            "on"
+          ],
+          "explanation_es": "Para decir de dónde es alguien se usa 'from'."
+        }
+      ]
+    },
+    {
+      "level": 2,
+      "name": "Tu día a día",
+      "topic": "Presente simple, there is/are y preposiciones de tiempo",
+      "items": [
+        {
+          "id": "l2-01",
+          "sentence": "She ___ to work by bus.",
+          "answer": "goes",
+          "options": [
+            "goes",
+            "go",
+            "going",
+            "gone"
+          ],
+          "explanation_es": "En presente simple, 'she' lleva -s o -es: she goes."
+        },
+        {
+          "id": "l2-02",
+          "sentence": "My father ___ coffee.",
+          "answer": "doesn't drink",
+          "options": [
+            "doesn't drink",
+            "don't drink",
+            "not drink",
+            "doesn't drinks"
+          ],
+          "explanation_es": "Con 'he/she' la negación es 'doesn't' + verbo sin -s."
+        },
+        {
+          "id": "l2-03",
+          "sentence": "___ you speak English?",
+          "answer": "Do",
+          "options": [
+            "Do",
+            "Does",
+            "Are",
+            "Is"
+          ],
+          "explanation_es": "Las preguntas en presente simple con 'you' empiezan con 'Do'."
+        },
+        {
+          "id": "l2-04",
+          "sentence": "___ your brother live in Caracas?",
+          "answer": "Does",
+          "options": [
+            "Does",
+            "Do",
+            "Is",
+            "Are"
+          ],
+          "explanation_es": "'Your brother' es tercera persona, así que se pregunta con 'Does'."
+        },
+        {
+          "id": "l2-05",
+          "sentence": "There ___ two banks on this street.",
+          "answer": "are",
+          "options": [
+            "are",
+            "is",
+            "has",
+            "have"
+          ],
+          "explanation_es": "Para 'hay' con plural se usa 'there are'."
+        },
+        {
+          "id": "l2-06",
+          "sentence": "There ___ a pharmacy near here.",
+          "answer": "is",
+          "options": [
+            "is",
+            "are",
+            "has",
+            "have"
+          ],
+          "explanation_es": "Para 'hay' con singular se usa 'there is', no 'have'."
+        },
+        {
+          "id": "l2-07",
+          "sentence": "The class starts ___ nine o'clock.",
+          "answer": "at",
+          "options": [
+            "at",
+            "in",
+            "on",
+            "to"
+          ],
+          "explanation_es": "Con horas se usa 'at': at nine o'clock."
+        },
+        {
+          "id": "l2-08",
+          "sentence": "My birthday is ___ March.",
+          "answer": "in",
+          "options": [
+            "in",
+            "on",
+            "at",
+            "to"
+          ],
+          "explanation_es": "Con meses se usa 'in': in March."
+        },
+        {
+          "id": "l2-09",
+          "sentence": "We don't have class ___ Sunday.",
+          "answer": "on",
+          "options": [
+            "on",
+            "in",
+            "at",
+            "to"
+          ],
+          "explanation_es": "Con días de la semana se usa 'on': on Sunday."
+        },
+        {
+          "id": "l2-10",
+          "sentence": "It's ___ university in the city center.",
+          "answer": "a",
+          "options": [
+            "a",
+            "an",
+            "these",
+            "many"
+          ],
+          "explanation_es": "'University' empieza con sonido /ju/, así que va con 'a', no 'an'."
+        },
+        {
+          "id": "l2-11",
+          "sentence": "I usually ___ breakfast at 7.",
+          "answer": "have",
+          "options": [
+            "have",
+            "has",
+            "having",
+            "haves"
+          ],
+          "explanation_es": "Con 'I' el verbo va en su forma base: I have."
+        },
+        {
+          "id": "l2-12",
+          "sentence": "He ___ up early every day.",
+          "answer": "gets",
+          "options": [
+            "gets",
+            "get",
+            "getting",
+            "is get"
+          ],
+          "explanation_es": "Para hábitos con 'he' se usa presente simple con -s: he gets up."
+        },
+        {
+          "id": "l2-13",
+          "sentence": "How often ___ she go to the gym?",
+          "answer": "does",
+          "options": [
+            "does",
+            "do",
+            "is",
+            "are"
+          ],
+          "explanation_es": "Con 'she' la pregunta en presente simple usa 'does'."
+        },
+        {
+          "id": "l2-14",
+          "sentence": "I ___ like spicy food.",
+          "answer": "don't",
+          "options": [
+            "don't",
+            "doesn't",
+            "not",
+            "am not"
+          ],
+          "explanation_es": "Con 'I' la negación del presente simple es 'don't'."
+        }
+      ]
+    },
+    {
+      "level": 3,
+      "name": "Ahora mismo",
+      "topic": "Presente continuo, can, cantidades y comparativos",
+      "items": [
+        {
+          "id": "l3-01",
+          "sentence": "Look! It ___ raining.",
+          "answer": "is",
+          "options": [
+            "is",
+            "are",
+            "does",
+            "has"
+          ],
+          "explanation_es": "El presente continuo es to be + -ing: it is raining."
+        },
+        {
+          "id": "l3-02",
+          "sentence": "They ___ watching TV right now.",
+          "answer": "are",
+          "options": [
+            "are",
+            "is",
+            "do",
+            "have"
+          ],
+          "explanation_es": "Con 'they' el presente continuo usa 'are' + -ing."
+        },
+        {
+          "id": "l3-03",
+          "sentence": "I can ___ the guitar.",
+          "answer": "play",
+          "options": [
+            "play",
+            "to play",
+            "playing",
+            "plays"
+          ],
+          "explanation_es": "Después de 'can' el verbo va en forma base, sin 'to'."
+        },
+        {
+          "id": "l3-04",
+          "sentence": "She ___ swim. She never learned.",
+          "answer": "can't",
+          "options": [
+            "can't",
+            "doesn't can",
+            "don't can",
+            "not can"
+          ],
+          "explanation_es": "La negación de 'can' es 'can't'; no se usa 'do'."
+        },
+        {
+          "id": "l3-05",
+          "sentence": "How ___ water do you drink?",
+          "answer": "much",
+          "options": [
+            "much",
+            "many",
+            "lot",
+            "few"
+          ],
+          "explanation_es": "'Water' es incontable, así que se pregunta con 'how much'."
+        },
+        {
+          "id": "l3-06",
+          "sentence": "How ___ brothers do you have?",
+          "answer": "many",
+          "options": [
+            "many",
+            "much",
+            "lot",
+            "little"
+          ],
+          "explanation_es": "'Brothers' es contable, así que se usa 'how many'."
+        },
+        {
+          "id": "l3-07",
+          "sentence": "Is there ___ milk in the fridge?",
+          "answer": "any",
+          "options": [
+            "any",
+            "many",
+            "a",
+            "an"
+          ],
+          "explanation_es": "En preguntas con incontables se usa 'any'."
+        },
+        {
+          "id": "l3-08",
+          "sentence": "I have two ___.",
+          "answer": "children",
+          "options": [
+            "children",
+            "childs",
+            "child",
+            "childrens"
+          ],
+          "explanation_es": "El plural de 'child' es irregular: children."
+        },
+        {
+          "id": "l3-09",
+          "sentence": "My brother is ___ than me.",
+          "answer": "taller",
+          "options": [
+            "taller",
+            "more tall",
+            "tallest",
+            "more taller"
+          ],
+          "explanation_es": "Los adjetivos cortos forman el comparativo con -er: taller than."
+        },
+        {
+          "id": "l3-10",
+          "sentence": "This book is ___ than that one.",
+          "answer": "more interesting",
+          "options": [
+            "more interesting",
+            "interestinger",
+            "most interesting",
+            "more interestinger"
+          ],
+          "explanation_es": "Los adjetivos largos forman el comparativo con 'more': more interesting."
+        },
+        {
+          "id": "l3-11",
+          "sentence": "What ___ you doing?",
+          "answer": "are",
+          "options": [
+            "are",
+            "do",
+            "is",
+            "does"
+          ],
+          "explanation_es": "La pregunta en presente continuo usa to be: What are you doing?"
+        },
+        {
+          "id": "l3-12",
+          "sentence": "He ___ working today; he's sick.",
+          "answer": "isn't",
+          "options": [
+            "isn't",
+            "doesn't",
+            "not",
+            "don't"
+          ],
+          "explanation_es": "La negación del presente continuo es to be + not: he isn't working."
+        },
+        {
+          "id": "l3-13",
+          "sentence": "Buses are ___ than taxis.",
+          "answer": "cheaper",
+          "options": [
+            "cheaper",
+            "more cheap",
+            "cheapest",
+            "more cheaper"
+          ],
+          "explanation_es": "'Cheap' es corto: su comparativo es 'cheaper'."
+        },
+        {
+          "id": "l3-14",
+          "sentence": "Those ___ are expensive.",
+          "answer": "shoes",
+          "options": [
+            "shoes",
+            "shoe",
+            "shoeses",
+            "a shoe"
+          ],
+          "explanation_es": "'Those' es plural, así que el sustantivo también: those shoes."
+        }
+      ]
+    },
+    {
+      "level": 4,
+      "name": "El pasado",
+      "topic": "Pasado simple, was/were y going to",
+      "items": [
+        {
+          "id": "l4-01",
+          "sentence": "Yesterday I ___ to the beach.",
+          "answer": "went",
+          "options": [
+            "went",
+            "go",
+            "goed",
+            "gone"
+          ],
+          "explanation_es": "'Go' es irregular: su pasado es 'went'."
+        },
+        {
+          "id": "l4-02",
+          "sentence": "We ___ at home last night.",
+          "answer": "were",
+          "options": [
+            "were",
+            "was",
+            "are",
+            "been"
+          ],
+          "explanation_es": "El pasado de to be con 'we' es 'were'."
+        },
+        {
+          "id": "l4-03",
+          "sentence": "She ___ tired after work yesterday.",
+          "answer": "was",
+          "options": [
+            "was",
+            "were",
+            "been",
+            "be"
+          ],
+          "explanation_es": "El pasado de to be con 'she' es 'was'."
+        },
+        {
+          "id": "l4-04",
+          "sentence": "___ you see the game yesterday?",
+          "answer": "Did",
+          "options": [
+            "Did",
+            "Do",
+            "Were",
+            "Have"
+          ],
+          "explanation_es": "Las preguntas en pasado simple empiezan con 'Did'."
+        },
+        {
+          "id": "l4-05",
+          "sentence": "I didn't ___ the email.",
+          "answer": "see",
+          "options": [
+            "see",
+            "saw",
+            "seen",
+            "seeing"
+          ],
+          "explanation_es": "Después de 'didn't' el verbo vuelve a su forma base."
+        },
+        {
+          "id": "l4-06",
+          "sentence": "They moved to Canada two years ___.",
+          "answer": "ago",
+          "options": [
+            "ago",
+            "since",
+            "for",
+            "during"
+          ],
+          "explanation_es": "'Hace dos años' se dice 'two years ago'."
+        },
+        {
+          "id": "l4-07",
+          "sentence": "He ___ his keys this morning.",
+          "answer": "lost",
+          "options": [
+            "lost",
+            "losed",
+            "lose",
+            "losing"
+          ],
+          "explanation_es": "'Lose' es irregular: su pasado es 'lost'."
+        },
+        {
+          "id": "l4-08",
+          "sentence": "I'm ___ to visit my grandmother next week.",
+          "answer": "going",
+          "options": [
+            "going",
+            "go",
+            "goes",
+            "went"
+          ],
+          "explanation_es": "Para planes se usa 'be going to': I'm going to visit."
+        },
+        {
+          "id": "l4-09",
+          "sentence": "What ___ you going to do tomorrow?",
+          "answer": "are",
+          "options": [
+            "are",
+            "do",
+            "will",
+            "did"
+          ],
+          "explanation_es": "La pregunta con 'going to' usa to be: What are you going to do?"
+        },
+        {
+          "id": "l4-10",
+          "sentence": "She ___ that book last month.",
+          "answer": "read",
+          "options": [
+            "read",
+            "readed",
+            "reads",
+            "reading"
+          ],
+          "explanation_es": "'Read' es irregular: se escribe igual en pasado, pero se pronuncia /red/."
+        },
+        {
+          "id": "l4-11",
+          "sentence": "We ___ a great time at the party last night.",
+          "answer": "had",
+          "options": [
+            "had",
+            "have",
+            "has",
+            "haved"
+          ],
+          "explanation_es": "'Last night' pide pasado: el pasado de 'have' es 'had'."
+        },
+        {
+          "id": "l4-12",
+          "sentence": "Where ___ you born?",
+          "answer": "were",
+          "options": [
+            "were",
+            "was",
+            "did",
+            "are"
+          ],
+          "explanation_es": "'Nacer' es 'be born', y en pasado con 'you' es 'were'."
+        },
+        {
+          "id": "l4-13",
+          "sentence": "I ___ like vegetables when I was a child.",
+          "answer": "didn't",
+          "options": [
+            "didn't",
+            "wasn't",
+            "don't",
+            "doesn't"
+          ],
+          "explanation_es": "'When I was a child' es pasado: la negación es 'didn't'."
+        },
+        {
+          "id": "l4-14",
+          "sentence": "They ___ study for the test, so they failed.",
+          "answer": "didn't",
+          "options": [
+            "didn't",
+            "don't",
+            "weren't",
+            "doesn't"
+          ],
+          "explanation_es": "La negación del pasado simple con cualquier persona es 'didn't'."
+        }
+      ]
+    },
+    {
+      "level": 5,
+      "name": "Experiencias",
+      "topic": "Presente perfecto, futuro y primer condicional",
+      "items": [
+        {
+          "id": "l5-01",
+          "sentence": "Have you ever ___ to Spain?",
+          "answer": "been",
+          "options": [
+            "been",
+            "went",
+            "go",
+            "was"
+          ],
+          "explanation_es": "Para experiencias se usa 'have been' (participio de 'be')."
+        },
+        {
+          "id": "l5-02",
+          "sentence": "I have lived here ___ 2019.",
+          "answer": "since",
+          "options": [
+            "since",
+            "for",
+            "from",
+            "ago"
+          ],
+          "explanation_es": "Con un momento de inicio (2019) se usa 'since'."
+        },
+        {
+          "id": "l5-03",
+          "sentence": "She has worked here ___ five years.",
+          "answer": "for",
+          "options": [
+            "for",
+            "since",
+            "during",
+            "ago"
+          ],
+          "explanation_es": "Con una duración (five years) se usa 'for'."
+        },
+        {
+          "id": "l5-04",
+          "sentence": "I haven't finished my homework ___.",
+          "answer": "yet",
+          "options": [
+            "yet",
+            "already",
+            "never",
+            "ever"
+          ],
+          "explanation_es": "En negativas, 'todavía' al final de la frase es 'yet'."
+        },
+        {
+          "id": "l5-05",
+          "sentence": "It's cold. I ___ close the window.",
+          "answer": "will",
+          "options": [
+            "will",
+            "am",
+            "going",
+            "have"
+          ],
+          "explanation_es": "Para una decisión en el momento se usa 'will'."
+        },
+        {
+          "id": "l5-06",
+          "sentence": "If it rains, we ___ at home.",
+          "answer": "will stay",
+          "options": [
+            "will stay",
+            "stayed",
+            "would stay",
+            "staying"
+          ],
+          "explanation_es": "Primer condicional: if + presente, will + verbo."
+        },
+        {
+          "id": "l5-07",
+          "sentence": "If you ___ hard, you will pass the exam.",
+          "answer": "study",
+          "options": [
+            "study",
+            "will study",
+            "studied",
+            "studying"
+          ],
+          "explanation_es": "En el primer condicional, después de 'if' va presente, no 'will'."
+        },
+        {
+          "id": "l5-08",
+          "sentence": "This is the ___ restaurant in town.",
+          "answer": "best",
+          "options": [
+            "best",
+            "better",
+            "goodest",
+            "most good"
+          ],
+          "explanation_es": "El superlativo de 'good' es irregular: the best."
+        },
+        {
+          "id": "l5-09",
+          "sentence": "Everest is the ___ mountain in the world.",
+          "answer": "highest",
+          "options": [
+            "highest",
+            "higher",
+            "most high",
+            "more high"
+          ],
+          "explanation_es": "Los adjetivos cortos forman el superlativo con -est: the highest."
+        },
+        {
+          "id": "l5-10",
+          "sentence": "You ___ wear a seatbelt. It's the law.",
+          "answer": "must",
+          "options": [
+            "must",
+            "mustn't",
+            "can't",
+            "needn't"
+          ],
+          "explanation_es": "Una obligación (la ley) se expresa con 'must'."
+        },
+        {
+          "id": "l5-11",
+          "sentence": "I've ___ finished the report. Here it is.",
+          "answer": "already",
+          "options": [
+            "already",
+            "yet",
+            "ever",
+            "since"
+          ],
+          "explanation_es": "'Ya' en afirmativas con presente perfecto es 'already'."
+        },
+        {
+          "id": "l5-12",
+          "sentence": "He ___ never eaten sushi.",
+          "answer": "has",
+          "options": [
+            "has",
+            "have",
+            "is",
+            "did"
+          ],
+          "explanation_es": "Presente perfecto con 'he': has + participio."
+        },
+        {
+          "id": "l5-13",
+          "sentence": "We ___ go now, or we'll miss the bus.",
+          "answer": "have to",
+          "options": [
+            "have to",
+            "has to",
+            "must to",
+            "having to"
+          ],
+          "explanation_es": "'Tener que' con 'we' es 'have to'; 'must' nunca lleva 'to'."
+        },
+        {
+          "id": "l5-14",
+          "sentence": "It will be sunny tomorrow, so I ___ go to the beach.",
+          "answer": "will",
+          "options": [
+            "will",
+            "am",
+            "did",
+            "was"
+          ],
+          "explanation_es": "Para el futuro se usa 'will' + verbo."
+        }
+      ]
+    },
+    {
+      "level": 6,
+      "name": "Nivel experto",
+      "topic": "Condicionales, voz pasiva y oraciones de relativo",
+      "items": [
+        {
+          "id": "l6-01",
+          "sentence": "If I ___ rich, I would travel the world.",
+          "answer": "were",
+          "options": [
+            "were",
+            "am",
+            "will be",
+            "would be"
+          ],
+          "explanation_es": "Segundo condicional: if + pasado (were), would + verbo."
+        },
+        {
+          "id": "l6-02",
+          "sentence": "If she had studied, she ___ passed.",
+          "answer": "would have",
+          "options": [
+            "would have",
+            "will have",
+            "would",
+            "had"
+          ],
+          "explanation_es": "Tercer condicional: if + had + participio, would have + participio."
+        },
+        {
+          "id": "l6-03",
+          "sentence": "The house ___ built in 1950.",
+          "answer": "was",
+          "options": [
+            "was",
+            "is",
+            "were",
+            "has"
+          ],
+          "explanation_es": "Voz pasiva en pasado con singular: was + participio."
+        },
+        {
+          "id": "l6-04",
+          "sentence": "English ___ spoken all over the world.",
+          "answer": "is",
+          "options": [
+            "is",
+            "are",
+            "has",
+            "does"
+          ],
+          "explanation_es": "Voz pasiva en presente con singular: is + participio."
+        },
+        {
+          "id": "l6-05",
+          "sentence": "The woman ___ lives next door is a nurse.",
+          "answer": "who",
+          "options": [
+            "who",
+            "which",
+            "what",
+            "whose"
+          ],
+          "explanation_es": "Para personas, el relativo es 'who'."
+        },
+        {
+          "id": "l6-06",
+          "sentence": "This is the book ___ I told you about.",
+          "answer": "which",
+          "options": [
+            "which",
+            "who",
+            "whose",
+            "where"
+          ],
+          "explanation_es": "Para cosas, el relativo es 'which'."
+        },
+        {
+          "id": "l6-07",
+          "sentence": "I used to ___ in Maracaibo.",
+          "answer": "live",
+          "options": [
+            "live",
+            "living",
+            "lived",
+            "lives"
+          ],
+          "explanation_es": "'Used to' va seguido del verbo en forma base."
+        },
+        {
+          "id": "l6-08",
+          "sentence": "She enjoys ___ novels.",
+          "answer": "reading",
+          "options": [
+            "reading",
+            "to read",
+            "read",
+            "reads"
+          ],
+          "explanation_es": "Después de 'enjoy' el verbo va en -ing."
+        },
+        {
+          "id": "l6-09",
+          "sentence": "I decided ___ a new job.",
+          "answer": "to look for",
+          "options": [
+            "to look for",
+            "looking for",
+            "look for",
+            "looked for"
+          ],
+          "explanation_es": "Después de 'decide' el verbo va con 'to'."
+        },
+        {
+          "id": "l6-10",
+          "sentence": "He isn't answering. He ___ be busy.",
+          "answer": "must",
+          "options": [
+            "must",
+            "mustn't",
+            "needn't",
+            "didn't"
+          ],
+          "explanation_es": "Para una deducción casi segura se usa 'must be'."
+        },
+        {
+          "id": "l6-11",
+          "sentence": "She said she ___ tired.",
+          "answer": "was",
+          "options": [
+            "was",
+            "were",
+            "been",
+            "be"
+          ],
+          "explanation_es": "En estilo indirecto el verbo retrocede al pasado: she said she was tired."
+        },
+        {
+          "id": "l6-12",
+          "sentence": "I'm looking forward to ___ you.",
+          "answer": "seeing",
+          "options": [
+            "seeing",
+            "see",
+            "saw",
+            "seen"
+          ],
+          "explanation_es": "En 'look forward to', 'to' es preposición: va seguido de -ing."
+        },
+        {
+          "id": "l6-13",
+          "sentence": "By the time we arrived, the movie ___ started.",
+          "answer": "had",
+          "options": [
+            "had",
+            "has",
+            "have",
+            "is"
+          ],
+          "explanation_es": "Una acción anterior a otra pasada va en pasado perfecto: had started."
+        },
+        {
+          "id": "l6-14",
+          "sentence": "I wish I ___ speak French.",
+          "answer": "could",
+          "options": [
+            "could",
+            "can",
+            "will",
+            "am"
+          ],
+          "explanation_es": "'I wish' para un deseo presente va con pasado: I wish I could."
+        }
+      ]
+    }
+  ]
+}

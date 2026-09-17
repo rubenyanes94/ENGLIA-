@@ -22,8 +22,8 @@ import PagoMovilScreen from "./PagoMovilScreen"
  * formulario genérico con un `switch` dentro.
  */
 const METODOS: { id: BillingProvider; label: string; icon: IconDefinition; tone: string }[] = [
-  { id: "credit_card", label: "Mastercard", icon: faCreditCard, tone: "bg-slate-900 text-white" },
-  { id: "paypal", label: "PayPal", icon: faPaypal, tone: "bg-indigo-500 text-white" },
+  { id: "credit_card", label: "Mastercard", icon: faCreditCard, tone: "bg-ink-900 text-white" },
+  { id: "paypal", label: "PayPal", icon: faPaypal, tone: "bg-brand-500 text-white" },
   { id: "binance_pay", label: "Binance Pay", icon: faBitcoin, tone: "bg-amber-400 text-slate-900" },
   { id: "pago_movil", label: "Pago Móvil (BS)", icon: faMobileScreenButton, tone: "bg-red-500 text-white" },
 ]

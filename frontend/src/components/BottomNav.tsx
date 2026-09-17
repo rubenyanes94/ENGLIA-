@@ -22,7 +22,7 @@ export default function BottomNav() {
             // botón desborda la barra en un móvil de 360px.
             className={({ isActive }) =>
               `flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[10px] font-medium transition ${
-                isActive ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
+                isActive ? "text-brand-600" : "text-slate-400 hover:text-slate-600"
               }`
             }
           >

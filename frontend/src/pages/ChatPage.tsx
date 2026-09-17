@@ -132,7 +132,7 @@ export default function ChatPage() {
           </Link>
         ) : (
           taskId && (
-            <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600">
+            <span className="rounded-full bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-600">
               Practicando: {taskId}
             </span>
           )
@@ -142,12 +142,12 @@ export default function ChatPage() {
       {scenario && (
         <div
           className={`mb-4 rounded-2xl border px-5 py-4 ${
-            scenarioCompleted ? "border-emerald-200 bg-emerald-50" : "border-blue-100 bg-blue-50"
+            scenarioCompleted ? "border-emerald-200 bg-emerald-50" : "border-brand-100 bg-brand-50"
           }`}
         >
           <p
             className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wide ${
-              scenarioCompleted ? "text-emerald-700" : "text-blue-700"
+              scenarioCompleted ? "text-emerald-700" : "text-brand-700"
             }`}
           >
             <FontAwesomeIcon icon={scenarioCompleted ? faCircleCheck : faMasksTheater} />
@@ -179,7 +179,7 @@ export default function ChatPage() {
           <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
               className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[70%] ${
-                msg.role === "user" ? "bg-blue-600 text-white" : "bg-white text-slate-800"
+                msg.role === "user" ? "bg-brand-600 text-white" : "bg-white text-slate-800"
               }`}
             >
               {/* Se avisa de que el mensaje anterior no se procesó, en vez
@@ -247,12 +247,12 @@ export default function ChatPage() {
           onChange={(e) => setInput(e.target.value)}
           disabled={sending}
           placeholder="Escribe en inglés..."
-          className="flex-1 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 shadow-sm outline-none ring-blue-500 focus:ring-2 disabled:opacity-60"
+          className="flex-1 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 shadow-sm outline-none ring-brand-500 focus:ring-2 disabled:opacity-60"
         />
         <button
           type="submit"
           disabled={sending || !input.trim()}
-          className="flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-medium text-white transition active:scale-[0.98] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-200"
+          className="flex items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-sm font-medium text-white transition active:scale-[0.98] hover:bg-brand-500 disabled:cursor-not-allowed disabled:bg-slate-200"
         >
           <FontAwesomeIcon icon={faPaperPlane} />
         </button>

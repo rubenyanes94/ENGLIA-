@@ -45,7 +45,7 @@ export default function CardScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <>
-      <ScreenHeader icon={faCreditCard} tone="bg-slate-900 text-white" title="Vincular Tarjeta" subtitle="Suscripción Premium" />
+      <ScreenHeader icon={faCreditCard} tone="bg-ink-900 text-white" title="Vincular Tarjeta" subtitle="Suscripción Premium" />
 
       <p className="mt-4 text-center text-sm text-slate-500">
         Te llevamos a la pasarela segura para introducir tu tarjeta. Espikin nunca ve ni guarda tus dígitos.
@@ -56,7 +56,7 @@ export default function CardScreen({ onBack }: { onBack: () => void }) {
       <button
         onClick={start}
         disabled={loading}
-        className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500 disabled:opacity-60"
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500 disabled:opacity-60"
       >
         {loading && <FontAwesomeIcon icon={faSpinner} spin />}
         Guardar Método

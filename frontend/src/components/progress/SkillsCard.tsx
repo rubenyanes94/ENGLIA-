@@ -23,7 +23,7 @@ export default function SkillsCard({ data }: { data: SkillBreakdown }) {
     <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-extrabold text-slate-900">Habilidades CEFR</h2>
-        <span className="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-blue-600">
+        <span className="rounded-full bg-brand-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-600">
           Promedio: {Math.round(data.average)}%
         </span>
       </div>
@@ -35,14 +35,14 @@ export default function SkillsCard({ data }: { data: SkillBreakdown }) {
             <div key={key}>
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2 font-semibold text-slate-700">
-                  <FontAwesomeIcon icon={icon} className="w-4 text-blue-500" />
+                  <FontAwesomeIcon icon={icon} className="w-4 text-brand-500" />
                   {label}
                 </span>
-                <span className="font-bold text-blue-600">{value}%</span>
+                <span className="font-bold text-brand-600">{value}%</span>
               </div>
               <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-100">
                 <div
-                  className="h-full rounded-full bg-blue-600 transition-[width] duration-700"
+                  className="h-full rounded-full bg-brand-600 transition-[width] duration-700"
                   style={{ width: `${value}%` }}
                 />
               </div>

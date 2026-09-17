@@ -100,7 +100,7 @@ export default function PagoMovilScreen({ onBack, onDone }: { onBack: () => void
       <button
         onClick={() => setPaso("declarar")}
         disabled={!info?.configured}
-        className="mt-5 w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
+        className="mt-5 w-full rounded-2xl bg-brand-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
       >
         Finalizar
       </button>
@@ -163,7 +163,7 @@ function DeclaracionForm({ onBack, onSuccess }: { onBack: () => void; onSuccess:
         <button
           type="submit"
           disabled={sending}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition active:scale-[0.98] hover:bg-blue-500 disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500 disabled:opacity-60"
         >
           {sending && <FontAwesomeIcon icon={faSpinner} spin />}
           Enviar para verificación
@@ -182,7 +182,7 @@ function Campo({ name, label, ...props }: { name: string; label: string } & Reac
       <input
         name={name}
         {...props}
-        className="mt-1 w-full rounded-xl bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 outline-none ring-blue-500 transition placeholder:text-slate-300 focus:ring-2"
+        className="mt-1 w-full rounded-xl bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 outline-none ring-brand-500 transition placeholder:text-slate-300 focus:ring-2"
       />
     </label>
   )

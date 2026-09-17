@@ -21,7 +21,7 @@ class AgentPersona(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     level_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("cefr_levels.id"))
-    name: Mapped[str] = mapped_column(String(100))  # ej. "Tutor Emma"
+    name: Mapped[str] = mapped_column(String(100))  # ej. "Teacher David"
     system_prompt: Mapped[str] = mapped_column(Text)
     prompt_version: Mapped[int] = mapped_column(Integer, default=1)
     model_id: Mapped[str] = mapped_column(String(255))  # ej. "meta-llama/Llama-3.1-8B-Instruct"
