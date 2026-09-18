@@ -307,6 +307,11 @@ class Settings(BaseSettings):
     # en dos la franja de más uso. Nombre IANA (no un desfase fijo) para que
     # funcione igual con un mercado que sí cambie de horario.
     analytics_timezone: str = "America/Caracas"
+    # Días que se guarda la telemetría técnica (llamadas al modelo,
+    # peticiones HTTP, errores del navegador) antes de podarla. Son tablas
+    # que crecen con cada petición; 30 días cubren cualquier comparación
+    # que se haga desde el panel.
+    monitoring_retention_days: int = 30
 
 
 settings = Settings()

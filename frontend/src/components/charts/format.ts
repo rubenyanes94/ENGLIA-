@@ -82,3 +82,29 @@ export function relativeDays(iso: string | null | undefined, nowIso: string): st
 export function change(current: number, previous: number): number | null {
   return previous ? (current - previous) / previous : null
 }
+
+/** Duración de una llamada: "350 ms" por debajo de un segundo, "1,2 s" por encima. */
+export function duration(ms: number | null | undefined): string {
+  if (ms == null) return NO_DATA
+  return ms < 1000 ? `${intFmt.format(Math.round(ms))} ms` : `${decFmt.format(ms / 1000)} s`
+}
+
+const hourMinute = new Intl.DateTimeFormat(LOCALE, { hour: "2-digit", minute: "2-digit" })
+const dayHourMinute = new Intl.DateTimeFormat(LOCALE, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+
+/** Eje X de las series técnicas: la hora si la ventana cabe en un día,
+ * día + hora si abarca varios, y solo el día a partir de un mes. */
+export function bucketLabel(iso: string, hours: number): string {
+  const d = parseLocal(iso)
+  if (hours <= 24) return hourMinute.format(d)
+  if (hours <= 168) return dayHourMinute.format(d)
+  return dayMonth.format(d)
+}
+
+/** "hace 12 s" / "hace 3 min" para la marca de "actualizado". */
+export function agoShort(date: Date, now: Date): string {
+  const s = Math.max(0, Math.round((now.getTime() - date.getTime()) / 1000))
+  if (s < 60) return `hace ${s} s`
+  return `hace ${Math.floor(s / 60)} min`
+}
+

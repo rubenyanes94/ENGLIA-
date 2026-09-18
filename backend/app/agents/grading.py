@@ -76,7 +76,8 @@ async def grade_open_exercise(prompt: str, student_answer: str, level_code: str,
 
     try:
         result = await ainvoke_serialized(
-            lambda: structured_llm.ainvoke([SystemMessage(content=system_prompt), HumanMessage(content=student_answer)])
+            lambda: structured_llm.ainvoke([SystemMessage(content=system_prompt), HumanMessage(content=student_answer)]),
+            purpose="grading",
         )
     except Exception:
         logger.warning("No se pudo obtener una nota estructurada del LLM para este ejercicio", exc_info=True)

@@ -4,6 +4,11 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { AuthProvider } from './auth/AuthContext'
 import './index.css'
+import { installClientErrorReporting } from './monitoring/reportClientErrors'
+
+// Antes de montar nada: un error durante el primer render también tiene
+// que llegar al panel de gerencia → Sistema.
+installClientErrorReporting()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

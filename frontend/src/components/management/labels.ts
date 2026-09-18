@@ -2,6 +2,7 @@ import {
   faCircleCheck,
   faCircleExclamation,
   faCircleMinus,
+  faCircleQuestion,
   faCircleXmark,
   faSeedling,
   faTriangleExclamation,
@@ -126,3 +127,38 @@ export const TIMELINE_LABELS: Record<string, string> = {
   payment: "Pago",
   subscription_canceled: "Canceló la suscripción",
 }
+
+// --- Sistema (monitoreo técnico) -------------------------------------------
+
+/** Para qué se llamó al modelo (el `purpose` que pone ainvoke_serialized). */
+export const PURPOSE_LABELS: Record<string, string> = {
+  tutor_reply: "Respuesta del tutor",
+  corrections: "Detección de errores",
+  moderation: "Moderación de contenido",
+  task_evaluation: "Evaluación de tareas",
+  grading: "Calificación de respuestas",
+  pronunciation: "Evaluación de pronunciación",
+  session_summary: "Resumen de sesión",
+  embedding: "Embeddings (memoria del tutor)",
+  lesson_script: "Guion de lección",
+  exam_generation: "Generación de exámenes",
+  exam_verification: "Verificación de exámenes",
+  lesson_audio: "Voz de las lecciones",
+  other: "Otras",
+}
+
+export const OPERATION_LABELS: Record<string, string> = { chat: "Chat", embedding: "Embeddings", tts: "Voz" }
+
+export const CHECK_STATUS: Record<string, { label: string; color: string; icon: IconDefinition }> = {
+  ok: { label: "Funciona", color: STATUS.good, icon: faCircleCheck },
+  warning: { label: "Aviso", color: STATUS.warning, icon: faTriangleExclamation },
+  critical: { label: "Falla", color: STATUS.critical, icon: faCircleXmark },
+  unknown: { label: "Sin datos", color: "#94a3b8", icon: faCircleQuestion },
+}
+
+export const FAILURE_SOURCES: Record<string, string> = {
+  llm: "Modelo",
+  http: "API",
+  client: "Navegador",
+}
+

@@ -32,7 +32,9 @@ export default function LineChart({
    * semana): se dibuja atenuado y se rotula "en curso". Sin esto, la
    * bajada natural de un día a medias se lee como una caída real. */
   partialLast?: boolean
-  data: { x: string; values: number[] }[]
+  /** null = sin dato en ese tramo (p. ej. ninguna llamada): la línea se
+   * corta ahí en vez de caer a 0, que diría algo que no pasó. */
+  data: { x: string; values: (number | null)[] }[]
   series: LineSeries[]
   formatValue: (n: number) => string
   formatX: (iso: string) => string
@@ -43,7 +45,7 @@ export default function LineChart({
 
   const innerW = Math.max(10, width - M.left - M.right)
   const innerH = height - M.top - M.bottom
-  const maxValue = Math.max(0, ...data.flatMap((d) => d.values))
+  const maxValue = Math.max(0, ...data.flatMap((d) => d.values.map((v) => v ?? 0)))
   const { max, ticks } = niceScale(maxValue)
   const x = (i: number) => M.left + (data.length <= 1 ? innerW / 2 : (i / (data.length - 1)) * innerW)
   const y = (v: number) => M.top + innerH - (v / max) * innerH
@@ -114,38 +116,60 @@ export default function LineChart({
           )}
 
           {series.map((s, si) => {
-            const points = data.map((d, i) => `${x(i)},${y(d.values[si] ?? 0)}`)
-            const solid = partialLast && data.length > 1 ? points.slice(0, -1) : points
+            // Tramos consecutivos con dato: cada uno es su propia línea.
+            const runs: { i: number; v: number }[][] = []
+            data.forEach((d, i) => {
+              const v = d.values[si]
+              if (v == null) return
+              const run = runs[runs.length - 1]
+              if (run && run[run.length - 1].i === i - 1) run.push({ i, v })
+              else runs.push([{ i, v }])
+            })
+            const pt = (p: { i: number; v: number }) => `${x(p.i)},${y(p.v)}`
             return (
               <g key={s.name}>
-                {single && data.length > 1 && (
-                  <path
-                    d={`M${x(0)},${y(0)} L${points.join(" L")} L${x(last)},${y(0)} Z`}
-                    fill={s.color}
-                    opacity={0.1}
-                  />
-                )}
-                <polyline points={solid.join(" ")} fill="none" stroke={s.color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-                {solid.length < points.length && (
-                  <polyline points={points.slice(-2).join(" ")} fill="none" stroke={s.color} strokeOpacity={0.35} strokeWidth={2} strokeLinecap="round" />
-                )}
+                {runs.map((run) => {
+                  const endsPartial = partialLast && run[run.length - 1].i === last && run.length > 1
+                  const solid = endsPartial ? run.slice(0, -1) : run
+                  return (
+                    <g key={run[0].i}>
+                      {single && run.length > 1 && (
+                        <path
+                          d={`M${x(run[0].i)},${y(0)} L${run.map(pt).join(" L")} L${x(run[run.length - 1].i)},${y(0)} Z`}
+                          fill={s.color}
+                          opacity={0.1}
+                        />
+                      )}
+                      {solid.length === 1 && !endsPartial ? (
+                        <circle cx={x(solid[0].i)} cy={y(solid[0].v)} r={3} fill={s.color} />
+                      ) : (
+                        <polyline points={solid.map(pt).join(" ")} fill="none" stroke={s.color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+                      )}
+                      {endsPartial && (
+                        <polyline points={run.slice(-2).map(pt).join(" ")} fill="none" stroke={s.color} strokeOpacity={0.35} strokeWidth={2} strokeLinecap="round" />
+                      )}
+                    </g>
+                  )
+                })}
               </g>
             )
           })}
 
           {/* Único rótulo directo: el valor más reciente de una serie sola. */}
-          {single && data.length > 0 && hover == null && (
+          {single && data.length > 0 && hover == null && data[last].values[0] != null && (
             <g>
-              <circle cx={x(last)} cy={y(data[last].values[0])} r={4} fill={series[0].color} fillOpacity={partialLast ? 0.4 : 1} stroke={CHROME.surface} strokeWidth={2} />
+              <circle cx={x(last)} cy={y(data[last].values[0] as number)} r={4} fill={series[0].color} fillOpacity={partialLast ? 0.4 : 1} stroke={CHROME.surface} strokeWidth={2} />
             </g>
           )}
 
           {hover != null && data[hover] && (
             <g pointerEvents="none">
               <line x1={x(hover)} x2={x(hover)} y1={M.top} y2={M.top + innerH} stroke={CHROME.axis} strokeWidth={1} />
-              {series.map((s, si) => (
-                <circle key={s.name} cx={x(hover)} cy={y(data[hover].values[si] ?? 0)} r={4} fill={s.color} stroke={CHROME.surface} strokeWidth={2} />
-              ))}
+              {series.map((s, si) =>
+                data[hover].values[si] == null ? null : (
+                  <circle key={s.name} cx={x(hover)} cy={y(data[hover].values[si] as number)} r={4} fill={s.color} stroke={CHROME.surface} strokeWidth={2} />
+                ),
+              )}
             </g>
           )}
         </svg>
@@ -155,7 +179,10 @@ export default function LineChart({
             y={M.top}
             containerWidth={width}
             title={`${formatX(data[hover].x)}${partialLast && hover === last ? " (en curso)" : ""}`}
-            rows={series.map((s, si) => ({ color: s.color, shape: "line", label: s.name, value: formatValue(data[hover].values[si] ?? 0) }))}
+            rows={series.map((s, si) => {
+              const v = data[hover].values[si]
+              return { color: s.color, shape: "line" as const, label: s.name, value: v == null ? "sin datos" : formatValue(v) }
+            })}
           />
         )}
       </div>

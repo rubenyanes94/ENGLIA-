@@ -72,7 +72,8 @@ async def detect_corrections(student_message: str, level_code: str, model_id: st
 
     try:
         result = await ainvoke_serialized(
-            lambda: structured_llm.ainvoke([SystemMessage(content=prompt), HumanMessage(content=student_message)])
+            lambda: structured_llm.ainvoke([SystemMessage(content=prompt), HumanMessage(content=student_message)]),
+            purpose="corrections",
         )
     except Exception:
         logger.warning("No se pudo obtener corrections estructuradas del LLM", exc_info=True)

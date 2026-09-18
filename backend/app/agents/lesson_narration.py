@@ -105,7 +105,7 @@ async def generate_lesson_script(topic: str, level_code: str, persona: AgentPers
                 "Reescríbelo entero corrigiendo exactamente eso, sin cambiar el tema."
             )))
 
-        response = await ainvoke_serialized(lambda: llm.ainvoke(messages))
+        response = await ainvoke_serialized(lambda: llm.ainvoke(messages), purpose="lesson_script")
         script = response.content
         problems = validate_lesson_script(script)
         if not problems:

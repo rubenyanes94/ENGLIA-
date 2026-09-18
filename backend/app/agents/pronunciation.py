@@ -95,5 +95,5 @@ async def evaluate_pronunciation(wav_bytes: bytes, expected: str, level_code: st
         {"type": "audio_url", "audio_url": {"url": f"data:audio/wav;base64,{audio_b64}"}},
     ])
 
-    response = await ainvoke_serialized(lambda: llm.ainvoke([message]))
+    response = await ainvoke_serialized(lambda: llm.ainvoke([message]), purpose="pronunciation")
     return _parse(response.content)

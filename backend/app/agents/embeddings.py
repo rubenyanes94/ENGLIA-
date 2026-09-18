@@ -7,9 +7,10 @@ parecidas a esto" con SQL normal (pgvector) en vez de comparar texto.
 
 import asyncio
 
-from langchain_openai import OpenAIEmbeddings
+from openai import AsyncOpenAI
 
 from app.core.config import settings
+from app.monitoring.llm_metrics import measure_call
 
 # Semáforo PROPIO, ya no el del chat. Se compartía porque los dos modelos
 # vivían en el mismo Ollama y competían por el único hueco que
@@ -19,18 +20,25 @@ from app.core.config import settings
 _embedding_semaphore = asyncio.Semaphore(settings.embedding_max_concurrency)
 
 
-def get_embeddings_client() -> OpenAIEmbeddings:
-    return OpenAIEmbeddings(
+def get_embeddings_client() -> AsyncOpenAI:
+    # El SDK de OpenAI directo y no OpenAIEmbeddings de LangChain: LangChain
+    # tira la cabecera `usage` de la respuesta, y el panel de monitoreo
+    # necesita los tokens reales. Misma petición que antes (modelo + texto,
+    # sin recortar por longitud: NVIDIA no expone su tokenizador).
+    return AsyncOpenAI(
         base_url=settings.embedding_base_url,
         api_key=settings.embedding_api_key or "not-needed-for-local-inference",
-        model=settings.embedding_model,
-        check_embedding_ctx_length=False,  # Ollama no expone tokenizer/tiktoken; lo desactivamos
     )
 
 
 async def embed_text(text: str) -> list[float]:
-    # Serializado igual que antes, pero por su propio semáforo: Ollama con
-    # OLLAMA_MAX_LOADED_MODELS=1 sigue sin tolerar dos peticiones a la vez.
+    # Serializado por su propio semáforo (ver arriba) y medido para el
+    # panel de gerencia → Sistema: latencia, tokens y errores.
     async with _embedding_semaphore:
-        client = get_embeddings_client()
-        return await client.aembed_query(text)
+        async with measure_call(
+            operation="embedding", purpose="embedding", model=settings.embedding_model, input_chars=len(text)
+        ) as metrics:
+            response = await get_embeddings_client().embeddings.create(model=settings.embedding_model, input=[text])
+            if response.usage is not None:
+                metrics["input_tokens"] = response.usage.prompt_tokens
+            return response.data[0].embedding

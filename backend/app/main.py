@@ -9,7 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.db import get_db
 from app.core.redis import redis_client
-from app.routers import admin, auth, billing, chat, events, levels, library, management, modules, pronunciation, sentence_game, users, webhooks
+from app.monitoring.http_metrics import RequestMetricsMiddleware
+from app.routers import admin, auth, billing, chat, events, levels, library, management, modules, monitoring, pronunciation, sentence_game, users, webhooks
 
 app = FastAPI(title="English Academy API", version="0.1.0")
 
@@ -22,6 +23,12 @@ app.mount("/media", StaticFiles(directory=settings.media_root), name="media")
 # En desarrollo permitimos cualquier origen para que React (puerto 5173)
 # pueda llamar a la API (puerto 8000) sin bloqueos de CORS.
 # En producción esto se restringe al dominio real del frontend.
+# Registra ruta, código y duración de cada petición para el panel de
+# gerencia → Sistema (ver app/monitoring/http_metrics.py). Se añade antes
+# que CORS, así que queda POR DENTRO: mide lo que tarda la API, no las
+# respuestas de preflight que CORS contesta sin llegar a los endpoints.
+app.add_middleware(RequestMetricsMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -39,6 +46,8 @@ app.include_router(pronunciation.router)
 app.include_router(users.router)
 app.include_router(admin.router)
 app.include_router(management.router)
+app.include_router(monitoring.router)
+app.include_router(monitoring.public_router)
 app.include_router(events.router)
 app.include_router(billing.router)
 app.include_router(webhooks.router)
