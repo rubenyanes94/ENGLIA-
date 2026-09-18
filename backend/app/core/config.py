@@ -300,5 +300,13 @@ class Settings(BaseSettings):
     binance_pay_api_secret: str = ""
     binance_pay_api_base: str = "https://bpay.binanceapi.com"
 
+    # --- Panel de gerencia ---
+    # Zona horaria del NEGOCIO para la analítica. Las fechas se guardan en
+    # UTC; sin convertir, "a qué hora estudian" saldría desplazado 4 horas
+    # y el corte de "un día" caería a las 8 de la noche de Caracas, partiendo
+    # en dos la franja de más uso. Nombre IANA (no un desfase fijo) para que
+    # funcione igual con un mercado que sí cambie de horario.
+    analytics_timezone: str = "America/Caracas"
+
 
 settings = Settings()
