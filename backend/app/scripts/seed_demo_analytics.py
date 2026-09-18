@@ -255,6 +255,11 @@ async def seed() -> None:
                     module_id=practice_module.id if practice_module else None,
                     flash_course_id=rng.choice(flash_courses).id if use_library else None,
                     started_at=start, ended_at=ended,
+                    # Una sesión cerrada sin resumen es la huella de un worker
+                    # caído, y el panel de Sistema la marca como fallo. La demo
+                    # simula un worker sano: resumen de relleno SIN embedding,
+                    # así la memoria del tutor (que exige embedding) la ignora.
+                    summary="(resumen de demostración)" if ended else None,
                 ))
                 if practice_module is not None and rng.random() < 0.7:
                     events.append(dict(
