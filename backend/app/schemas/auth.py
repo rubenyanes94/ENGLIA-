@@ -25,6 +25,10 @@ class UserOut(BaseModel):
     current_level_id: uuid.UUID | None
     avatar_url: str | None = None
     notifications_enabled: bool = True
+    # "student" | "admin" | "manager". Lo necesita el frontend para mandar a
+    # la cuenta de gerencia a su panel en vez de al aula. No es un secreto:
+    # la autorización real la hace el backend en cada endpoint (deps.py).
+    role: str = "student"
 
 
 class UserAdminOut(BaseModel):

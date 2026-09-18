@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.db import get_db
 from app.core.redis import redis_client
-from app.routers import admin, auth, billing, chat, events, levels, library, modules, pronunciation, sentence_game, users, webhooks
+from app.routers import admin, auth, billing, chat, events, levels, library, management, modules, pronunciation, sentence_game, users, webhooks
 
 app = FastAPI(title="English Academy API", version="0.1.0")
 
@@ -38,6 +38,7 @@ app.include_router(sentence_game.router)
 app.include_router(pronunciation.router)
 app.include_router(users.router)
 app.include_router(admin.router)
+app.include_router(management.router)
 app.include_router(events.router)
 app.include_router(billing.router)
 app.include_router(webhooks.router)

@@ -141,6 +141,10 @@ export interface User {
   // URL relativa servida por el backend en /media/avatars/... — null si el
   // alumno no ha subido foto (se pinta la inicial de su nombre).
   avatar_url: string | null
+  // "manager" (gerencia) entra a /gerencia y a nada más; "admin" puede ver
+  // las dos zonas. Solo decide a DÓNDE se navega: los permisos de verdad
+  // los comprueba el backend en cada endpoint.
+  role: "student" | "admin" | "manager"
 }
 
 export interface Tutor {

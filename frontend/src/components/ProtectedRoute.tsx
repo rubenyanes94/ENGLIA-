@@ -16,6 +16,9 @@ export default function ProtectedRoute() {
   }
 
   if (!user) return <Navigate to="/login" replace />
+  // La cuenta de gerencia solo ve el panel de gerencia: cualquier ruta del
+  // aula (incluido el /dashboard al que manda el login) la lleva allí.
+  if (user.role === "manager") return <Navigate to="/gerencia" replace />
 
   return <Outlet />
 }

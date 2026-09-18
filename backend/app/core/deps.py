@@ -60,6 +60,23 @@ async def get_current_admin(current_user: User = Depends(get_current_user)) -> U
     return current_user
 
 
+# Quién puede ver el panel de gerencia. "admin" entra también: quien puede
+# aprobar pagos y editar el currículo no tiene por qué pedir otra cuenta
+# para ver las cifras. Lo contrario no: "manager" solo LEE analítica y
+# get_current_admin lo sigue rechazando, así que no puede tocar contenido,
+# aprobar pagos ni ver el listado de /admin.
+MANAGEMENT_ROLES = ("manager", "admin")
+
+
+async def get_current_manager(current_user: User = Depends(get_current_user)) -> User:
+    """Guarda del panel de gerencia (routers/management.py). Mismo patrón
+    que get_current_admin: 401 si el token no vale, 403 si vale pero el
+    rol no es de gerencia."""
+    if current_user.role not in MANAGEMENT_ROLES:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Requiere acceso de gerencia.")
+    return current_user
+
+
 async def require_active_subscription(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
