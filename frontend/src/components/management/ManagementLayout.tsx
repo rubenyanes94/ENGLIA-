@@ -2,6 +2,7 @@ import {
   faArrowsRotate,
   faChartColumn,
   faGaugeHigh,
+  faHeartPulse,
   faRightFromBracket,
   faRoute,
   faSackDollar,
@@ -21,6 +22,7 @@ export const MANAGEMENT_NAV = [
   { to: "/gerencia/retencion", label: "Retención", icon: faArrowsRotate, end: true },
   { to: "/gerencia/ingresos", label: "Ingresos", icon: faSackDollar, end: true },
   { to: "/gerencia/clientes", label: "Clientes", icon: faUsers, end: false },
+  { to: "/gerencia/sistema", label: "Sistema", icon: faHeartPulse, end: true },
 ]
 
 /** Marco del panel de gerencia. Aparte del Layout del alumno a propósito:
