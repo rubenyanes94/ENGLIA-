@@ -1,6 +1,8 @@
-import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons"
+import { faChartPie, faRightFromBracket } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { useEffect, useRef } from "react"
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { api } from "../api/client"
 import { useAuth } from "../auth/AuthContext"
 import AppFooter from "./AppFooter"
 import Avatar from "./Avatar"
@@ -17,6 +19,23 @@ export default function Layout() {
   // tiene su propio scroll); un footer debajo obligaría a desplazar la
   // página entera para ver lo que se escribe.
   const showFooter = !pathname.startsWith("/chat")
+
+  // Qué pantallas abre cada alumno: es la materia prima del "journey" y de
+  // "pantallas más visitadas" en el panel de gerencia. Solo alumnos (los
+  // clics de un admin probando la app falsearían las cifras) y con la ruta
+  // normalizada, para que /modules/<id> cuente como UNA pantalla y no como
+  // cien. Si falla, se ignora: medir nunca puede romper la app.
+  //
+  // `lastTracked` evita el doble registro: en desarrollo, StrictMode ejecuta
+  // cada efecto dos veces y cada visita salía duplicada en el panel. Solo
+  // se salta la MISMA ruta consecutiva, así que ir a Inicio, luego a
+  // Classroom y volver a Inicio sigue contando las tres visitas.
+  const lastTracked = useRef<string | null>(null)
+  useEffect(() => {
+    if (user?.role !== "student" || lastTracked.current === pathname) return
+    lastTracked.current = pathname
+    void api.post("/events", { event_type: "page_viewed", payload: { path: screenKey(pathname) } }).catch(() => {})
+  }, [pathname, user?.role])
 
   function handleLogout() {
     logout()
@@ -54,6 +73,15 @@ export default function Layout() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-3">
+            {user?.role === "admin" && (
+              <Link
+                to="/gerencia"
+                className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 md:flex"
+              >
+                <FontAwesomeIcon icon={faChartPie} className="text-xs" />
+                Gerencia
+              </Link>
+            )}
             {user && (
               <span className="hidden text-sm text-slate-500 lg:inline">{user.full_name}</span>
             )}
@@ -82,4 +110,11 @@ export default function Layout() {
       <BottomNav />
     </div>
   )
+}
+
+/** "/modules/9d3b…" → "/modules/:id"; "/library/ingles-petroleros" → "/library/:slug". */
+function screenKey(pathname: string): string {
+  if (pathname.startsWith("/modules/")) return "/modules/:id"
+  if (pathname.startsWith("/library/")) return "/library/:slug"
+  return pathname
 }
