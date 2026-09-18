@@ -235,7 +235,8 @@ async def verify_answer_key(questions: list[dict]) -> dict[int, str]:
         for index, question in enumerate(questions, start=1)
     )
     response = await ainvoke_serialized(
-        lambda: llm.ainvoke([HumanMessage(content=VERIFY_PROMPT.format(questions=listing))])
+        lambda: llm.ainvoke([HumanMessage(content=VERIFY_PROMPT.format(questions=listing))]),
+        purpose="exam_verification",
     )
 
     match = re.search(r"\{.*\}", response.content, re.DOTALL)
@@ -314,7 +315,8 @@ async def generate_module_exam(
             )
 
         response = await ainvoke_serialized(
-            lambda: llm.ainvoke([SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=request)])
+            lambda: llm.ainvoke([SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=request)]),
+            purpose="exam_generation",
         )
         try:
             candidates = _parse(response.content)

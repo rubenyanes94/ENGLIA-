@@ -85,7 +85,7 @@ async def moderate_turn(student_message: str, tutor_reply: str | None) -> Modera
         messages.append(AIMessage(content=tutor_reply))
 
     try:
-        response = await ainvoke_serialized(lambda: llm.ainvoke(messages))
+        response = await ainvoke_serialized(lambda: llm.ainvoke(messages), purpose="moderation")
         return _parse(response.content)
     except Exception as exc:  # noqa: BLE001 — ver "falla en abierto" arriba
         logger.warning("Moderación no disponible, el turno pasa sin revisar: %s", exc)

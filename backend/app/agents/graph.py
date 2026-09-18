@@ -75,7 +75,7 @@ class TutorState(TypedDict):
 async def generate_response(state: TutorState) -> dict:
     llm = get_llm(model_id=state["model_id"], temperature=state["temperature"])
     messages = [SystemMessage(content=state["system_prompt"]), *state["messages"]]
-    response = await ainvoke_serialized(lambda: llm.ainvoke(messages))
+    response = await ainvoke_serialized(lambda: llm.ainvoke(messages), purpose="tutor_reply")
     return {"messages": [response]}
 
 

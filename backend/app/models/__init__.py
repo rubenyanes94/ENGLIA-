@@ -12,6 +12,7 @@ from app.models.exercise import Exercise, ExerciseAttempt
 from app.models.flash_course import FlashCourse, FlashCourseProgress
 from app.models.lesson import Lesson
 from app.models.module import Module
+from app.models.monitoring import ClientError, LLMCall, RequestLog
 from app.models.payment import Payment
 from app.models.plan import Plan
 from app.models.sentence_game import SentenceGameProgress
@@ -22,6 +23,7 @@ from app.models.user_event import UserEvent
 __all__ = [
     "AgentPersona",
     "CEFRLevel",
+    "ClientError",
     "ConversationMessage",
     "ConversationSession",
     "Descriptor",
@@ -31,10 +33,12 @@ __all__ = [
     "ExerciseAttempt",
     "FlashCourse",
     "FlashCourseProgress",
+    "LLMCall",
     "Lesson",
     "Module",
     "Payment",
     "Plan",
+    "RequestLog",
     "SentenceGameProgress",
     "Subscription",
     "User",

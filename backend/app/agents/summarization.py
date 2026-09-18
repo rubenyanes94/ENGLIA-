@@ -4,6 +4,7 @@ como memoria semántica de largo plazo (ver app/workers/tasks.py)."""
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from app.agents.llm_client import get_llm
+from app.monitoring.llm_metrics import inference_purpose
 
 SUMMARY_SYSTEM_PROMPT = """\
 A continuación recibirás la TRANSCRIPCIÓN COMPLETA de una sesión ya \
@@ -35,7 +36,10 @@ Ahora escribe el resumen de la transcripción real que recibas a continuación.
 
 async def summarize_transcript(transcript: str, model_id: str) -> str:
     llm = get_llm(model_id=model_id, temperature=0.3)
-    response = await llm.ainvoke(
-        [SystemMessage(content=SUMMARY_SYSTEM_PROMPT), HumanMessage(content=transcript)]
-    )
+    # Corre en el worker de Celery, fuera de ainvoke_serialized: se etiqueta
+    # a mano para que el panel de monitoreo sepa de dónde viene la llamada.
+    with inference_purpose("session_summary"):
+        response = await llm.ainvoke(
+            [SystemMessage(content=SUMMARY_SYSTEM_PROMPT), HumanMessage(content=transcript)]
+        )
     return response.content

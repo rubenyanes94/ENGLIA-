@@ -79,7 +79,8 @@ async def evaluate_task(
 
     try:
         return await ainvoke_serialized(
-            lambda: structured_llm.ainvoke([SystemMessage(content=prompt), HumanMessage(content=student_message)])
+            lambda: structured_llm.ainvoke([SystemMessage(content=prompt), HumanMessage(content=student_message)]),
+            purpose="task_evaluation",
         )
     except Exception:
         logger.warning("No se pudo evaluar la tarea activa con el LLM", exc_info=True)

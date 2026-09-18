@@ -1,12 +1,14 @@
 import asyncio
 import logging
 import random
+import time
 from typing import Awaitable, Callable, TypeVar
 
 from openai import APIConnectionError, APITimeoutError, InternalServerError, RateLimitError
 from langchain_openai import ChatOpenAI
 
 from app.core.config import settings
+from app.monitoring.llm_metrics import LLMMetricsCallback, logical_call, set_attempt
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +38,7 @@ RETRYABLE_ERRORS = (InternalServerError, RateLimitError, APIConnectionError, API
 _inference_semaphore = asyncio.Semaphore(settings.llm_max_concurrency)
 
 
-async def ainvoke_serialized(call: Callable[[], Awaitable[T]]) -> T:
+async def ainvoke_serialized(call: Callable[[], Awaitable[T]], purpose: str = "other") -> T:
     """Ejecuta `call` (una llamada async ya armada, ej. `lambda: llm.ainvoke(messages)`)
     sin dejar que compita por el motor de inferencia con otra llamada
     concurrente — ver el porqué en `_inference_semaphore` — y reintentando
@@ -56,10 +58,23 @@ async def ainvoke_serialized(call: Callable[[], Awaitable[T]]) -> T:
     La espera crece (1s, 2s, 4s...) y lleva jitter aleatorio: si varios
     alumnos se topan con la misma caída, reintentar todos a la vez en el
     mismo instante es justo lo que impide que el proveedor se recupere.
+
+    `purpose` ("tutor_reply", "corrections"...) etiqueta la llamada para el
+    panel de monitoreo (ver app/monitoring/llm_metrics.py): todos sus
+    intentos comparten un id, y cada uno anota cuánto esperó su turno en
+    el semáforo — si esa espera crece, el cuello de botella es
+    llm_max_concurrency, no NVIDIA.
     """
+    with logical_call(purpose):
+        return await _invoke_with_retries(call)
+
+
+async def _invoke_with_retries(call: Callable[[], Awaitable[T]]) -> T:
     last_error: Exception | None = None
     for attempt in range(settings.llm_max_retries + 1):
+        waiting_since = time.perf_counter()
         async with _inference_semaphore:
+            set_attempt(attempt + 1, int((time.perf_counter() - waiting_since) * 1000))
             try:
                 return await call()
             except RETRYABLE_ERRORS as exc:
@@ -124,10 +139,15 @@ def get_llm(model_id: str | None = None, temperature: float = 0.6, max_tokens: i
     if settings.llm_enable_thinking is not None:
         extra_body["chat_template_kwargs"] = {"enable_thinking": settings.llm_enable_thinking}
 
+    model = model_id or settings.llm_model
     return ChatOpenAI(
         base_url=settings.llm_base_url,
         api_key=settings.llm_api_key or "not-needed-for-local-inference",
-        model=model_id or settings.llm_model,
+        model=model,
         temperature=temperature,
         extra_body=extra_body,
+        # Mide latencia, tokens y errores de cada llamada para el panel de
+        # gerencia → Sistema. No cambia la respuesta ni su tiempo (salvo
+        # el insert de una fila al acabar, del orden de milisegundos).
+        callbacks=[LLMMetricsCallback(default_model=model)],
     )

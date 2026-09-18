@@ -11,6 +11,7 @@ biblioteca de guiones ya escrita siga sirviendo si se cambia de motor.
 """
 
 from app.core.config import settings
+from app.monitoring.llm_metrics import measure_call
 from app.media.wav import get_wav_duration_seconds  # noqa: F401 — re-exportado
 
 PROVIDERS = ("piper", "magpie")
@@ -23,14 +24,18 @@ async def synthesize_bilingual_to_wav(script: str) -> tuple[bytes, list[dict]]:
     # Import perezoso y no arriba: importar magpie_tts arrastra el cliente
     # gRPC de Riva, y importar piper_tts carga la librería ONNX. Quien use
     # solo uno de los dos motores no debería pagar el arranque del otro.
-    if settings.tts_provider == "magpie":
-        from app.media import magpie_tts
+    if settings.tts_provider not in PROVIDERS:
+        raise ValueError(f"TTS_PROVIDER desconocido: {settings.tts_provider!r}. Opciones: {PROVIDERS}.")
 
-        return await magpie_tts.synthesize_bilingual_to_wav(script)
+    # Medido para el panel de gerencia → Sistema. La voz no tiene tokens:
+    # se registra en caracteres narrados, que es por lo que escala su coste.
+    model = f"magpie:{settings.magpie_voice_es}" if settings.tts_provider == "magpie" else "piper (local)"
+    async with measure_call(operation="tts", purpose="lesson_audio", model=model, input_chars=len(script)):
+        if settings.tts_provider == "magpie":
+            from app.media import magpie_tts
 
-    if settings.tts_provider == "piper":
+            return await magpie_tts.synthesize_bilingual_to_wav(script)
+
         from app.media import piper_tts
 
         return await piper_tts.synthesize_bilingual_to_wav(script)
-
-    raise ValueError(f"TTS_PROVIDER desconocido: {settings.tts_provider!r}. Opciones: {PROVIDERS}.")
