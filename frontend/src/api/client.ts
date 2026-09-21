@@ -21,6 +21,9 @@ export const API_URL = import.meta.env.VITE_API_URL ?? "/api"
 
 const TOKEN_STORAGE_KEY = "englia_token"
 
+/** Lo emite `request` al recibir un 402 (candado de pago); lo escucha AuthContext. */
+export const PAYMENT_REQUIRED_EVENT = "espikin:payment-required"
+
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_STORAGE_KEY)
 }
@@ -61,6 +64,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     } catch {
       // Respuesta sin JSON (ej. 502 de un proxy) — nos quedamos con el detail genérico.
     }
+    // 402 = el candado de pago (pago rechazado a mitad de sesión, por
+    // ejemplo). Se avisa a AuthContext para que refresque el usuario y
+    // ProtectedRoute lo lleve a /suscripcion, en vez de dejarlo en una
+    // pantalla que falla sin explicar por qué.
+    if (res.status === 402) window.dispatchEvent(new Event(PAYMENT_REQUIRED_EVENT))
     throw new ApiError(res.status, detail as never)
   }
 

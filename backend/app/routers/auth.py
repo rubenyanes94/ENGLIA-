@@ -7,7 +7,8 @@ from app.core.deps import get_current_user
 from app.core.security import create_access_token, verify_password
 from app.models import User
 from app.repositories import user_repository
-from app.schemas.auth import RegisterRequest, TokenResponse, UserOut
+from app.schemas.auth import AccessOut, RegisterRequest, TokenResponse, UserOut
+from app.services.access import access_status
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -47,5 +48,13 @@ async def login(
 
 
 @router.get("/me", response_model=UserOut)
-async def read_current_user(current_user: User = Depends(get_current_user)) -> User:
-    return current_user
+async def read_current_user(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> UserOut:
+    """El usuario y si puede usar la app (el candado de pago). El frontend
+    decide con esto a dónde mandarlo: al aula o a la pantalla de pago."""
+    access = await access_status(db, current_user)
+    user = UserOut.model_validate(current_user)
+    user.access = AccessOut(**access.__dict__)
+    return user

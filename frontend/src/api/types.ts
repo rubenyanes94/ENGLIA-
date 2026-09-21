@@ -145,6 +145,13 @@ export interface User {
   // las dos zonas. Solo decide a DÓNDE se navega: los permisos de verdad
   // los comprueba el backend en cada endpoint.
   role: "student" | "admin" | "manager"
+  /** Si puede usar la app de alumno (el candado de pago; ver
+   * backend/app/services/access.py). Solo lo trae /auth/me. */
+  access?: {
+    has_access: boolean
+    reason: "staff" | "exempt" | "subscription" | "pending_payment" | null
+    last_rejection_reason: string | null
+  } | null
 }
 
 export interface Tutor {

@@ -1,9 +1,11 @@
 import { faCircleCheck, faCircleXmark, faClock, faSpinner } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { api } from "../api/client"
 import type { MySubscription } from "../api/types"
+import { useAuth } from "../auth/AuthContext"
+import AuthShell from "../components/auth/AuthShell"
 import BillingModal from "../components/billing/BillingModal"
 import { METHODS } from "../components/billing/methods"
 
@@ -17,12 +19,37 @@ const POLL_MAX_MS = 60_000
  * return_url en app/billing/). Sin estas rutas, quien acababa de pagar
  * aterrizaba en la portada sin saber si el pago había funcionado. */
 export default function BillingReturnPage({ outcome }: { outcome: "success" | "cancel" }) {
+  // En el marco del registro y no dentro del aula: quien vuelve de pagar su
+  // primera suscripción todavía no tiene acceso a la app.
   return (
-    <div className="mx-auto max-w-lg py-6 sm:py-12">
+    <AuthShell>
       <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
         {outcome === "success" ? <Success /> : <Canceled />}
       </div>
-    </div>
+    </AuthShell>
+  )
+}
+
+/** "Ir a mi aula" refrescando el usuario ANTES de navegar: con el de
+ * memoria (todavía sin acceso) el candado lo devolvería a /suscripcion. */
+function EnterAppButton({ label = "Ir a mi aula" }: { label?: string }) {
+  const { refreshUser } = useAuth()
+  const navigate = useNavigate()
+  const [busy, setBusy] = useState(false)
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={async () => {
+        setBusy(true)
+        await refreshUser()
+        navigate("/dashboard", { replace: true })
+      }}
+      className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-600 px-6 py-3 font-semibold text-white transition hover:bg-brand-500 disabled:opacity-60"
+    >
+      {busy && <FontAwesomeIcon icon={faSpinner} spin />}
+      {label}
+    </button>
   )
 }
 
@@ -58,14 +85,12 @@ function Success() {
     return (
       <>
         <FontAwesomeIcon icon={faCircleCheck} className="text-5xl text-emerald-500" />
-        <h1 className="mt-4 text-2xl font-extrabold text-slate-900">¡Tu suscripción está activa!</h1>
+        <h1 className="mt-4 text-2xl font-extrabold text-slate-900">¡Pago aceptado!</h1>
         <p className="mt-2 text-slate-500">
           {s.plan.name} con {method}.
           {until && (s.auto_renew ? ` Se renueva sola el ${until}.` : ` Tienes acceso hasta el ${until}.`)}
         </p>
-        <Link to="/dashboard" className="mt-6 inline-flex rounded-full bg-brand-600 px-6 py-3 font-semibold text-white transition hover:bg-brand-500">
-          Ir a mi aula
-        </Link>
+        <EnterAppButton />
       </>
     )
   }
@@ -79,9 +104,7 @@ function Success() {
           La pasarela todavía no nos ha confirmado el cobro. Suele tardar solo unos minutos: tu acceso se activará solo, y
           mientras tanto puedes seguir usando la app.
         </p>
-        <Link to="/dashboard" className="mt-6 inline-flex rounded-full bg-brand-600 px-6 py-3 font-semibold text-white transition hover:bg-brand-500">
-          Ir a mi aula
-        </Link>
+        <EnterAppButton />
       </>
     )
   }
@@ -96,23 +119,35 @@ function Success() {
 }
 
 function Canceled() {
+  const { user } = useAuth()
   const [billingOpen, setBillingOpen] = useState(false)
+  // Sin acceso (era su primera suscripción): volver al paso de pago. Con
+  // acceso (renovaba desde el perfil): elegir otro método o volver al aula.
+  const hasAccess = user?.access?.has_access === true
   return (
     <>
       <FontAwesomeIcon icon={faCircleXmark} className="text-5xl text-slate-300" />
       <h1 className="mt-4 text-2xl font-extrabold text-slate-900">No se completó el pago</h1>
       <p className="mt-2 text-slate-500">No te hemos cobrado nada. Puedes intentarlo otra vez o elegir otro método.</p>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-        <button
-          type="button"
-          onClick={() => setBillingOpen(true)}
-          className="rounded-full bg-brand-600 px-6 py-3 font-semibold text-white transition hover:bg-brand-500"
-        >
-          Elegir método de pago
-        </button>
-        <Link to="/dashboard" className="rounded-full px-6 py-3 font-semibold text-slate-600 transition hover:bg-slate-100">
-          Ir a mi aula
-        </Link>
+        {hasAccess ? (
+          <>
+            <button
+              type="button"
+              onClick={() => setBillingOpen(true)}
+              className="rounded-full bg-brand-600 px-6 py-3 font-semibold text-white transition hover:bg-brand-500"
+            >
+              Elegir método de pago
+            </button>
+            <Link to="/dashboard" className="rounded-full px-6 py-3 font-semibold text-slate-600 transition hover:bg-slate-100">
+              Ir a mi aula
+            </Link>
+          </>
+        ) : (
+          <Link to="/suscripcion" className="rounded-full bg-brand-600 px-6 py-3 font-semibold text-white transition hover:bg-brand-500">
+            Volver a elegir cómo pagar
+          </Link>
+        )}
       </div>
       {billingOpen && <BillingModal onClose={() => setBillingOpen(false)} />}
     </>

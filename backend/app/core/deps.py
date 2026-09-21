@@ -8,7 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.core.security import decode_access_token
 from app.models import User
-from app.repositories import subscription_repository, user_repository
+from app.repositories import user_repository
+from app.services.access import access_status
 
 # tokenUrl es solo informativo (lo usa /docs para dibujar el botón
 # "Authorize"): le dice a Swagger dónde se consigue el token, aunque
@@ -78,26 +79,26 @@ async def get_current_manager(current_user: User = Depends(get_current_user)) ->
     return current_user
 
 
-async def require_active_subscription(
+async def require_access(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    """El candado de pago, listo para enganchar — pero a propósito TODAVÍA
-    NO está en ningún router (curriculum, chat...). Se decidió así
-    mientras seguimos construyendo/probando el resto del backend sin que
-    cada request de prueba necesite antes una suscripción real de por
-    medio. Para activarlo en un endpoint: cambia
-    `Depends(get_current_user)` por `Depends(require_active_subscription)`
-    (ya incluye la autenticación, no hace falta encadenar las dos).
+    """El candado de pago de la app de alumno: 402 si el usuario no tiene
+    acceso (ver la regla completa en app/services/access.py — suscripción,
+    exento, equipo, o pago manual pendiente de verificar).
 
-    402 Payment Required en vez de 403: son casos distintos a propósito
-    — 403 es "no tienes permiso aunque pagues", 402 es literalmente
-    "esto se resuelve pagando".
+    Se engancha a nivel de router (chat, módulos, biblioteca, juego,
+    pronunciación, /users/me) y no solo en el frontend: sin esto, el
+    candado de la pantalla se saltaba llamando a la API directamente.
+
+    402 Payment Required y no 403: son casos distintos a propósito — 403
+    es "no tienes permiso aunque pagues", 402 es "esto se resuelve pagando".
+    Incluye la autenticación: no hace falta encadenar get_current_user.
     """
-    subscription = await subscription_repository.get_active(db, current_user.id)
-    if subscription is None:
+    status_ = await access_status(db, current_user)
+    if not status_.has_access:
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail="Necesitas una suscripción activa para acceder a este contenido.",
+            detail="Necesitas una suscripción activa para usar la app.",
         )
     return current_user

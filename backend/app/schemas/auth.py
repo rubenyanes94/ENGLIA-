@@ -15,6 +15,14 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
+class AccessOut(BaseModel):
+    """Si puede usar la app de alumno y por qué (ver app/services/access.py)."""
+
+    has_access: bool
+    reason: str | None  # staff | exempt | subscription | pending_payment
+    last_rejection_reason: str | None = None
+
+
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -29,6 +37,9 @@ class UserOut(BaseModel):
     # la cuenta de gerencia a su panel en vez de al aula. No es un secreto:
     # la autorización real la hace el backend en cada endpoint (deps.py).
     role: str = "student"
+    # Solo lo rellena /auth/me (es la fuente del candado en el frontend).
+    # Los demás endpoints que devuelven UserOut lo dejan en None.
+    access: AccessOut | None = None
 
 
 class UserAdminOut(BaseModel):

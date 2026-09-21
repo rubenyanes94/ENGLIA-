@@ -27,11 +27,16 @@ export default function PagoMovilScreen({
   plan,
   onBack,
   onDone,
+  onDeclared,
   doneLabel = "Cerrar",
 }: {
   plan: Plan
   onBack: () => void
   onDone: () => void
+  /** Si se pasa, al declarar el pago se llama esto en vez de mostrar la
+   * confirmación en la propia pantalla (el registro abre su modal de
+   * "pago recibido" y da paso a la app). */
+  onDeclared?: () => void
   /** Texto del botón final: "Cerrar" en el modal, "Ir a mi aula" en el registro. */
   doneLabel?: string
 }) {
@@ -70,7 +75,7 @@ export default function PagoMovilScreen({
   }
 
   if (paso === "declarar") {
-    return <DeclaracionForm plan={plan} amountBs={info?.amount_bs ?? null} onBack={() => setPaso("datos")} onSuccess={() => setPaso("listo")} />
+    return <DeclaracionForm plan={plan} amountBs={info?.amount_bs ?? null} onBack={() => setPaso("datos")} onSuccess={() => (onDeclared ? onDeclared() : setPaso("listo"))} />
   }
 
   return (

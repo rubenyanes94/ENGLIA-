@@ -23,11 +23,14 @@ import PayPalScreen from "./PayPalScreen"
 export default function PaymentMethodPicker({
   options,
   onDone,
+  onDeclared,
   doneLabel,
 }: {
   options: BillingOptions
   /** Cuando el alumno termina un pago que no sale de la página (Pago Móvil declarado). */
   onDone: () => void
+  /** Ver PagoMovilScreen: sustituye la confirmación en pantalla por la del llamador. */
+  onDeclared?: (method: BillingProvider) => void
   doneLabel?: string
 }) {
   const [selected, setSelected] = useState<BillingProvider | null>(null)
@@ -44,10 +47,19 @@ export default function PaymentMethodPicker({
     return mode === "merchant" ? (
       <BinanceScreen plan={plan} onBack={back} />
     ) : (
-      <BinancePersonalScreen plan={plan} onBack={back} onDone={onDone} doneLabel={doneLabel} />
+      <BinancePersonalScreen
+        plan={plan}
+        onBack={back}
+        onDone={onDone}
+        doneLabel={doneLabel}
+        onDeclared={onDeclared && (() => onDeclared("binance_pay"))}
+      />
     )
   }
-  if (selected === "pago_movil") return <PagoMovilScreen plan={plan} onBack={back} onDone={onDone} doneLabel={doneLabel} />
+  if (selected === "pago_movil")
+    return (
+      <PagoMovilScreen plan={plan} onBack={back} onDone={onDone} doneLabel={doneLabel} onDeclared={onDeclared && (() => onDeclared("pago_movil"))} />
+    )
 
   const anyAvailable = options.methods.some((m) => m.available)
 

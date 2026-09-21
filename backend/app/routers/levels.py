@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
-from app.core.deps import get_current_user
+from app.core.deps import require_access
 from app.models import User
 from app.repositories import (
     descriptor_repository,
@@ -68,7 +68,7 @@ async def get_level_descriptors(level_code: str, db: AsyncSession = Depends(get_
 @router.get("/{level_code}/certification-progress", response_model=CertificationProgressOut)
 async def get_certification_progress(
     level_code: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_access),
     db: AsyncSession = Depends(get_db),
 ) -> CertificationProgressOut:
     """El mapa de progreso hacia certificar un nivel: estado de cada

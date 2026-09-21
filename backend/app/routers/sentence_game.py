@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, require_access
 from app.models import SentenceGameProgress, User
 from app.schemas.sentence_game import GameAnswerIn, GameAnswerOut, GameItemOut, GameNextOut, GameStateOut
 from app.services import sentence_game as game
 
-router = APIRouter(prefix="/game/sentences", tags=["game"])
+router = APIRouter(prefix="/game/sentences", tags=["game"], dependencies=[Depends(require_access)])
 
 
 def _state(progress: SentenceGameProgress) -> GameStateOut:

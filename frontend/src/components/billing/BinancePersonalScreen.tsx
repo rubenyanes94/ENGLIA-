@@ -27,11 +27,16 @@ export default function BinancePersonalScreen({
   plan,
   onBack,
   onDone,
+  onDeclared,
   doneLabel = "Cerrar",
 }: {
   plan: Plan
   onBack: () => void
   onDone: () => void
+  /** Si se pasa, al declarar el pago se llama esto en vez de mostrar la
+   * confirmación en la propia pantalla (el registro abre su modal de
+   * "pago recibido" y da paso a la app). */
+  onDeclared?: () => void
   doneLabel?: string
 }) {
   const [paso, setPaso] = useState<Paso>("datos")
@@ -68,7 +73,7 @@ export default function BinancePersonalScreen({
   }
 
   if (paso === "declarar" && info) {
-    return <DeclaracionForm plan={plan} info={info} onBack={() => setPaso("datos")} onSuccess={() => setPaso("listo")} />
+    return <DeclaracionForm plan={plan} info={info} onBack={() => setPaso("datos")} onSuccess={() => (onDeclared ? onDeclared() : setPaso("listo"))} />
   }
 
   const amount = info ? `${info.amount} ${info.asset}` : ""

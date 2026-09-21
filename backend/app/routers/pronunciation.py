@@ -12,11 +12,11 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, s
 
 from app.agents.pronunciation import evaluate_pronunciation
 from app.core.config import settings
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, require_access
 from app.models import User
 from app.schemas.pronunciation import PronunciationFeedbackOut
 
-router = APIRouter(prefix="/pronunciation", tags=["pronunciation"])
+router = APIRouter(prefix="/pronunciation", tags=["pronunciation"], dependencies=[Depends(require_access)])
 
 # 15s es de sobra para una frase de A1 ("Nice to meet you"). El tope no es
 # por coste sino por sentido: si alguien manda dos minutos de audio, no

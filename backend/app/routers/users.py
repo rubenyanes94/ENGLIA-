@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, require_access
 from app.media.storage import ALLOWED_AVATAR_TYPES, MAX_AVATAR_BYTES, delete_avatar, save_avatar
 from app.models import User
 from app.repositories import enrollment_repository, user_repository
@@ -11,7 +11,7 @@ from app.schemas.descriptor import CertificationResultOut, DescriptorMasteryOut,
 from app.schemas.progress import ProgressModuleOut, ProgressOut, SkillBreakdownOut
 from app.services import certification as certification_service
 
-router = APIRouter(prefix="/users/me", tags=["users"])
+router = APIRouter(prefix="/users/me", tags=["users"], dependencies=[Depends(require_access)])
 
 
 @router.put("/avatar", response_model=UserOut)
