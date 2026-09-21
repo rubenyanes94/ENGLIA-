@@ -8,7 +8,7 @@ cero clientes afirmaría algo que no se ha medido.
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class PeriodInfo(BaseModel):
@@ -258,3 +258,48 @@ class CustomerDetailOut(BaseModel):
     daily_activity: list[DailyActivity]
     timeline: list[TimelineItem]
     top_corrections: list[CustomerRuleCount]
+
+
+# --- Pagos (revisión manual desde el panel de gerencia) ---------------------
+
+
+class PaymentCustomer(BaseModel):
+    id: uuid.UUID
+    full_name: str
+    email: str
+
+
+class PaymentReviewRow(BaseModel):
+    id: uuid.UUID
+    provider: str
+    status: str
+    amount_cents: int
+    currency: str
+    external_reference: str | None
+    # Lo que declaró el alumno y lo que se le pidió: referencia, banco,
+    # cédula, monto en Bs esperado y declarado, ID de orden de Binance...
+    payload: dict
+    created_at: datetime
+    reviewed_at: datetime | None
+    reviewer_name: str | None
+    customer: PaymentCustomer
+    # Hasta cuándo da acceso, si se aprobó.
+    access_until: datetime | None
+
+
+class PaymentReviewList(BaseModel):
+    items: list[PaymentReviewRow]
+    total: int
+    as_of: datetime  # "ahora" en hora del negocio, para los "hace 2 h"
+
+
+class PaymentReviewSummary(BaseModel):
+    pending: int
+    pending_by_provider: dict[str, int]
+    oldest_pending_at: datetime | None
+    approved_today: int
+    approved_today_cents: int
+
+
+class RejectRequest(BaseModel):
+    reason: str = Field(min_length=3, max_length=300)

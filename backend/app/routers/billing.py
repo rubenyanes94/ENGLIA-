@@ -17,6 +17,8 @@ from app.models import Payment, User
 from app.repositories import payment_repository, plan_repository, subscription_repository
 from app.schemas.billing import (
     BillingOptionsOut,
+    BinancePersonalClaimRequest,
+    BinancePersonalInfoOut,
     CheckoutRequest,
     CheckoutResponse,
     MySubscriptionOut,
@@ -53,9 +55,87 @@ async def billing_options(plan_code: str = "premium_monthly", db: AsyncSession =
         methods=[
             PaymentMethodOut(id="credit_card", available=stripe_gateway.is_configured() and bool(plan.stripe_price_id)),
             PaymentMethodOut(id="paypal", available=paypal.is_configured() and bool(plan.paypal_plan_id)),
-            PaymentMethodOut(id="binance_pay", available=binance_pay.is_configured()),
+            # Binance: la integración de comerciante si hay claves; si no, el
+            # envío a la cuenta personal de la academia (verificación manual).
+            PaymentMethodOut(
+                id="binance_pay",
+                available=binance_pay.is_configured() or _binance_personal_configured(),
+                mode="merchant" if binance_pay.is_configured() else "personal",
+            ),
             PaymentMethodOut(id="pago_movil", available=_pago_movil_configured()),
         ],
+    )
+
+
+def _binance_personal_configured() -> bool:
+    return bool(settings.binance_personal_qr_url and (settings.binance_personal_email or settings.binance_personal_pay_id or settings.binance_personal_nickname))
+
+
+def _plan_amount(plan) -> str:
+    """"10" y no "10.00" (pero "9.99" si toca): es lo que el alumno teclea en Binance."""
+    return format((Decimal(plan.price_cents) / 100).normalize(), "f")
+
+
+@router.get("/binance-info", response_model=BinancePersonalInfoOut)
+async def get_binance_personal_info(
+    plan_code: str = "premium_monthly",
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> BinancePersonalInfoOut:
+    """Los datos de la cuenta de Binance de la academia para pagar a mano.
+    Detrás de sesión, igual que los de Pago Móvil: son de una cuenta real."""
+    plan = await plan_repository.get_by_code(db, plan_code)
+    if plan is None:
+        raise HTTPException(status_code=404, detail=f"El plan '{plan_code}' no existe.")
+    return BinancePersonalInfoOut(
+        configured=_binance_personal_configured(),
+        qr_url=settings.binance_personal_qr_url,
+        nickname=settings.binance_personal_nickname,
+        email=settings.binance_personal_email,
+        pay_id=settings.binance_personal_pay_id,
+        amount=_plan_amount(plan),
+        asset=settings.binance_personal_asset,
+    )
+
+
+@router.post("/payments/binance", response_model=PaymentOut, status_code=status.HTTP_201_CREATED)
+async def submit_binance_claim(
+    payload: BinancePersonalClaimRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Payment:
+    """El alumno ya envió los USDT a la cuenta personal y declara la orden.
+    Entra en "pending_verification", como Pago Móvil: lo aprueba un admin
+    tras encontrar la orden en el historial de Binance.
+
+    El ID de la orden no se puede declarar dos veces: sin esto, dos
+    alumnos podrían reclamar el mismo pago (o uno, varias veces)."""
+    if not _binance_personal_configured():
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Binance todavía no está disponible.")
+    plan = await plan_repository.get_by_code(db, payload.plan_code)
+    if plan is None:
+        raise HTTPException(status_code=404, detail=f"El plan '{payload.plan_code}' no existe.")
+    order_id = payload.order_id.strip()
+    if await payment_repository.get_by_external_reference(db, "binance_pay", order_id) is not None:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Esa orden de Binance ya fue declarada. Si crees que es un error, escríbenos.")
+
+    return await payment_repository.create(
+        db,
+        user_id=current_user.id,
+        provider="binance_pay",
+        amount_cents=plan.price_cents,
+        currency=plan.currency,
+        external_reference=order_id,
+        payload={
+            "mode": "personal",
+            "plan_code": plan.code,
+            "order_id": order_id,
+            "payer_account": payload.payer_account.strip(),
+            "expected_amount": _plan_amount(plan),
+            "asset": settings.binance_personal_asset,
+            "paid_at": payload.paid_at.isoformat(),
+        },
+        status="pending_verification",
     )
 
 

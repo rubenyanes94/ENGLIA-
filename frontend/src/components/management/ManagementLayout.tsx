@@ -3,17 +3,21 @@ import {
   faChartColumn,
   faGaugeHigh,
   faHeartPulse,
+  faMoneyCheckDollar,
   faRightFromBracket,
   faRoute,
   faSackDollar,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Suspense } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { api } from "../../api/client"
+import type { PaymentReviewSummary } from "../../api/management"
 import { useAuth } from "../../auth/AuthContext"
 import Logo from "../brand/Logo"
 import { PAGE_GUTTER } from "../pageGutter"
+import { PAYMENTS_CHANGED } from "./events"
 
 export const MANAGEMENT_NAV = [
   { to: "/gerencia", label: "Resumen", icon: faGaugeHigh, end: true },
@@ -21,6 +25,7 @@ export const MANAGEMENT_NAV = [
   { to: "/gerencia/journey", label: "Journey", icon: faRoute, end: true },
   { to: "/gerencia/retencion", label: "Retención", icon: faArrowsRotate, end: true },
   { to: "/gerencia/ingresos", label: "Ingresos", icon: faSackDollar, end: true },
+  { to: "/gerencia/pagos", label: "Pagos", icon: faMoneyCheckDollar, end: true },
   { to: "/gerencia/clientes", label: "Clientes", icon: faUsers, end: false },
   { to: "/gerencia/sistema", label: "Sistema", icon: faHeartPulse, end: true },
 ]
@@ -38,6 +43,7 @@ export default function ManagementLayout() {
   const { search } = useLocation()
   const period = new URLSearchParams(search).get("periodo")
   const carry = period ? `?periodo=${period}` : ""
+  const pending = usePendingPayments()
 
   function handleLogout() {
     logout()
@@ -89,6 +95,11 @@ export default function ManagementLayout() {
             >
               <FontAwesomeIcon icon={item.icon} className="text-xs" />
               {item.label}
+              {item.to === "/gerencia/pagos" && pending > 0 && (
+                <span className="rounded-full bg-amber-400 px-1.5 text-[11px] font-bold text-slate-900" aria-label={`${pending} por verificar`}>
+                  {pending}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -104,3 +115,28 @@ export default function ManagementLayout() {
     </div>
   )
 }
+
+/** Pagos por verificar, para el contador de la pestaña: se ve desde
+ * cualquier sección del panel que hay cola, sin tener que entrar a mirar.
+ * Se refresca cada minuto y al momento cuando se revisa un pago. */
+function usePendingPayments(): number {
+  const [pending, setPending] = useState(0)
+  useEffect(() => {
+    let alive = true
+    const load = () =>
+      api
+        .get<PaymentReviewSummary>("/management/payments/summary")
+        .then((s) => alive && setPending(s.pending))
+        .catch(() => {})
+    void load()
+    const id = setInterval(load, 60_000)
+    window.addEventListener(PAYMENTS_CHANGED, load)
+    return () => {
+      alive = false
+      clearInterval(id)
+      window.removeEventListener(PAYMENTS_CHANGED, load)
+    }
+  }, [])
+  return pending
+}
+

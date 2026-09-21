@@ -277,6 +277,18 @@ class Settings(BaseSettings):
     # BCV y deja de actualizarse: el panel de Sistema lo avisa.
     pago_movil_bs_per_usd: float | None = None
 
+    # --- Binance Pay a la cuenta PERSONAL de la academia ---
+    # Funciona como Pago Móvil: el alumno envía USDT desde su app de Binance
+    # (escaneando el QR o al correo/Pay ID) y declara el ID de la orden, que
+    # alguien verifica en el historial de Binance. No necesita cuenta de
+    # comerciante; la integración automática (BINANCE_PAY_API_KEY) es otra
+    # cosa, para cuando la haya. Vacíos por defecto: datos de una cuenta real.
+    binance_personal_qr_url: str = ""  # el enlace que codifica el QR (app.binance.com/uni-qr/...)
+    binance_personal_nickname: str = ""
+    binance_personal_email: str = ""
+    binance_personal_pay_id: str = ""
+    binance_personal_asset: str = "USDT"
+
     @field_validator("pago_movil_bs_per_usd", mode="before")
     @classmethod
     def _empty_is_none(cls, value):

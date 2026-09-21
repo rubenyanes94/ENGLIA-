@@ -275,7 +275,20 @@ export interface MySubscription {
 /** GET /billing/options: el plan y qué métodos pueden cobrar HOY. */
 export interface BillingOptions {
   plan: Plan
-  methods: { id: BillingProvider; available: boolean }[]
+  /** `mode` solo en Binance: "merchant" (se confirma sola) o "personal"
+   * (envío a la cuenta de la academia, se verifica a mano). */
+  methods: { id: BillingProvider; available: boolean; mode?: "merchant" | "personal" | null }[]
+}
+
+/** GET /billing/binance-info: la cuenta de Binance de la academia. */
+export interface BinancePersonalInfo {
+  configured: boolean
+  qr_url: string
+  nickname: string
+  email: string
+  pay_id: string
+  amount: string
+  asset: string
 }
 
 export interface CheckoutResponse {

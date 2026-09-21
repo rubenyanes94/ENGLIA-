@@ -60,11 +60,12 @@ async def get_current_admin(current_user: User = Depends(get_current_user)) -> U
     return current_user
 
 
-# Quién puede ver el panel de gerencia. "admin" entra también: quien puede
-# aprobar pagos y editar el currículo no tiene por qué pedir otra cuenta
-# para ver las cifras. Lo contrario no: "manager" solo LEE analítica y
-# get_current_admin lo sigue rechazando, así que no puede tocar contenido,
-# aprobar pagos ni ver el listado de /admin.
+# Quién puede entrar al panel de gerencia. "admin" entra también: quien
+# puede editar el currículo no tiene por qué pedir otra cuenta para ver las
+# cifras. "manager" LEE la analítica y, como única escritura, revisa pagos
+# (aprobar/rechazar Pago Móvil y Binance, en routers/payment_review.py).
+# get_current_admin lo sigue rechazando: no puede tocar contenido, planes
+# ni nada más de /admin.
 MANAGEMENT_ROLES = ("manager", "admin")
 
 

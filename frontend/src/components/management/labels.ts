@@ -162,3 +162,13 @@ export const FAILURE_SOURCES: Record<string, string> = {
   client: "Navegador",
 }
 
+/** Estado de UN pago, en singular (PAYMENT_STATUS, arriba, va en plural
+ * para los totales de Ingresos). Siempre con icono: nunca solo color. */
+export const PAYMENT_STATUS_ONE: Record<string, { label: string; color: string; icon: IconDefinition }> = {
+  pending_verification: { label: "Por verificar", color: STATUS.warning, icon: faTriangleExclamation },
+  approved: { label: "Aprobado", color: STATUS.good, icon: faCircleCheck },
+  rejected: { label: "Rechazado", color: STATUS.critical, icon: faCircleXmark },
+  failed: { label: "Fallido", color: STATUS.critical, icon: faCircleExclamation },
+  refunded: { label: "Reembolsado", color: STATUS.serious, icon: faCircleMinus },
+}
+
