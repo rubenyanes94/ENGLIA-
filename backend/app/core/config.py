@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Rutas ABSOLUTAS al .env, no el ".env" relativo que había antes. El
@@ -270,6 +271,18 @@ class Settings(BaseSettings):
     pago_movil_bank: str = ""       # ej. "Bancamiga (0172)"
     pago_movil_document: str = ""   # cédula o RIF de la academia
     pago_movil_phone: str = ""
+    # Tasa FIJA manual (Bs por dólar), solo para emergencias. Vacío = la
+    # tasa oficial del BCV, que el backend lee sola cada hora (ver
+    # app/billing/bcv_rate.py). Si se pone un número, manda sobre la del
+    # BCV y deja de actualizarse: el panel de Sistema lo avisa.
+    pago_movil_bs_per_usd: float | None = None
+
+    @field_validator("pago_movil_bs_per_usd", mode="before")
+    @classmethod
+    def _empty_is_none(cls, value):
+        # "PAGO_MOVIL_BS_PER_USD=" (vacío, como viene en .env.example) no es
+        # un número: sin esto el backend no arrancaba.
+        return None if value in ("", None) else value
 
     # --- Facturación ---
     # Dónde redirige el navegador del alumno tras aprobar/cancelar un pago

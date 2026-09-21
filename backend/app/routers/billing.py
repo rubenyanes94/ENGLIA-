@@ -4,21 +4,25 @@ Móvil. La confirmación automática (webhooks) vive en routers/webhooks.py
 — separado a propósito, porque esos endpoints NO llevan autenticación de
 usuario (los llama la pasarela, no un alumno con JWT)."""
 
+from decimal import ROUND_HALF_UP, Decimal
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.billing import binance_pay, paypal, stripe_gateway
+from app.billing import bcv_rate, binance_pay, paypal, stripe_gateway
 from app.core.config import settings
 from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.models import Payment, User
 from app.repositories import payment_repository, plan_repository, subscription_repository
 from app.schemas.billing import (
+    BillingOptionsOut,
     CheckoutRequest,
     CheckoutResponse,
     MySubscriptionOut,
     PagoMovilClaimRequest,
     PagoMovilInfoOut,
+    PaymentMethodOut,
     PaymentOut,
     PlanOut,
     ProviderLiteral,
@@ -30,6 +34,33 @@ router = APIRouter(prefix="/billing", tags=["billing"])
 @router.get("/plans", response_model=list[PlanOut])
 async def list_plans(db: AsyncSession = Depends(get_db)) -> list[PlanOut]:
     return await plan_repository.list_active(db)
+
+
+@router.get("/options", response_model=BillingOptionsOut)
+async def billing_options(plan_code: str = "premium_monthly", db: AsyncSession = Depends(get_db)) -> BillingOptionsOut:
+    """El plan y qué métodos de pago están operativos. Público: no dice
+    nada que no diga ya la portada, y permite pintar las opciones antes de
+    que el alumno termine de registrarse.
+
+    "Disponible" = puede cobrar de verdad, no solo "tiene clave": la
+    tarjeta necesita además el price_id del plan en Stripe, y PayPal su
+    plan_id — sin ellos start_checkout respondería 503 al pulsar."""
+    plan = await plan_repository.get_by_code(db, plan_code)
+    if plan is None:
+        raise HTTPException(status_code=404, detail=f"El plan '{plan_code}' no existe.")
+    return BillingOptionsOut(
+        plan=plan,
+        methods=[
+            PaymentMethodOut(id="credit_card", available=stripe_gateway.is_configured() and bool(plan.stripe_price_id)),
+            PaymentMethodOut(id="paypal", available=paypal.is_configured() and bool(plan.paypal_plan_id)),
+            PaymentMethodOut(id="binance_pay", available=binance_pay.is_configured()),
+            PaymentMethodOut(id="pago_movil", available=_pago_movil_configured()),
+        ],
+    )
+
+
+def _pago_movil_configured() -> bool:
+    return all([settings.pago_movil_bank, settings.pago_movil_document, settings.pago_movil_phone])
 
 
 @router.get("/subscription", response_model=MySubscriptionOut)
@@ -102,7 +133,11 @@ async def start_checkout(
 
 
 @router.get("/pago-movil-info", response_model=PagoMovilInfoOut)
-async def get_pago_movil_info(current_user: User = Depends(get_current_user)) -> PagoMovilInfoOut:
+async def get_pago_movil_info(
+    plan_code: str = "premium_monthly",
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> PagoMovilInfoOut:
     """Los datos bancarios de la academia, para que el alumno transfiera.
 
     Salen de la configuración y no del código: son datos reales de una
@@ -110,12 +145,25 @@ async def get_pago_movil_info(current_user: User = Depends(get_current_user)) ->
     corregir un dígito de una cédula — con transferencias perdidas
     mientras tanto.
     """
+    plan = await plan_repository.get_by_code(db, plan_code)
+    rate = await bcv_rate.ensure_rate(db)
     return PagoMovilInfoOut(
-        configured=all([settings.pago_movil_bank, settings.pago_movil_document, settings.pago_movil_phone]),
+        configured=_pago_movil_configured(),
         bank=settings.pago_movil_bank,
         document=settings.pago_movil_document,
         phone=settings.pago_movil_phone,
+        amount_bs=_amount_bs(plan, rate),
+        bs_per_usd=float(rate.rate) if rate else None,
+        rate_date=rate.value_date if rate else None,
+        rate_source=rate.source if rate else None,
     )
+
+
+def _amount_bs(plan, rate: bcv_rate.ApplicableRate | None) -> float | None:
+    """Precio del plan en bolívares, redondeado a céntimos como lo cobra el banco."""
+    if plan is None or rate is None:
+        return None
+    return float((Decimal(plan.price_cents) / 100 * rate.rate).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
 
 @router.post("/payments/pago-movil", response_model=PaymentOut, status_code=status.HTTP_201_CREATED)
@@ -137,6 +185,11 @@ async def submit_pago_movil_claim(
     if plan is None:
         raise HTTPException(status_code=404, detail=f"El plan '{payload.plan_code}' no existe.")
 
+    # Lo que la app le PIDIÓ pagar al alumno en ese momento: quien verifique
+    # el pago compara el monto declarado contra este, no contra la tasa del
+    # día en que lo revisa (que puede ser otra).
+    rate = await bcv_rate.rate_for_today(db)
+
     return await payment_repository.create(
         db,
         user_id=current_user.id,
@@ -151,6 +204,9 @@ async def submit_pago_movil_claim(
             "reference_number": payload.reference_number,
             "amount_bs": payload.amount_bs,
             "paid_at": payload.paid_at.isoformat(),
+            "expected_amount_bs": _amount_bs(plan, rate),
+            "bs_per_usd": str(rate.rate) if rate else None,
+            "rate_value_date": rate.value_date.isoformat() if rate else None,
         },
         status="pending_verification",
     )

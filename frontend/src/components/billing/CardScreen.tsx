@@ -3,8 +3,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useState } from "react"
 import { api } from "../../api/client"
 import { ApiError } from "../../api/types"
-import type { CheckoutResponse } from "../../api/types"
+import type { CheckoutResponse, Plan } from "../../api/types"
 import { BackLink, ScreenHeader } from "./BillingModal"
+import { PriceTag, Steps, planPrice } from "./PaymentInfo"
 
 /** Pago con tarjeta.
  *
@@ -25,7 +26,7 @@ import { BackLink, ScreenHeader } from "./BillingModal"
  * Así que la pantalla conserva el peso visual del diseño, pero lleva al
  * alumno a la pasarela en vez de pedirle los dígitos aquí.
  */
-export default function CardScreen({ onBack }: { onBack: () => void }) {
+export default function CardScreen({ plan, onBack }: { plan: Plan; onBack: () => void }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -34,7 +35,7 @@ export default function CardScreen({ onBack }: { onBack: () => void }) {
     setError(null)
     try {
       const res = await api.post<CheckoutResponse>("/billing/checkout/credit_card", {
-        plan_code: "premium_monthly",
+        plan_code: plan.code,
       })
       window.location.href = res.checkout_url
     } catch (err) {
@@ -45,11 +46,17 @@ export default function CardScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <>
-      <ScreenHeader icon={faCreditCard} tone="bg-ink-900 text-white" title="Vincular Tarjeta" subtitle="Suscripción Premium" />
+      <ScreenHeader icon={faCreditCard} tone="bg-ink-900 text-white" title="Tarjeta de crédito o débito" subtitle="Pago seguro con Stripe" />
 
-      <p className="mt-4 text-center text-sm text-slate-500">
-        Te llevamos a la pasarela segura para introducir tu tarjeta. Espikin nunca ve ni guarda tus dígitos.
-      </p>
+      <PriceTag plan={plan} note="Se cobra cada mes de forma automática · cancela cuando quieras" />
+
+      <Steps
+        items={[
+          "Pulsa el botón y te llevamos a la pasarela segura de pago.",
+          "Escribe allí los datos de tu tarjeta. Espikin nunca ve ni guarda tus dígitos.",
+          "Al confirmar, vuelves aquí con tu acceso Premium ya activo.",
+        ]}
+      />
 
       {error && <p className="mt-3 text-center text-sm text-amber-700">{error}</p>}
 
@@ -59,7 +66,7 @@ export default function CardScreen({ onBack }: { onBack: () => void }) {
         className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition active:scale-[0.98] hover:bg-brand-500 disabled:opacity-60"
       >
         {loading && <FontAwesomeIcon icon={faSpinner} spin />}
-        Guardar Método
+        Pagar {planPrice(plan)} con tarjeta
       </button>
 
       <BackLink onBack={onBack} />

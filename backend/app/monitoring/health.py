@@ -17,6 +17,7 @@ import asyncio
 import shutil
 import time
 from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -29,6 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.redis import redis_client
+from app.repositories.analytics_repository import local_now
 
 CHECK_TIMEOUT_S = 5.0
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -256,6 +258,38 @@ async def check_pending_summaries(db: AsyncSession) -> Check:
     return Check("summaries", "Resúmenes de sesión", "ok", "Todas las sesiones cerradas en las últimas 24 h tienen resumen")
 
 
+async def check_bcv_rate(db: AsyncSession) -> Check:
+    """La tasa del BCV con la que Pago Móvil calcula el monto en bolívares.
+    Se lee sola cada hora (app/billing/bcv_rate.py); aquí se vigila que siga
+    llegando. Tres fallos posibles, de más a menos grave: no hay ninguna
+    tasa (no se puede pedir un monto), la que rige es de hace días (se
+    cobra mal), o el lector lleva más de un día sin traer nada nuevo."""
+    from app.billing import bcv_rate
+
+    label = "Tasa BCV (Pago Móvil)"
+    applicable = await bcv_rate.rate_for_today(db)
+    if applicable is None:
+        return Check("bcv_rate", label, "critical", "No hay ninguna tasa guardada", None,
+                     "Pago Móvil no puede decirle al alumno cuánto transferir. Revisar si www.bcv.org.ve responde.")
+    rate_text = f"{applicable.rate:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    detail = f"{rate_text} Bs/$ · fecha valor {applicable.value_date:%d/%m} · {applicable.source}"
+    if settings.pago_movil_bs_per_usd:
+        return Check("bcv_rate", label, "warning", detail, None,
+                     "Hay una tasa fija manual (PAGO_MOVIL_BS_PER_USD): no se actualiza sola. Quitarla para volver a la del BCV.")
+
+    today = local_now().date()
+    if (today - applicable.value_date).days > 4:
+        return Check("bcv_rate", label, "warning", detail, None,
+                     "La tasa que se está cobrando es de hace más de 4 días: el monto en bolívares puede estar desfasado.")
+    last_fetch = (
+        await db.execute(text("SELECT max(fetched_at) FROM exchange_rates WHERE source = 'bcv.org.ve'"))
+    ).scalar()
+    if last_fetch is None or datetime.utcnow() - last_fetch > timedelta(hours=26):
+        return Check("bcv_rate", label, "warning", detail + " · el lector no trae tasas nuevas desde hace más de un día", None,
+                     "Revisar el log del backend (\"tasa del BCV\"): puede que el BCV haya cambiado su página.")
+    return Check("bcv_rate", label, "ok", detail)
+
+
 def check_disk() -> Check:
     try:
         usage = shutil.disk_usage(settings.media_root)
@@ -275,7 +309,7 @@ async def run_all(db: AsyncSession) -> list[dict]:
     db_checks: list[Check] = []
     configured: dict[str, str] = {settings.llm_model: "chat (por defecto)"}
     if database.status == "ok":
-        db_checks = [await check_migrations(db), await check_pending_summaries(db)]
+        db_checks = [await check_migrations(db), await check_pending_summaries(db), await check_bcv_rate(db)]
         configured = await _configured_models(db)
 
     # Lo que sale de este proceso (NVIDIA, Redis, el worker) sí va en paralelo.

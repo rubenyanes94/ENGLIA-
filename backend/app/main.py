@@ -1,3 +1,6 @@
+import asyncio
+import contextlib
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI
@@ -6,13 +9,26 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.billing.bcv_rate import refresh_loop
 from app.core.config import settings
 from app.core.db import get_db
 from app.core.redis import redis_client
 from app.monitoring.http_metrics import RequestMetricsMiddleware
 from app.routers import admin, auth, billing, chat, events, levels, library, management, modules, monitoring, pronunciation, sentence_game, users, webhooks
 
-app = FastAPI(title="English Academy API", version="0.1.0")
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    # Tasa del BCV: se lee al arrancar y cada hora, en segundo plano (ver
+    # app/billing/bcv_rate.py). Sin esto habría que cambiar la tasa a mano
+    # cada día para que Pago Móvil pida el monto correcto en bolívares.
+    task = asyncio.create_task(refresh_loop())
+    yield
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task
+
+
+app = FastAPI(title="English Academy API", version="0.1.0", lifespan=lifespan)
 
 # Archivos generados (hoy: audio de lecciones narradas por James — ver
 # app/media/storage.py). StaticFiles exige que el directorio ya exista

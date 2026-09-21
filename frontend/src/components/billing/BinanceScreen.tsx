@@ -5,8 +5,9 @@ import { useEffect, useState } from "react"
 import QRCode from "qrcode"
 import { api } from "../../api/client"
 import { ApiError } from "../../api/types"
-import type { CheckoutResponse } from "../../api/types"
+import type { CheckoutResponse, Plan } from "../../api/types"
 import { BackLink, ScreenHeader } from "./BillingModal"
+import { PriceTag, Steps } from "./PaymentInfo"
 import CopyField from "./CopyField"
 
 /** Binance Pay.
@@ -19,7 +20,7 @@ import CopyField from "./CopyField"
  * backend lleva dentro el id de la suscripción, que es lo que permite al
  * webhook activarla sola.
  */
-export default function BinanceScreen({ onBack }: { onBack: () => void }) {
+export default function BinanceScreen({ plan, onBack }: { plan: Plan; onBack: () => void }) {
   const [qr, setQr] = useState<string | null>(null)
   const [url, setUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -27,7 +28,7 @@ export default function BinanceScreen({ onBack }: { onBack: () => void }) {
   useEffect(() => {
     let cancelled = false
     api
-      .post<CheckoutResponse>("/billing/checkout/binance_pay", { plan_code: "premium_monthly" })
+      .post<CheckoutResponse>("/billing/checkout/binance_pay", { plan_code: plan.code })
       .then(async (res) => {
         if (cancelled) return
         setUrl(res.checkout_url)
@@ -39,11 +40,24 @@ export default function BinanceScreen({ onBack }: { onBack: () => void }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [plan.code])
 
   return (
     <>
-      <ScreenHeader icon={faBitcoin} tone="bg-amber-400 text-slate-900" title="Binance Pay" subtitle="Datos de la academia" />
+      <ScreenHeader icon={faBitcoin} tone="bg-amber-400 text-slate-900" title="Binance Pay" subtitle="Pago con cripto" />
+
+      {/* Binance no cobra solo cada mes: cada pago cubre un periodo y el
+          siguiente se paga igual, desde el perfil. Decirlo ANTES de pagar
+          evita el "¿por qué perdí el acceso?" treinta días después. */}
+      <PriceTag plan={plan} note="Cubre 30 días · no se renueva solo: el mes siguiente vuelves a pagar" />
+
+      <Steps
+        items={[
+          "Abre la app de Binance y entra en Pay.",
+          "Escanea este código (o abre el enlace desde tu móvil).",
+          "Confirma el pago. Tu acceso se activa solo en cuanto Binance lo confirma.",
+        ]}
+      />
 
       <div className="mt-5 flex justify-center">
         {qr ? (
@@ -70,7 +84,7 @@ export default function BinanceScreen({ onBack }: { onBack: () => void }) {
           url ? "bg-amber-400 hover:bg-amber-300" : "pointer-events-none bg-slate-100 text-slate-400"
         }`}
       >
-        Hecho
+        Abrir en Binance
       </a>
 
       <BackLink onBack={onBack} />
