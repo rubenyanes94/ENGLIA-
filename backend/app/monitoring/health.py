@@ -290,6 +290,17 @@ async def check_bcv_rate(db: AsyncSession) -> Check:
     return Check("bcv_rate", label, "ok", detail)
 
 
+def check_test_mode() -> Check:
+    """Con ENVIRONMENT=development la pantalla de pago muestra "Reportar
+    pago" de prueba, que activa la suscripción SIN PAGAR. Bien en pruebas;
+    en producción sería regalar el acceso. Se avisa siempre que esté activo
+    para que nadie lance así."""
+    if settings.environment == "development":
+        return Check("test_mode", "Modo de prueba de pagos", "warning", "ENVIRONMENT=development: el botón \"Reportar pago\" está visible", None,
+                     "Cualquiera que se registre puede activarse la suscripción sin pagar. Antes de abrir al público: ENVIRONMENT=production.")
+    return Check("test_mode", "Modo de prueba de pagos", "ok", f"Desactivado (ENVIRONMENT={settings.environment})")
+
+
 def check_disk() -> Check:
     try:
         usage = shutil.disk_usage(settings.media_root)
@@ -316,5 +327,5 @@ async def run_all(db: AsyncSession) -> list[dict]:
     llm_checks, auth_checks, redis_check, worker_check = await asyncio.gather(
         check_llm_catalog(configured), check_llm_auth(), check_redis(), check_worker()
     )
-    checks = [*auth_checks, *llm_checks, database, redis_check, worker_check, *db_checks, check_disk()]
+    checks = [*auth_checks, *llm_checks, database, redis_check, worker_check, *db_checks, check_test_mode(), check_disk()]
     return [c.as_dict() for c in checks]

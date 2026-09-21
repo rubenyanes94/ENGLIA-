@@ -94,6 +94,8 @@ export const PROVIDER_LABELS: Record<string, string> = {
   paypal: "PayPal",
   credit_card: "Tarjeta",
   binance_pay: "Binance Pay",
+  // Pagos del botón "Reportar pago" (solo en desarrollo): $0, sin cobro real.
+  test: "Prueba",
 }
 
 export const PAYMENT_STATUS: Record<string, { label: string; color: string; icon: IconDefinition }> = {

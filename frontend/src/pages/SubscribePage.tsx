@@ -1,4 +1,4 @@
-import { faArrowRight, faCircleCheck, faRightFromBracket, faSpinner, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons"
+import { faArrowRight, faCircleCheck, faFlask, faRightFromBracket, faSpinner, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useState } from "react"
 import { Navigate, useNavigate } from "react-router-dom"
@@ -24,7 +24,10 @@ export default function SubscribePage() {
   const navigate = useNavigate()
   const [options, setOptions] = useState<BillingOptions | null>(null)
   const [error, setError] = useState(false)
-  const [declared, setDeclared] = useState<BillingProvider | null>(null)
+  // "test" = el botón de prueba: el pago queda ACEPTADO (no pendiente).
+  const [declared, setDeclared] = useState<BillingProvider | "test" | null>(null)
+  const [reporting, setReporting] = useState(false)
+  const [testError, setTestError] = useState<string | null>(null)
   const [entering, setEntering] = useState(false)
 
   useEffect(() => {
@@ -44,6 +47,19 @@ export default function SubscribePage() {
     // acceso), ProtectedRoute lo devolvería aquí.
     await refreshUser()
     navigate("/dashboard", { replace: true })
+  }
+
+  async function reportTestPayment() {
+    setReporting(true)
+    setTestError(null)
+    try {
+      await api.post("/billing/test-payment")
+      setDeclared("test")
+    } catch {
+      setTestError("No se pudo registrar el pago de prueba.")
+    } finally {
+      setReporting(false)
+    }
   }
 
   function handleLogout() {
@@ -92,6 +108,27 @@ export default function SubscribePage() {
               <span className="block text-xs text-slate-500">USD / {planPeriod(options.plan)}</span>
             </p>
           </div>
+          {options.test_mode && (
+            // Solo en desarrollo (el backend lo decide y además rechaza la
+            // llamada en producción). Recuadro discontinuo y etiquetado para
+            // que nadie lo confunda con un método de pago de verdad.
+            <div className="mt-5 rounded-2xl border-2 border-dashed border-violet-300 bg-violet-50/60 p-4">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-violet-700">
+                <FontAwesomeIcon icon={faFlask} /> Modo de prueba
+              </p>
+              <p className="mt-1 text-sm text-slate-600">Activa la suscripción sin pagar para probar el flujo completo.</p>
+              <button
+                type="button"
+                onClick={reportTestPayment}
+                disabled={reporting}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-violet-600 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:opacity-60"
+              >
+                {reporting && <FontAwesomeIcon icon={faSpinner} spin />}
+                Reportar pago
+              </button>
+              {testError && <p className="mt-2 text-center text-sm text-rose-700">{testError}</p>}
+            </div>
+          )}
           <div className="mt-5">
             {/* Tarjeta y PayPal salen de la página y vuelven por /billing/success;
                 Pago Móvil y Binance se declaran aquí y abren el modal. */}
@@ -109,12 +146,16 @@ export default function SubscribePage() {
         <Modal onClose={() => {}} dismissible={false}>
           <div className="text-center">
             <FontAwesomeIcon icon={faCircleCheck} className="text-5xl text-emerald-500" />
-            <h2 className="mt-4 text-2xl font-extrabold text-slate-900">¡Pago recibido!</h2>
+            <h2 className="mt-4 text-2xl font-extrabold text-slate-900">{declared === "test" ? "¡Pago aceptado!" : "¡Pago recibido!"}</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-500">
-              {declared === "binance_pay"
-                ? "Vamos a confirmar tu orden en Binance."
-                : "Vamos a confirmar tu transferencia con el banco."}{" "}
-              Ya puedes empezar a usar Espikin: si hubiera algún problema con el pago, te lo diremos aquí mismo.
+              {declared === "test" ? (
+                "Tu suscripción Premium está activa por 30 días. ¡Bienvenido a Espikin!"
+              ) : (
+                <>
+                  {declared === "binance_pay" ? "Vamos a confirmar tu orden en Binance." : "Vamos a confirmar tu transferencia con el banco."}{" "}
+                  Ya puedes empezar a usar Espikin: si hubiera algún problema con el pago, te lo diremos aquí mismo.
+                </>
+              )}
             </p>
             <button
               type="button"

@@ -285,6 +285,8 @@ export interface BillingOptions {
   /** `mode` solo en Binance: "merchant" (se confirma sola) o "personal"
    * (envío a la cuenta de la academia, se verifica a mano). */
   methods: { id: BillingProvider; available: boolean; mode?: "merchant" | "personal" | null }[]
+  /** Solo en desarrollo: muestra el botón "Reportar pago" de prueba. */
+  test_mode?: boolean
 }
 
 /** GET /billing/binance-info: la cuenta de Binance de la academia. */

@@ -37,7 +37,11 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://englia:englia_dev_password@db:5432/englia"
     redis_url: str = "redis://redis:6379/0"
     secret_key: str = "change_me_in_production"
-    environment: str = "development"
+    # Por defecto "production" A PROPÓSITO: "development" activa cosas que
+    # en producción serían un agujero (el botón "Reportar pago" de prueba,
+    # que da acceso sin pagar; la demo de analítica). Si en un servidor se
+    # olvida la variable, falla hacia lo seguro. En local lo pone el .env.
+    environment: str = "production"
 
     # --- JWT ---
     jwt_algorithm: str = "HS256"

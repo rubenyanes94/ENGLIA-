@@ -174,3 +174,6 @@ class BillingOptionsOut(BaseModel):
 
     plan: PlanOut
     methods: list[PaymentMethodOut]
+    # Solo con ENVIRONMENT=development: muestra el botón "Reportar pago" de
+    # prueba (POST /billing/test-payment). En producción es siempre False.
+    test_mode: bool = False
