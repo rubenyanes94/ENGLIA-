@@ -7,7 +7,7 @@ from app.agents.embeddings import embed_text
 from app.agents.graph import run_tutor_turn
 from app.agents.memory import RedisConversationMemory
 from app.core.db import get_db
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, require_access
 from app.core.redis import redis_client
 from app.models import ConversationSession, User
 from app.repositories import (
@@ -29,7 +29,7 @@ from app.schemas.chat import (
 )
 from app.services import certification as certification_service
 
-router = APIRouter(prefix="/chat", tags=["chat"])
+router = APIRouter(prefix="/chat", tags=["chat"], dependencies=[Depends(require_access)])
 
 memory = RedisConversationMemory(redis_client)
 

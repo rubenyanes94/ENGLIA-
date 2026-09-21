@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
-import { api, clearToken, getToken, loginRequest, setToken } from "../api/client"
+import { api, clearToken, getToken, loginRequest, PAYMENT_REQUIRED_EVENT, setToken } from "../api/client"
 import type { User } from "../api/types"
 
 interface AuthContextValue {
@@ -40,6 +40,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void refreshUser()
+  }, [refreshUser])
+
+  // Si la API responde 402 (le rechazaron el pago mientras usaba la app),
+  // se refresca el usuario: con access.has_access en false, ProtectedRoute
+  // lo lleva a /suscripcion con el motivo del rechazo.
+  useEffect(() => {
+    const onPaymentRequired = () => void refreshUser()
+    window.addEventListener(PAYMENT_REQUIRED_EVENT, onPaymentRequired)
+    return () => window.removeEventListener(PAYMENT_REQUIRED_EVENT, onPaymentRequired)
   }, [refreshUser])
 
   const login = useCallback(

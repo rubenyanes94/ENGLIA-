@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict
 
 from app.schemas.auth import UserOut
 
@@ -141,6 +141,30 @@ class PagoMovilInfoOut(BaseModel):
 class PaymentMethodOut(BaseModel):
     id: str  # credit_card | paypal | binance_pay | pago_movil
     available: bool
+    # Solo Binance: "merchant" (API de comerciante, se confirma sola) o
+    # "personal" (envío a la cuenta de la academia, se verifica a mano).
+    mode: str | None = None
+
+
+class BinancePersonalInfoOut(BaseModel):
+    configured: bool
+    qr_url: str
+    nickname: str
+    email: str
+    pay_id: str
+    amount: str  # "10" — el precio del plan en la moneda de abajo
+    asset: str  # "USDT"
+
+
+class BinancePersonalClaimRequest(BaseModel):
+    """El alumno ya envió los USDT y declara la orden para que se verifique."""
+
+    plan_code: str = "premium_monthly"
+    # El "ID de la orden" que Binance Pay muestra en el historial del pago.
+    order_id: str = Field(min_length=4, max_length=64)
+    # Con qué cuenta pagó (usuario, correo o Pay ID): para encontrarlo en el historial.
+    payer_account: str = Field(min_length=2, max_length=120)
+    paid_at: datetime
 
 
 class BillingOptionsOut(BaseModel):
@@ -150,3 +174,6 @@ class BillingOptionsOut(BaseModel):
 
     plan: PlanOut
     methods: list[PaymentMethodOut]
+    # Solo con ENVIRONMENT=development: muestra el botón "Reportar pago" de
+    # prueba (POST /billing/test-payment). En producción es siempre False.
+    test_mode: bool = False

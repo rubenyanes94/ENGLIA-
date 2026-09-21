@@ -145,6 +145,13 @@ export interface User {
   // las dos zonas. Solo decide a DÓNDE se navega: los permisos de verdad
   // los comprueba el backend en cada endpoint.
   role: "student" | "admin" | "manager"
+  /** Si puede usar la app de alumno (el candado de pago; ver
+   * backend/app/services/access.py). Solo lo trae /auth/me. */
+  access?: {
+    has_access: boolean
+    reason: "staff" | "exempt" | "subscription" | "pending_payment" | null
+    last_rejection_reason: string | null
+  } | null
 }
 
 export interface Tutor {
@@ -275,7 +282,22 @@ export interface MySubscription {
 /** GET /billing/options: el plan y qué métodos pueden cobrar HOY. */
 export interface BillingOptions {
   plan: Plan
-  methods: { id: BillingProvider; available: boolean }[]
+  /** `mode` solo en Binance: "merchant" (se confirma sola) o "personal"
+   * (envío a la cuenta de la academia, se verifica a mano). */
+  methods: { id: BillingProvider; available: boolean; mode?: "merchant" | "personal" | null }[]
+  /** Solo en desarrollo: muestra el botón "Reportar pago" de prueba. */
+  test_mode?: boolean
+}
+
+/** GET /billing/binance-info: la cuenta de Binance de la academia. */
+export interface BinancePersonalInfo {
+  configured: boolean
+  qr_url: string
+  nickname: string
+  email: string
+  pay_id: string
+  amount: string
+  asset: string
 }
 
 export interface CheckoutResponse {

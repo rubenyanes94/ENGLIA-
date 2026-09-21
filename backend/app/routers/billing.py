@@ -4,6 +4,7 @@ Móvil. La confirmación automática (webhooks) vive en routers/webhooks.py
 — separado a propósito, porque esos endpoints NO llevan autenticación de
 usuario (los llama la pasarela, no un alumno con JWT)."""
 
+from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -13,10 +14,13 @@ from app.billing import bcv_rate, binance_pay, paypal, stripe_gateway
 from app.core.config import settings
 from app.core.db import get_db
 from app.core.deps import get_current_user
-from app.models import Payment, User
+from app.models import Payment, Subscription, User
 from app.repositories import payment_repository, plan_repository, subscription_repository
+from app.repositories.subscription_repository import BILLING_PERIOD
 from app.schemas.billing import (
     BillingOptionsOut,
+    BinancePersonalClaimRequest,
+    BinancePersonalInfoOut,
     CheckoutRequest,
     CheckoutResponse,
     MySubscriptionOut,
@@ -50,12 +54,136 @@ async def billing_options(plan_code: str = "premium_monthly", db: AsyncSession =
         raise HTTPException(status_code=404, detail=f"El plan '{plan_code}' no existe.")
     return BillingOptionsOut(
         plan=plan,
+        test_mode=_test_mode(),
         methods=[
             PaymentMethodOut(id="credit_card", available=stripe_gateway.is_configured() and bool(plan.stripe_price_id)),
             PaymentMethodOut(id="paypal", available=paypal.is_configured() and bool(plan.paypal_plan_id)),
-            PaymentMethodOut(id="binance_pay", available=binance_pay.is_configured()),
+            # Binance: la integración de comerciante si hay claves; si no, el
+            # envío a la cuenta personal de la academia (verificación manual).
+            PaymentMethodOut(
+                id="binance_pay",
+                available=binance_pay.is_configured() or _binance_personal_configured(),
+                mode="merchant" if binance_pay.is_configured() else "personal",
+            ),
             PaymentMethodOut(id="pago_movil", available=_pago_movil_configured()),
         ],
+    )
+
+
+def _test_mode() -> bool:
+    """El atajo de pruebas solo existe en desarrollo. Es la ÚNICA condición:
+    en producción (ENVIRONMENT distinto de "development") el botón no se
+    muestra y el endpoint responde 404, aunque alguien lo llame a mano."""
+    return settings.environment == "development"
+
+
+@router.post("/test-payment", response_model=PaymentOut, status_code=status.HTTP_201_CREATED)
+async def report_test_payment(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Payment:
+    """"Reportar pago" de PRUEBA: activa la suscripción sin pagar, para
+    recorrer el flujo registro → pago aceptado → aula mientras las
+    pasarelas no están configuradas.
+
+    Va por el camino real, no por un atajo: crea un pago APROBADO de $0
+    (provider "test", payload.test = true) y una suscripción de un periodo,
+    así que prueba la misma regla de acceso que un pago de verdad. $0 para
+    no inflar los ingresos del panel de gerencia; en Pagos sale como "Prueba".
+    """
+    if not _test_mode():
+        raise HTTPException(status_code=404, detail="Not Found")
+    plan = await plan_repository.get_by_code(db, "premium_monthly")
+    if plan is None:
+        raise HTTPException(status_code=404, detail="El plan 'premium_monthly' no existe.")
+
+    now = datetime.utcnow()
+    subscription = Subscription(
+        user_id=current_user.id, plan_id=plan.id, provider="test", status="active",
+        auto_renew=False, current_period_start=now, current_period_end=now + BILLING_PERIOD,
+    )
+    db.add(subscription)
+    await db.flush()
+    payment = Payment(
+        user_id=current_user.id, subscription_id=subscription.id, provider="test",
+        amount_cents=0, currency=plan.currency, status="approved",
+        payload={"test": True, "plan_code": plan.code}, reviewed_at=now,
+    )
+    db.add(payment)
+    await db.commit()
+    await db.refresh(payment)
+    return payment
+
+
+def _binance_personal_configured() -> bool:
+    return bool(settings.binance_personal_qr_url and (settings.binance_personal_email or settings.binance_personal_pay_id or settings.binance_personal_nickname))
+
+
+def _plan_amount(plan) -> str:
+    """"10" y no "10.00" (pero "9.99" si toca): es lo que el alumno teclea en Binance."""
+    return format((Decimal(plan.price_cents) / 100).normalize(), "f")
+
+
+@router.get("/binance-info", response_model=BinancePersonalInfoOut)
+async def get_binance_personal_info(
+    plan_code: str = "premium_monthly",
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> BinancePersonalInfoOut:
+    """Los datos de la cuenta de Binance de la academia para pagar a mano.
+    Detrás de sesión, igual que los de Pago Móvil: son de una cuenta real."""
+    plan = await plan_repository.get_by_code(db, plan_code)
+    if plan is None:
+        raise HTTPException(status_code=404, detail=f"El plan '{plan_code}' no existe.")
+    return BinancePersonalInfoOut(
+        configured=_binance_personal_configured(),
+        qr_url=settings.binance_personal_qr_url,
+        nickname=settings.binance_personal_nickname,
+        email=settings.binance_personal_email,
+        pay_id=settings.binance_personal_pay_id,
+        amount=_plan_amount(plan),
+        asset=settings.binance_personal_asset,
+    )
+
+
+@router.post("/payments/binance", response_model=PaymentOut, status_code=status.HTTP_201_CREATED)
+async def submit_binance_claim(
+    payload: BinancePersonalClaimRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Payment:
+    """El alumno ya envió los USDT a la cuenta personal y declara la orden.
+    Entra en "pending_verification", como Pago Móvil: lo aprueba un admin
+    tras encontrar la orden en el historial de Binance.
+
+    El ID de la orden no se puede declarar dos veces: sin esto, dos
+    alumnos podrían reclamar el mismo pago (o uno, varias veces)."""
+    if not _binance_personal_configured():
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Binance todavía no está disponible.")
+    plan = await plan_repository.get_by_code(db, payload.plan_code)
+    if plan is None:
+        raise HTTPException(status_code=404, detail=f"El plan '{payload.plan_code}' no existe.")
+    order_id = payload.order_id.strip()
+    if await payment_repository.get_by_external_reference(db, "binance_pay", order_id) is not None:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Esa orden de Binance ya fue declarada. Si crees que es un error, escríbenos.")
+
+    return await payment_repository.create(
+        db,
+        user_id=current_user.id,
+        provider="binance_pay",
+        amount_cents=plan.price_cents,
+        currency=plan.currency,
+        external_reference=order_id,
+        payload={
+            "mode": "personal",
+            "plan_code": plan.code,
+            "order_id": order_id,
+            "payer_account": payload.payer_account.strip(),
+            "expected_amount": _plan_amount(plan),
+            "asset": settings.binance_personal_asset,
+            "paid_at": payload.paid_at.isoformat(),
+        },
+        status="pending_verification",
     )
 
 

@@ -2,6 +2,7 @@ import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useState } from "react"
 import type { BillingOptions, BillingProvider } from "../../api/types"
+import BinancePersonalScreen from "./BinancePersonalScreen"
 import BinanceScreen from "./BinanceScreen"
 import CardScreen from "./CardScreen"
 import { METHODS } from "./methods"
@@ -22,11 +23,14 @@ import PayPalScreen from "./PayPalScreen"
 export default function PaymentMethodPicker({
   options,
   onDone,
+  onDeclared,
   doneLabel,
 }: {
   options: BillingOptions
   /** Cuando el alumno termina un pago que no sale de la página (Pago Móvil declarado). */
   onDone: () => void
+  /** Ver PagoMovilScreen: sustituye la confirmación en pantalla por la del llamador. */
+  onDeclared?: (method: BillingProvider) => void
   doneLabel?: string
 }) {
   const [selected, setSelected] = useState<BillingProvider | null>(null)
@@ -36,8 +40,26 @@ export default function PaymentMethodPicker({
 
   if (selected === "credit_card") return <CardScreen plan={plan} onBack={back} />
   if (selected === "paypal") return <PayPalScreen plan={plan} onBack={back} />
-  if (selected === "binance_pay") return <BinanceScreen plan={plan} onBack={back} />
-  if (selected === "pago_movil") return <PagoMovilScreen plan={plan} onBack={back} onDone={onDone} doneLabel={doneLabel} />
+  if (selected === "binance_pay") {
+    // Sin claves de comerciante, Binance es un envío a la cuenta personal
+    // de la academia que se verifica a mano (ver BinancePersonalScreen).
+    const mode = options.methods.find((m) => m.id === "binance_pay")?.mode
+    return mode === "merchant" ? (
+      <BinanceScreen plan={plan} onBack={back} />
+    ) : (
+      <BinancePersonalScreen
+        plan={plan}
+        onBack={back}
+        onDone={onDone}
+        doneLabel={doneLabel}
+        onDeclared={onDeclared && (() => onDeclared("binance_pay"))}
+      />
+    )
+  }
+  if (selected === "pago_movil")
+    return (
+      <PagoMovilScreen plan={plan} onBack={back} onDone={onDone} doneLabel={doneLabel} onDeclared={onDeclared && (() => onDeclared("pago_movil"))} />
+    )
 
   const anyAvailable = options.methods.some((m) => m.available)
 

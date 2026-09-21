@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.agents.grading import CLOSED_EXERCISE_TYPES, grade_closed_exercise, grade_open_exercise
 from app.core.config import settings
 from app.core.db import get_db
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, require_access
 from app.models import Enrollment, ExerciseAttempt, User
 from app.repositories import (
     enrollment_repository,
@@ -24,7 +24,7 @@ from app.schemas.lesson import LessonDetailOut
 from app.schemas.module import ModuleDetailOut
 from app.services import module_exam as exam_service
 
-router = APIRouter(prefix="/modules", tags=["curriculum"])
+router = APIRouter(prefix="/modules", tags=["curriculum"], dependencies=[Depends(require_access)])
 
 
 @router.get("/{module_id}", response_model=ModuleDetailOut)

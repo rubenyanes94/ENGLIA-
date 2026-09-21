@@ -13,6 +13,7 @@ import ChatPage from "./pages/ChatPage"
 import FlashCoursePage from "./pages/FlashCoursePage"
 import LibraryPage from "./pages/LibraryPage"
 import BillingReturnPage from "./pages/BillingReturnPage"
+import SubscribePage from "./pages/SubscribePage"
 import ManagerRoute from "./components/ManagerRoute"
 
 // El panel de gerencia se carga aparte y solo cuando alguien entra en él:
@@ -27,12 +28,22 @@ const RevenuePage = lazy(() => import("./pages/management/RevenuePage"))
 const CustomersPage = lazy(() => import("./pages/management/CustomersPage"))
 const CustomerDetailPage = lazy(() => import("./pages/management/CustomerDetailPage"))
 const SystemPage = lazy(() => import("./pages/management/SystemPage"))
+const PaymentsPage = lazy(() => import("./pages/management/PaymentsPage"))
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<AuthPage />} />
+
+      {/* Con sesión pero SIN exigir pago: el paso de suscripción y la vuelta
+          desde Stripe/PayPal (app/billing/*). Fuera del Layout del aula: el
+          alumno todavía no está dentro. */}
+      <Route element={<ProtectedRoute requireAccess={false} />}>
+        <Route path="/suscripcion" element={<SubscribePage />} />
+        <Route path="/billing/success" element={<BillingReturnPage outcome="success" />} />
+        <Route path="/billing/cancel" element={<BillingReturnPage outcome="cancel" />} />
+      </Route>
 
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
@@ -44,9 +55,6 @@ function App() {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/library/:slug" element={<FlashCoursePage />} />
-          {/* A dónde vuelve el alumno desde Stripe/PayPal (app/billing/*). */}
-          <Route path="/billing/success" element={<BillingReturnPage outcome="success" />} />
-          <Route path="/billing/cancel" element={<BillingReturnPage outcome="cancel" />} />
         </Route>
       </Route>
 
@@ -67,6 +75,7 @@ function App() {
           <Route path="/gerencia/clientes" element={<CustomersPage />} />
           <Route path="/gerencia/clientes/:customerId" element={<CustomerDetailPage />} />
           <Route path="/gerencia/sistema" element={<SystemPage />} />
+          <Route path="/gerencia/pagos" element={<PaymentsPage />} />
         </Route>
       </Route>
 

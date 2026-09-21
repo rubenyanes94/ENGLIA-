@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, false
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -39,6 +39,14 @@ class User(Base):
     notifications_enabled: Mapped[bool] = mapped_column(default=True)
 
     is_active: Mapped[bool] = mapped_column(default=True)
+
+    # Entra a la app sin suscripción. True para TODAS las cuentas que
+    # existían cuando se activó el cobro (21/09/2026, migración de
+    # access_exempt): conservan el acceso gratis que ya tenían. Las nuevas
+    # nacen en False y tienen que pagar. Es una marca explícita y no una
+    # fecha de corte para poder regalar acceso a alguien concreto (una
+    # beca, un colaborador) sin tocar código. Ver app/services/access.py.
+    access_exempt: Mapped[bool] = mapped_column(default=False, server_default=false())
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     # "student" | "admin". String en vez de un enum de Postgres: añadir un

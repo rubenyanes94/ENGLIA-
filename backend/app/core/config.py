@@ -37,7 +37,11 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://englia:englia_dev_password@db:5432/englia"
     redis_url: str = "redis://redis:6379/0"
     secret_key: str = "change_me_in_production"
-    environment: str = "development"
+    # Por defecto "production" A PROPÓSITO: "development" activa cosas que
+    # en producción serían un agujero (el botón "Reportar pago" de prueba,
+    # que da acceso sin pagar; la demo de analítica). Si en un servidor se
+    # olvida la variable, falla hacia lo seguro. En local lo pone el .env.
+    environment: str = "production"
 
     # --- JWT ---
     jwt_algorithm: str = "HS256"
@@ -276,6 +280,18 @@ class Settings(BaseSettings):
     # app/billing/bcv_rate.py). Si se pone un número, manda sobre la del
     # BCV y deja de actualizarse: el panel de Sistema lo avisa.
     pago_movil_bs_per_usd: float | None = None
+
+    # --- Binance Pay a la cuenta PERSONAL de la academia ---
+    # Funciona como Pago Móvil: el alumno envía USDT desde su app de Binance
+    # (escaneando el QR o al correo/Pay ID) y declara el ID de la orden, que
+    # alguien verifica en el historial de Binance. No necesita cuenta de
+    # comerciante; la integración automática (BINANCE_PAY_API_KEY) es otra
+    # cosa, para cuando la haya. Vacíos por defecto: datos de una cuenta real.
+    binance_personal_qr_url: str = ""  # el enlace que codifica el QR (app.binance.com/uni-qr/...)
+    binance_personal_nickname: str = ""
+    binance_personal_email: str = ""
+    binance_personal_pay_id: str = ""
+    binance_personal_asset: str = "USDT"
 
     @field_validator("pago_movil_bs_per_usd", mode="before")
     @classmethod

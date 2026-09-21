@@ -16,5 +16,5 @@ export const METHODS: {
   { id: "pago_movil", label: "Pago Móvil", summary: "Transferencia en bolívares desde tu banco", icon: faMobileScreenButton, tone: "bg-red-500 text-white" },
   { id: "credit_card", label: "Tarjeta", summary: "Crédito o débito · se renueva cada mes", icon: faCreditCard, tone: "bg-ink-900 text-white" },
   { id: "paypal", label: "PayPal", summary: "Con tu cuenta PayPal · se renueva cada mes", icon: faPaypal, tone: "bg-brand-500 text-white" },
-  { id: "binance_pay", label: "Binance Pay", summary: "Con cripto desde la app de Binance", icon: faBitcoin, tone: "bg-amber-400 text-slate-900" },
+  { id: "binance_pay", label: "Binance Pay", summary: "USDT desde tu app de Binance, sin comisión", icon: faBitcoin, tone: "bg-amber-400 text-slate-900" },
 ]

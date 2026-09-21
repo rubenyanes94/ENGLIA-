@@ -162,3 +162,40 @@ export interface CustomerDetail {
   timeline: { at: string; kind: string; detail: Record<string, unknown> }[]
   top_corrections: { rule: string; times: number }[]
 }
+
+// --- Pagos (revisión manual) -------------------------------------------------
+
+export type PaymentStatus = "pending_verification" | "approved" | "rejected" | "failed" | "refunded"
+
+export interface PaymentReviewRow {
+  id: string
+  provider: "pago_movil" | "binance_pay" | "credit_card" | "paypal"
+  status: PaymentStatus
+  amount_cents: number
+  currency: string
+  external_reference: string | null
+  /** Lo que declaró el alumno y lo que se le pidió. Pago Móvil:
+   * reference_number, payer_bank/cedula/phone, amount_bs, expected_amount_bs,
+   * bs_per_usd, rate_value_date. Binance: order_id, payer_account,
+   * expected_amount, asset. Rechazado: rejection_reason. */
+  payload: Record<string, string | number | null | undefined>
+  created_at: string
+  reviewed_at: string | null
+  reviewer_name: string | null
+  customer: { id: string; full_name: string; email: string }
+  access_until: string | null
+}
+
+export interface PaymentReviewList {
+  items: PaymentReviewRow[]
+  total: number
+  as_of: string
+}
+
+export interface PaymentReviewSummary {
+  pending: number
+  pending_by_provider: Record<string, number>
+  oldest_pending_at: string | null
+  approved_today: number
+  approved_today_cents: number
+}
