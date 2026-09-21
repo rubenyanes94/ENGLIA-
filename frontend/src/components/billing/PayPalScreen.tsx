@@ -4,10 +4,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useState } from "react"
 import { api } from "../../api/client"
 import { ApiError } from "../../api/types"
-import type { CheckoutResponse } from "../../api/types"
+import type { CheckoutResponse, Plan } from "../../api/types"
 import { BackLink, ScreenHeader } from "./BillingModal"
+import { PriceTag, Steps } from "./PaymentInfo"
 
-export default function PayPalScreen({ onBack }: { onBack: () => void }) {
+export default function PayPalScreen({ plan, onBack }: { plan: Plan; onBack: () => void }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -15,7 +16,7 @@ export default function PayPalScreen({ onBack }: { onBack: () => void }) {
     setLoading(true)
     setError(null)
     try {
-      const res = await api.post<CheckoutResponse>("/billing/checkout/paypal", { plan_code: "premium_monthly" })
+      const res = await api.post<CheckoutResponse>("/billing/checkout/paypal", { plan_code: plan.code })
       window.location.href = res.checkout_url
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "No se pudo iniciar el pago.")
@@ -25,11 +26,17 @@ export default function PayPalScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <>
-      <ScreenHeader icon={faPaypal} tone="bg-brand-500 text-white" title="PayPal Academy" subtitle="Suscripción mensual" />
+      <ScreenHeader icon={faPaypal} tone="bg-brand-500 text-white" title="PayPal" subtitle="Suscripción mensual" />
 
-      <p className="mt-4 text-center text-sm text-slate-500">
-        Serás redirigido a PayPal para autorizar la suscripción mensual.
-      </p>
+      <PriceTag plan={plan} note="PayPal lo cobra cada mes · cancela cuando quieras desde PayPal" />
+
+      <Steps
+        items={[
+          "Pulsa el botón y te llevamos a PayPal.",
+          "Inicia sesión en tu cuenta y aprueba la suscripción.",
+          "Al aprobarla, vuelves aquí con tu acceso Premium ya activo.",
+        ]}
+      />
 
       {error && <p className="mt-3 text-center text-sm text-amber-700">{error}</p>}
 

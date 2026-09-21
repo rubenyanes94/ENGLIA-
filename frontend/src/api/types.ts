@@ -254,6 +254,28 @@ export interface Plan {
   name: string
   price_cents: number
   currency: string
+  interval?: "month" | "year"
+}
+
+/** GET /billing/subscription: si el alumno tiene acceso de pago ahora. */
+export interface MySubscription {
+  has_access: boolean
+  subscription: {
+    id: string
+    status: string
+    provider: BillingProvider
+    auto_renew: boolean
+    current_period_start: string | null
+    current_period_end: string | null
+    canceled_at: string | null
+    plan: Plan
+  } | null
+}
+
+/** GET /billing/options: el plan y qué métodos pueden cobrar HOY. */
+export interface BillingOptions {
+  plan: Plan
+  methods: { id: BillingProvider; available: boolean }[]
 }
 
 export interface CheckoutResponse {
@@ -269,6 +291,13 @@ export interface PagoMovilInfo {
   bank: string
   document: string
   phone: string
+  /** Monto exacto en bolívares y la tasa usada; null si la academia no ha
+   * configurado la tasa (entonces se pide usar la tasa BCV del día). */
+  amount_bs: number | null
+  bs_per_usd: number | null
+  /** Fecha valor de la tasa BCV usada ("2026-09-21") y de dónde salió. */
+  rate_date: string | null
+  rate_source: string | null
 }
 
 // --- Examen de módulo ---
