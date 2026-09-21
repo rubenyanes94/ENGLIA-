@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
@@ -129,3 +129,24 @@ class PagoMovilInfoOut(BaseModel):
     bank: str
     document: str
     phone: str
+    # Monto exacto a transferir y la tasa BCV usada, con su fecha valor;
+    # None si todavía no hay ninguna tasa (el BCV no responde y no hay
+    # ninguna guardada).
+    amount_bs: float | None = None
+    bs_per_usd: float | None = None
+    rate_date: date | None = None
+    rate_source: str | None = None
+
+
+class PaymentMethodOut(BaseModel):
+    id: str  # credit_card | paypal | binance_pay | pago_movil
+    available: bool
+
+
+class BillingOptionsOut(BaseModel):
+    """Lo que necesita la pantalla de "elige cómo pagar": el plan y qué
+    métodos pueden cobrar HOY. Un método sin credenciales se enseña como
+    no disponible en vez de dejar que el alumno lo elija y choque con un 503."""
+
+    plan: PlanOut
+    methods: list[PaymentMethodOut]
