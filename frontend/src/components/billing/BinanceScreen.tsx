@@ -49,7 +49,7 @@ export default function BinanceScreen({ plan, onBack }: { plan: Plan; onBack: ()
       {/* Binance no cobra solo cada mes: cada pago cubre un periodo y el
           siguiente se paga igual, desde el perfil. Decirlo ANTES de pagar
           evita el "¿por qué perdí el acceso?" treinta días después. */}
-      <PriceTag plan={plan} note="Cubre 30 días · no se renueva solo: el mes siguiente vuelves a pagar" />
+      <PriceTag plan={plan} note="Cubre un mes · no se renueva solo: el mes siguiente vuelves a pagar" />
 
       <Steps
         items={[

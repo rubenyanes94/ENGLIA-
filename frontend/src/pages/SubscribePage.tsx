@@ -149,7 +149,7 @@ export default function SubscribePage() {
             <h2 className="mt-4 text-2xl font-extrabold text-slate-900">{declared === "test" ? "¡Pago aceptado!" : "¡Pago recibido!"}</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-500">
               {declared === "test" ? (
-                "Tu suscripción Premium está activa por 30 días. ¡Bienvenido a Espikin!"
+                "Tu suscripción Premium está activa por un mes. ¡Bienvenido a Espikin!"
               ) : (
                 <>
                   {declared === "binance_pay" ? "Vamos a confirmar tu orden en Binance." : "Vamos a confirmar tu transferencia con el banco."}{" "}
