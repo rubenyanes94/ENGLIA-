@@ -27,7 +27,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.billing import binance_pay, paypal, stripe_gateway
 from app.core.db import get_db
 from app.repositories import payment_repository, plan_repository, subscription_repository
-from app.repositories.subscription_repository import BILLING_PERIOD
+from app.billing.period import period_end
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
@@ -62,7 +62,7 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)) -
                     db,
                     subscription,
                     period_start,
-                    period_start + BILLING_PERIOD,
+                    period_end(period_start),
                     provider_subscription_id=data.get("subscription"),
                 )
                 await payment_repository.create(
@@ -90,7 +90,7 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)) -
             if subscription is not None and existing is None:
                 plan = await plan_repository.get_by_id(db, subscription.plan_id)
                 period_start = datetime.utcnow()
-                await subscription_repository.activate(db, subscription, period_start, period_start + BILLING_PERIOD)
+                await subscription_repository.activate(db, subscription, period_start, period_end(period_start))
                 await payment_repository.create(
                     db,
                     user_id=subscription.user_id,
@@ -144,7 +144,7 @@ async def paypal_webhook(request: Request, db: AsyncSession = Depends(get_db)) -
                     db,
                     subscription,
                     period_start,
-                    period_start + BILLING_PERIOD,
+                    period_end(period_start),
                     provider_subscription_id=paypal_subscription_id,
                 )
                 await payment_repository.create(
@@ -171,7 +171,7 @@ async def paypal_webhook(request: Request, db: AsyncSession = Depends(get_db)) -
             if subscription is not None and existing is None:
                 plan = await plan_repository.get_by_id(db, subscription.plan_id)
                 period_start = datetime.utcnow()
-                await subscription_repository.activate(db, subscription, period_start, period_start + BILLING_PERIOD)
+                await subscription_repository.activate(db, subscription, period_start, period_end(period_start))
                 await payment_repository.create(
                     db,
                     user_id=subscription.user_id,
@@ -226,7 +226,7 @@ async def binance_webhook(request: Request, db: AsyncSession = Depends(get_db)) 
                 # auto_renew=False para binance_pay (ver el modelo): esto
                 # activa/renueva EL período pagado, no crea un cobro futuro.
                 activated = await subscription_repository.activate(
-                    db, subscription, period_start, period_start + BILLING_PERIOD
+                    db, subscription, period_start, period_end(period_start)
                 )
                 await payment_repository.create(
                     db,

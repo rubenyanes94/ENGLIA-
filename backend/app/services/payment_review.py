@@ -26,9 +26,9 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.billing.period import period_end
 from app.models import Payment, Subscription
 from app.repositories import payment_repository, plan_repository, subscription_repository
-from app.repositories.subscription_repository import BILLING_PERIOD
 
 
 async def _locked_pending(db: AsyncSession, payment_id: uuid.UUID) -> Payment:
@@ -65,7 +65,7 @@ async def approve(db: AsyncSession, payment_id: uuid.UUID, reviewer_id: uuid.UUI
         status="active",
         auto_renew=False,  # revisión manual = el alumno vuelve a pagar a mano
         current_period_start=start,
-        current_period_end=start + BILLING_PERIOD,
+        current_period_end=period_end(start),
     )
     db.add(subscription)
     await db.flush()

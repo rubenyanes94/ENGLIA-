@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,11 +14,10 @@ from app.models import Plan, Subscription
 # período es un pago nuevo que él inicia.
 AUTO_RENEWING_PROVIDERS = {"paypal", "credit_card"}
 
-# 30 días en vez de "un mes calendario exacto" — simplificación deliberada
-# para no añadir python-dateutil solo por esto. La usan tanto los
-# webhooks (renovación automática) como la aprobación manual de Pago
-# Móvil, para que un mes pagado dure lo mismo sin importar la pasarela.
-BILLING_PERIOD = timedelta(days=30)
+# Cuánto dura un periodo pagado: app/billing/period.py (un mes de
+# calendario que vence a medianoche, hora de Venezuela). Vive allí y no
+# aquí porque es una regla de negocio de facturación, y la usan por igual
+# los webhooks y la aprobación manual de Pago Móvil/Binance.
 
 
 async def get_active(db: AsyncSession, user_id: uuid.UUID) -> Subscription | None:
