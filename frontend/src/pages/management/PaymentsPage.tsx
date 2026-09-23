@@ -297,7 +297,7 @@ function PendingCard({ payment: p, asOf, onReviewed }: { payment: PaymentReviewR
       {mode === "approve" && (
         <div className="mt-4 rounded-2xl bg-emerald-50 p-4">
           <p className="text-sm font-semibold text-emerald-900">¿Encontraste este pago y el monto coincide?</p>
-          <p className="mt-0.5 text-xs text-emerald-800">Se le activa el acceso Premium por 30 días (o se suman a los que le queden).</p>
+          <p className="mt-0.5 text-xs text-emerald-800">Se le activa el acceso Premium por un mes (o se suma al que le quede).</p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"

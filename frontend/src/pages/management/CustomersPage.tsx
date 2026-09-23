@@ -1,9 +1,10 @@
 import { faChevronLeft, faChevronRight, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import type { CustomerList, CustomerSort, Segment } from "../../api/management"
 import { int, money, relativeDays } from "../../components/charts/format"
+import Expiry from "../../components/management/Expiry"
 import { SEGMENTS, SEGMENT_ORDER, SUBSCRIPTION_LABELS } from "../../components/management/labels"
 import PageShell from "../../components/management/PageShell"
 import SegmentBadge from "../../components/management/SegmentBadge"
@@ -121,6 +122,9 @@ export default function CustomersPage() {
                   <th scope="col" className="px-3 py-3 text-right font-semibold">Mensajes</th>
                   <th scope="col" className="px-3 py-3 text-right font-semibold">Módulos</th>
                   <th scope="col" className="px-3 py-3 font-semibold">Suscripción</th>
+                  <th scope="col" className="px-3 py-3 font-semibold" title="El acceso termina a las 12:00 a. m. de ese día">
+                    Vence
+                  </th>
                   <th scope="col" className="px-5 py-3 text-right font-semibold">Pagado</th>
                 </tr>
               </thead>
@@ -144,6 +148,9 @@ export default function CustomersPage() {
                     <td className="px-3 py-3 text-right tabular-nums text-slate-700">{int(c.tutor_messages)}</td>
                     <td className="px-3 py-3 text-right tabular-nums text-slate-700">{int(c.modules_completed)}</td>
                     <td className="whitespace-nowrap px-3 py-3 text-slate-700">{SUBSCRIPTION_LABELS[c.subscription_status] ?? c.subscription_status}</td>
+                    <td className="whitespace-nowrap px-3 py-3">
+                      <Expiry iso={c.subscription_period_end} status={c.subscription_status} now={data.as_of} />
+                    </td>
                     <td className="px-5 py-3 text-right tabular-nums text-slate-700">{money(c.total_paid_cents)}</td>
                   </tr>
                 ))}
@@ -170,6 +177,11 @@ export default function CustomersPage() {
                     <Fact label="Nivel" value={c.level_code ?? "—"} />
                     <Fact label="Módulos" value={int(c.modules_completed)} />
                     <Fact label="Suscripción" value={SUBSCRIPTION_LABELS[c.subscription_status] ?? c.subscription_status} />
+                    <Fact
+                      className="col-span-3"
+                      label="Vence"
+                      value={<Expiry iso={c.subscription_period_end} status={c.subscription_status} now={data.as_of} compact />}
+                    />
                   </dl>
                 </Link>
               </li>
@@ -209,9 +221,9 @@ function SegmentChip({ label, selected, onClick }: { label: string; selected: bo
   )
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value, className = "" }: { label: string; value: ReactNode; className?: string }) {
   return (
-    <div className="min-w-0">
+    <div className={`min-w-0 ${className}`}>
       <dt className="text-slate-400">{label}</dt>
       <dd className="truncate font-medium text-slate-700">{value}</dd>
     </div>

@@ -11,12 +11,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.billing import bcv_rate, binance_pay, paypal, stripe_gateway
+from app.billing.period import period_end
 from app.core.config import settings
 from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.models import Payment, Subscription, User
 from app.repositories import payment_repository, plan_repository, subscription_repository
-from app.repositories.subscription_repository import BILLING_PERIOD
 from app.schemas.billing import (
     BillingOptionsOut,
     BinancePersonalClaimRequest,
@@ -100,7 +100,7 @@ async def report_test_payment(
     now = datetime.utcnow()
     subscription = Subscription(
         user_id=current_user.id, plan_id=plan.id, provider="test", status="active",
-        auto_renew=False, current_period_start=now, current_period_end=now + BILLING_PERIOD,
+        auto_renew=False, current_period_start=now, current_period_end=period_end(now),
     )
     db.add(subscription)
     await db.flush()

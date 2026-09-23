@@ -134,7 +134,7 @@ export default function PagoMovilScreen({
             <CopyField label="Cédula / RIF" value={info.document} />
             <CopyField label="Teléfono" value={info.phone} />
             <p className="px-1 pt-1 text-xs text-slate-500">
-              Cubre 30 días. No se renueva solo: el mes siguiente vuelves a pagar desde tu perfil.
+              Cubre un mes. No se renueva solo: el mes siguiente vuelves a pagar desde tu perfil.
             </p>
           </>
         )}
