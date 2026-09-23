@@ -95,7 +95,7 @@ function CustomerBody({ data }: { data: CustomerDetail }) {
             </span>
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
               {SUBSCRIPTION_LABELS[c.subscription_status] ?? c.subscription_status}
-              {c.subscription_period_end && c.subscription_status === "active" && ` hasta el ${shortDate(c.subscription_period_end)}`}
+              {c.subscription_period_end && c.subscription_status === "active" && ` · vence el ${longDate(c.subscription_period_end)}`}
             </span>
           </div>
           <p className="mt-2 text-sm text-slate-500">

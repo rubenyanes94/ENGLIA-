@@ -77,6 +77,14 @@ export function relativeDays(iso: string | null | undefined, nowIso: string): st
   return months === 1 ? "Hace 1 mes" : `Hace ${months} meses`
 }
 
+/** Días de calendario que faltan hasta `iso`, contra la hora del negocio
+ * de la respuesta (no la del navegador de quien mira). 0 = es hoy,
+ * negativo = ya pasó. */
+export function daysUntil(iso: string, nowIso: string): number {
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+  return Math.round((startOfDay(parseLocal(iso)) - startOfDay(parseLocal(nowIso))) / 86_400_000)
+}
+
 /** Variación relativa entre dos periodos; null si el anterior es 0
  * (de 0 a 5 no es "+∞ %", es "sin base para comparar"). */
 export function change(current: number, previous: number): number | null {
