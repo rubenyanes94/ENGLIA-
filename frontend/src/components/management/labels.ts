@@ -174,3 +174,24 @@ export const PAYMENT_STATUS_ONE: Record<string, { label: string; color: string; 
   refunded: { label: "Reembolsado", color: STATUS.serious, icon: faCircleMinus },
 }
 
+
+/** Los tipos de correo, con una frase de cuándo sale cada uno: la lista
+ * de "Enviados" es el sitio donde alguien descubre que existe el aviso de
+ * "te echamos de menos". */
+export const EMAIL_KINDS: Record<string, { label: string; when: string }> = {
+  bienvenida: { label: "Bienvenida", when: "Al registrarse" },
+  pago_aprobado: { label: "Pago confirmado", when: "Al aprobar su pago" },
+  pago_rechazado: { label: "Pago rechazado", when: "Al rechazar su pago" },
+  vence_pronto: { label: "Vence pronto", when: "3 días antes de que termine su acceso" },
+  ultimo_dia: { label: "Último día", when: "El último día de su acceso" },
+  vencio: { label: "Se le venció", when: "El día que pierde el acceso" },
+  te_echamos_de_menos: { label: "Te echamos de menos", when: "Una semana sin practicar" },
+  campana: { label: "Campaña", when: "Escrita y enviada desde aquí" },
+}
+
+export const EMAIL_STATUS: Record<string, { label: string; className: string }> = {
+  sent: { label: "Enviado", className: "bg-emerald-50 text-emerald-700" },
+  sending: { label: "Enviando", className: "bg-slate-100 text-slate-600" },
+  failed: { label: "Falló", className: "bg-rose-50 text-rose-700" },
+  skipped: { label: "No se envió", className: "bg-amber-50 text-amber-800" },
+}

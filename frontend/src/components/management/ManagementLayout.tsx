@@ -1,6 +1,7 @@
 import {
   faArrowsRotate,
   faChartColumn,
+  faEnvelope,
   faGaugeHigh,
   faHeartPulse,
   faMoneyCheckDollar,
@@ -27,12 +28,13 @@ export const MANAGEMENT_NAV = [
   { to: "/gerencia/ingresos", label: "Ingresos", icon: faSackDollar, end: true },
   { to: "/gerencia/pagos", label: "Pagos", icon: faMoneyCheckDollar, end: true },
   { to: "/gerencia/clientes", label: "Clientes", icon: faUsers, end: false },
+  { to: "/gerencia/correos", label: "Correos", icon: faEnvelope, end: false },
   { to: "/gerencia/sistema", label: "Sistema", icon: faHeartPulse, end: true },
 ]
 
 /** Marco del panel de gerencia. Aparte del Layout del alumno a propósito:
  * gerencia no ve el aula, el tutor ni el progreso de nadie como alumno —
- * solo estas seis pestañas. Mismo relleno lateral (PAGE_GUTTER) y ancho
+ * solo estas pestañas. Mismo relleno lateral (PAGE_GUTTER) y ancho
  * completo que el resto de la app.
  *
  * Las pestañas arrastran el ?periodo= actual: cambiar de "Resumen" a

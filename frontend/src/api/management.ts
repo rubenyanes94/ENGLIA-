@@ -199,3 +199,89 @@ export interface PaymentReviewSummary {
   approved_today: number
   approved_today_cents: number
 }
+
+// --- Correos ---------------------------------------------------------------
+
+export type EmailStatus = "sent" | "failed" | "skipped" | "sending"
+
+export interface EmailMessageRow {
+  id: string
+  /** "bienvenida", "pago_aprobado", "vence_pronto", "campana"... */
+  kind: string
+  status: EmailStatus
+  to_email: string
+  subject: string
+  error: string | null
+  created_at: string
+  customer: { id: string; full_name: string; email: string } | null
+}
+
+export interface EmailMessageList {
+  items: EmailMessageRow[]
+  total: number
+  as_of: string
+}
+
+export interface EmailSummary {
+  days: number
+  sent: number
+  failed: number
+  skipped: number
+  failure_rate: number | null
+  by_kind: { kind: string; sent: number; failed: number; skipped: number }[]
+  last_sent_at: string | null
+  /** Por qué no está saliendo ningún correo (falta la clave, modo de
+   * pruebas). null = todo normal. */
+  blocked_reason: string | null
+}
+
+/** Los campos que se escriben en el editor. El HTML no se guarda: se arma
+ * al enviar con la plantilla de la marca. */
+export interface TemplateDraft {
+  name: string
+  subject: string
+  preheader: string
+  eyebrow: string
+  title: string
+  body: string
+  button_label: string | null
+  button_url: string | null
+}
+
+export interface EmailTemplate extends TemplateDraft {
+  id: string
+  created_at: string
+  updated_at: string
+  author_name: string | null
+  times_sent: number
+  last_sent_at: string | null
+}
+
+export interface TemplatePreview {
+  subject: string
+  html: string
+  text: string
+}
+
+export interface Audience {
+  key: string
+  label: string
+  description: string
+  customers: number
+}
+
+export interface Campaign {
+  id: string
+  name: string
+  subject: string
+  audience: string
+  audience_label: string
+  status: "enviando" | "terminada"
+  recipients: number
+  sent: number
+  skipped: number
+  failed: number
+  sender_name: string | null
+  created_at: string
+  finished_at: string | null
+}

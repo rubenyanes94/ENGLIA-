@@ -290,6 +290,33 @@ async def check_bcv_rate(db: AsyncSession) -> Check:
     return Check("bcv_rate", label, "ok", detail)
 
 
+async def check_email(db: AsyncSession) -> Check:
+    """Los correos de Espikin (app/notifications). Se mira lo que de verdad
+    pasó en las últimas 24 h y no solo si hay API key: un remitente sin
+    dominio verificado tiene la clave puesta y aun así no entrega nada."""
+    label = "Correos (Resend)"
+    if not settings.resend_api_key:
+        return Check("email", label, "warning", "Sin RESEND_API_KEY: no se envía ningún correo", None,
+                     "Ni bienvenida, ni confirmación de pago, ni avisos de vencimiento. Crear la cuenta en resend.com y poner la clave en .env.")
+
+    row = (await db.execute(text("""
+        SELECT count(*) FILTER (WHERE status = 'sent') AS enviados,
+               count(*) FILTER (WHERE status = 'failed') AS fallidos,
+               max(error) FILTER (WHERE status = 'failed') AS ultimo_error
+          FROM email_messages WHERE created_at >= now() - interval '24 hours'
+    """))).mappings().one()
+
+    destino = f" · desviados a {settings.email_sandbox_to}" if settings.email_sandbox_to else ""
+    detail = f"{row['enviados']} enviados y {row['fallidos']} fallidos en 24 h{destino}"
+    if row["fallidos"]:
+        return Check("email", label, "warning", detail, None,
+                     f"Último error: {row['ultimo_error']}. Si habla de dominio sin verificar, hay que verificar el dominio en Resend.")
+    if settings.email_sandbox_to:
+        return Check("email", label, "warning", detail, None,
+                     "EMAIL_SANDBOX_TO está puesto: NINGÚN correo llega a los alumnos, todos se desvían. Vaciarlo al tener dominio propio.")
+    return Check("email", label, "ok", detail)
+
+
 def check_test_mode() -> Check:
     """Con ENVIRONMENT=development la pantalla de pago muestra "Reportar
     pago" de prueba, que activa la suscripción SIN PAGAR. Bien en pruebas;
@@ -320,7 +347,7 @@ async def run_all(db: AsyncSession) -> list[dict]:
     db_checks: list[Check] = []
     configured: dict[str, str] = {settings.llm_model: "chat (por defecto)"}
     if database.status == "ok":
-        db_checks = [await check_migrations(db), await check_pending_summaries(db), await check_bcv_rate(db)]
+        db_checks = [await check_migrations(db), await check_pending_summaries(db), await check_bcv_rate(db), await check_email(db)]
         configured = await _configured_models(db)
 
     # Lo que sale de este proceso (NVIDIA, Redis, el worker) sí va en paralelo.

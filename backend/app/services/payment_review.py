@@ -26,8 +26,10 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.billing.period import period_end
-from app.models import Payment, Subscription
+from app.billing.period import local_date, period_end
+from app.models import Payment, Subscription, User
+from app.notifications import service as notifications
+from app.notifications.messages import fecha_larga
 from app.repositories import payment_repository, plan_repository, subscription_repository
 
 
@@ -76,9 +78,27 @@ async def approve(db: AsyncSession, payment_id: uuid.UUID, reviewer_id: uuid.UUI
     payment.reviewed_at = func.now()
     await db.commit()
     await db.refresh(payment)
+
+    # "Ya puedes entrar y hasta cuándo". Se envía después del commit: el
+    # acceso ya está dado, así que un fallo del correo no puede dejar al
+    # alumno pagado y sin suscripción.
+    await _avisar(db, payment.user_id, "pago_aprobado", payment.id, {"hasta": fecha_larga(local_date(subscription.current_period_end))})
     return payment
 
 
 async def reject(db: AsyncSession, payment_id: uuid.UUID, reviewer_id: uuid.UUID, reason: str) -> Payment:
     payment = await _locked_pending(db, payment_id)
-    return await payment_repository.mark_rejected(db, payment, reviewer_id, reason)
+    rejected = await payment_repository.mark_rejected(db, payment, reviewer_id, reason)
+
+    # Un rechazo sin avisar es la peor versión de esto: el alumno pierde
+    # el acceso provisional de un momento a otro sin saber por qué.
+    await _avisar(db, rejected.user_id, "pago_rechazado", rejected.id, {"motivo": reason})
+    return rejected
+
+
+async def _avisar(db: AsyncSession, user_id: uuid.UUID, kind: str, payment_id: uuid.UUID, context: dict) -> None:
+    user = await db.get(User, user_id)
+    if user is not None:
+        # El id del pago en la clave: si el alumno reporta otro pago y
+        # también se revisa, es un correo distinto y debe salir.
+        await notifications.send(db, user, kind, dedupe_key=f"{kind}:{payment_id}", context=context)
