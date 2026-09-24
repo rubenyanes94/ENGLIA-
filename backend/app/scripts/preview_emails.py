@@ -10,11 +10,12 @@ es de segundos. Además deja ver de un tirón los siete juntos, que es la
 No envía nada ni toca la base de datos: solo la plantilla y los textos.
 """
 
+import shutil
 import sys
 from datetime import date
 from pathlib import Path
 
-from app.notifications.layout import render_html, render_text
+from app.notifications.layout import LOGO_FILE, render_html, render_text
 from app.notifications.messages import MARKETING_KINDS, build, fecha_larga
 
 APP = "https://espikin.example/app"
@@ -34,12 +35,15 @@ EJEMPLOS = {
 def main() -> None:
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/correos-espikin")
     out.mkdir(parents=True, exist_ok=True)
+    # En el correo el logotipo va adjunto con un Content-ID, que un
+    # navegador no sabe resolver: para mirarlo aquí se copia al lado.
+    shutil.copy(LOGO_FILE, out / LOGO_FILE.name)
 
     enlaces = []
     for kind, context in EJEMPLOS.items():
         email = build(kind, full_name="Rubén Yánez", app_url=APP, context=context)
         baja = BAJA if kind in MARKETING_KINDS else None
-        (out / f"{kind}.html").write_text(render_html(email, baja), encoding="utf-8")
+        (out / f"{kind}.html").write_text(render_html(email, baja, logo_url=LOGO_FILE.name), encoding="utf-8")
         (out / f"{kind}.txt").write_text(render_text(email, baja), encoding="utf-8")
         enlaces.append((kind, email.subject, email.preheader))
         print(f"  {kind:22} {email.subject}")

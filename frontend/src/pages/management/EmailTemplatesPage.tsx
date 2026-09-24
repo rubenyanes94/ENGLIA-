@@ -242,12 +242,12 @@ function Editor({
           <Campo label="Etiqueta" hint="Arriba, en violeta.">
             <input {...input} value={draft.eyebrow} onChange={(e) => set("eyebrow", e.target.value)} placeholder="Promoción" maxLength={40} />
           </Campo>
-          <Campo label="Título" hint="La frase grande. Puedes usar {nombre}.">
-            <input {...input} value={draft.title} onChange={(e) => set("title", e.target.value)} placeholder="Te regalamos una semana, {nombre}" maxLength={200} />
+          <Campo label="Título" hint="La frase grande. {nombre} y *en violeta*.">
+            <input {...input} value={draft.title} onChange={(e) => set("title", e.target.value)} placeholder="Te regalamos *una semana*, {nombre}" maxLength={200} />
           </Campo>
         </div>
 
-        <Campo label="Mensaje" hint="Deja una línea en blanco entre párrafos. Se escribe en texto normal, sin etiquetas.">
+        <Campo label="Mensaje" hint="Una línea en blanco separa párrafos. Rodea con *asteriscos* lo que quieras en violeta.">
           <textarea
             {...input}
             rows={7}

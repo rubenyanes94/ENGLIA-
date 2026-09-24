@@ -33,7 +33,8 @@ def is_configured() -> bool:
 
 
 async def send_email(
-    *, to: str, subject: str, html: str, text: str, tag: str | None = None, headers: dict[str, str] | None = None
+    *, to: str, subject: str, html: str, text: str, tag: str | None = None,
+    headers: dict[str, str] | None = None, attachments: list[dict] | None = None,
 ) -> str:
     """Envía y devuelve el id del mensaje en Resend. Lanza EmailError si
     la API lo rechaza."""
@@ -59,6 +60,11 @@ async def send_email(
         # cabecera está presente, y penalizan al remitente masivo que no
         # la manda: es entregabilidad, no un adorno.
         payload["headers"] = headers
+    if attachments:
+        # El logotipo de la cabecera. Va con `content_id`, que es lo que
+        # hace que el cliente lo pinte DENTRO del mensaje en vez de
+        # colgarlo como un archivo adjunto al final.
+        payload["attachments"] = attachments
 
     async with httpx.AsyncClient(timeout=TIMEOUT) as client:
         response = await client.post(

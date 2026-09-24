@@ -6,6 +6,12 @@ idea por correo, el asunto ya dice todo lo que pasa, y un solo botón. Si
 el alumno solo lee el asunto y la primera línea, tiene que haberse
 enterado igual.
 
+Los *asteriscos* de los títulos pintan esa parte en violeta (ver
+layout._rich). No es un adorno: el titular de la portada también lleva
+media frase en color, y es lo que hace que un correo se lea como
+nuestro de un vistazo. Va en lo que importa — los días que quedan, el
+"ya está activo" —, nunca en la frase entera.
+
 Dos familias, y la diferencia importa:
 
 - **Transaccionales** (bienvenida, pago aprobado, pago rechazado): son la
@@ -58,7 +64,7 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             subject=f"Bienvenido a Espikin, {nombre}",
             preheader="Tu primera conversación en inglés te espera. Cinco minutos bastan para empezar.",
             eyebrow="Bienvenida",
-            title=f"Ya eres parte de Espikin, {nombre}",
+            title=f"Ya eres parte de *Espikin*, {nombre}",
             paragraphs=[
                 "Tus tutores ya están listos para hablar contigo. No son clases grabadas: conversas, te corrigen al momento y avanzas a tu ritmo.",
                 "El mejor primer paso son <strong>cinco minutos de conversación</strong>. Con eso ya sabemos por dónde empezar contigo.",
@@ -72,7 +78,7 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             subject="Pago confirmado: ya tienes acceso completo",
             preheader="Verificamos tu pago. Tu acceso a Espikin está activo.",
             eyebrow="Pago confirmado",
-            title=f"Listo, {nombre}. Ya está todo activo",
+            title=f"Listo, {nombre}. *Ya está todo activo*",
             paragraphs=["Verificamos tu pago y tu acceso quedó abierto. Puedes entrar a practicar ahora mismo."],
             note=Note("Tu acceso llega hasta el", context["hasta"]),
             button=Button("Entrar a mi aula", aula),
@@ -85,7 +91,7 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             subject="No pudimos confirmar tu pago",
             preheader="Revisa los datos y repórtalo otra vez: es cuestión de un minuto.",
             eyebrow="Revisión de pago",
-            title=f"No pudimos confirmar tu pago, {nombre}",
+            title=f"*No pudimos confirmar* tu pago, {nombre}",
             paragraphs=[
                 "Revisamos el pago que reportaste y no logramos encontrarlo. No te preocupes: se arregla reportándolo de nuevo con los datos correctos.",
             ],
@@ -105,7 +111,7 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             subject=f"Te quedan {dias} días de Espikin",
             preheader=f"Tu acceso termina el {context['hasta']}. Renovar toma un minuto.",
             eyebrow="Tu suscripción",
-            title=f"Quedan {dias} días, {nombre}",
+            title=f"Quedan *{dias} días*, {nombre}",
             paragraphs=[
                 "Tu mes con Espikin está por terminar. Renovando ahora no pierdes el hilo de lo que vienes trabajando con tus tutores.",
             ],
@@ -120,7 +126,7 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             subject="Hoy es tu último día de acceso",
             preheader="Mañana tu cuenta queda sin acceso. Renovar toma un minuto.",
             eyebrow="Tu suscripción",
-            title=f"Hoy es tu último día, {nombre}",
+            title=f"Hoy es *tu último día*, {nombre}",
             paragraphs=[
                 "A partir de mañana tu cuenta queda sin acceso a las clases. Tu progreso no se borra, pero sí se detiene.",
                 "Renovar toma un minuto y sigues justo donde lo dejaste.",
@@ -135,7 +141,7 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             subject="Tu acceso a Espikin terminó",
             preheader="Tu progreso sigue guardado. Puedes volver cuando quieras.",
             eyebrow="Tu suscripción",
-            title=f"Tu acceso terminó, {nombre}",
+            title=f"*Tu acceso terminó*, {nombre}",
             paragraphs=[
                 "Tu mes con Espikin llegó a su fin. Tu cuenta, tu nivel y todo tu progreso siguen guardados exactamente como los dejaste.",
                 "Cuando quieras retomar, solo tienes que activar de nuevo tu acceso.",
@@ -151,7 +157,7 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             subject=f"Llevas {dias} días sin practicar",
             preheader="Diez minutos hoy valen más que dos horas el domingo.",
             eyebrow="Tu práctica",
-            title=f"Tu inglés te espera, {nombre}",
+            title=f"*Tu inglés te espera*, {nombre}",
             paragraphs=[
                 f"Hace {dias} días que no pasas por el aula. Lo decimos sin regaño: aprender un idioma va de constancia, no de maratones.",
                 "<strong>Diez minutos hoy</strong> valen más que dos horas el domingo. Tu tutor retoma la conversación donde la dejaron.",

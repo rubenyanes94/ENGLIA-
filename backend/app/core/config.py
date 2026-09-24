@@ -340,6 +340,11 @@ class Settings(BaseSettings):
     # "Espikin <hola@espikin.com>" y los correos llegan a cualquiera.
     email_from: str = "Espikin <onboarding@resend.dev>"
     email_reply_to: str = ""
+    # El logotipo viaja DENTRO del correo (adjunto con Content-ID), así que
+    # esto normalmente se deja vacío. Con un dominio propio o un CDN, poner
+    # aquí la URL del PNG lo alivia: el correo pesa menos y algunos
+    # clientes tratan mejor a los que no llevan adjuntos.
+    email_logo_url: str = ""
     # Red de seguridad mientras no hay dominio: si está puesta, TODOS los
     # correos se desvían a esta dirección (con el destinatario real escrito
     # dentro del mensaje). Así se puede probar el ciclo completo con
