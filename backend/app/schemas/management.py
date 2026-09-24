@@ -303,3 +303,100 @@ class PaymentReviewSummary(BaseModel):
 
 class RejectRequest(BaseModel):
     reason: str = Field(min_length=3, max_length=300)
+
+
+# --- Correos (registro de envíos, plantillas y campañas) --------------------
+
+
+class EmailMessageRow(BaseModel):
+    id: uuid.UUID
+    kind: str
+    status: str
+    to_email: str
+    subject: str
+    error: str | None
+    created_at: datetime
+    customer: PaymentCustomer | None
+
+
+class EmailMessageList(BaseModel):
+    items: list[EmailMessageRow]
+    total: int
+    as_of: datetime
+
+
+class EmailKindCount(BaseModel):
+    kind: str
+    sent: int
+    failed: int
+    skipped: int
+
+
+class EmailSummary(BaseModel):
+    days: int
+    sent: int
+    failed: int
+    skipped: int
+    # Correos que no salieron por un fallo / los que se intentaron. None
+    # si no se intentó ninguno: un "0 %" sobre cero envíos no dice nada.
+    failure_rate: float | None
+    by_kind: list[EmailKindCount]
+    last_sent_at: datetime | None
+    # Si hace falta configurar algo para que salgan correos, se dice aquí
+    # y la pantalla lo avisa arriba en vez de mentir con ceros.
+    blocked_reason: str | None
+
+
+class TemplateIn(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    subject: str = Field(min_length=2, max_length=200)
+    preheader: str = Field(default="", max_length=200)
+    eyebrow: str = Field(default="Espikin", max_length=40)
+    title: str = Field(min_length=2, max_length=200)
+    body: str = Field(min_length=2, max_length=4000)
+    button_label: str | None = Field(default=None, max_length=60)
+    button_url: str | None = Field(default=None, max_length=500)
+
+
+class TemplateOut(TemplateIn):
+    id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+    author_name: str | None
+    # Cuántas veces se ha enviado y cuándo fue la última.
+    times_sent: int
+    last_sent_at: datetime | None
+
+
+class TemplatePreviewOut(BaseModel):
+    subject: str
+    html: str
+    text: str
+
+
+class AudienceOut(BaseModel):
+    key: str
+    label: str
+    description: str
+    customers: int
+
+
+class CampaignIn(BaseModel):
+    template_id: uuid.UUID
+    audience: str
+
+
+class CampaignOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    subject: str
+    audience: str
+    audience_label: str
+    status: str
+    recipients: int
+    sent: int
+    skipped: int
+    failed: int
+    sender_name: str | None
+    created_at: datetime
+    finished_at: datetime | None

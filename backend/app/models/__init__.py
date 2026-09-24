@@ -8,6 +8,7 @@ from app.models.cefr_level import CEFRLevel
 from app.models.conversation import ConversationMessage, ConversationSession
 from app.models.descriptor import Descriptor, DescriptorEvidence
 from app.models.email_message import EmailMessage
+from app.models.email_template import EmailCampaign, EmailTemplate
 from app.models.enrollment import Enrollment
 from app.models.exchange_rate import ExchangeRate
 from app.models.exercise import Exercise, ExerciseAttempt
@@ -30,7 +31,9 @@ __all__ = [
     "ConversationSession",
     "Descriptor",
     "DescriptorEvidence",
+    "EmailCampaign",
     "EmailMessage",
+    "EmailTemplate",
     "Enrollment",
     "ExchangeRate",
     "Exercise",

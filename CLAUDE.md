@@ -110,7 +110,10 @@ and restart the TS server (`TypeScript: Restart TS Server`).
   background loop from `main.py`'s lifespan (Redis-locked, like the BCV rate) and decides
   who gets a renewal reminder. Copy lives in `messages.py`, the branded HTML shell in
   `layout.py`; `python -m app.scripts.preview_emails` renders them all to disk without
-  sending anything.
+  sending anything. Gerencia's Correos tab (`routers/management_emails.py`) reads that log
+  and writes campaigns: a manager composes an `EmailTemplate`, previews it through the real
+  renderer, sends a test to themselves, and then sends it to one of the fixed groups in
+  `notifications/audiences.py` — never a free-form query.
 
 Alembic is listed as a dependency but not yet initialized (no `alembic/` directory or
 `alembic.ini`) — the DB schema for anything beyond the `pgvector` extension doesn't exist

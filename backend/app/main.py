@@ -15,7 +15,7 @@ from app.core.db import get_db
 from app.core.redis import redis_client
 from app.monitoring.http_metrics import RequestMetricsMiddleware
 from app.notifications.lifecycle import notifications_loop
-from app.routers import admin, auth, billing, chat, events, levels, library, management, modules, monitoring, notifications, payment_review, pronunciation, sentence_game, users, webhooks
+from app.routers import admin, auth, billing, chat, events, levels, library, management, management_emails, modules, monitoring, notifications, payment_review, pronunciation, sentence_game, users, webhooks
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -71,6 +71,7 @@ app.include_router(users.router)
 app.include_router(admin.router)
 app.include_router(management.router)
 app.include_router(payment_review.router)
+app.include_router(management_emails.router)
 app.include_router(monitoring.router)
 app.include_router(monitoring.public_router)
 app.include_router(events.router)

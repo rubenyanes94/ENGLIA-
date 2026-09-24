@@ -29,6 +29,8 @@ const CustomersPage = lazy(() => import("./pages/management/CustomersPage"))
 const CustomerDetailPage = lazy(() => import("./pages/management/CustomerDetailPage"))
 const SystemPage = lazy(() => import("./pages/management/SystemPage"))
 const PaymentsPage = lazy(() => import("./pages/management/PaymentsPage"))
+const EmailsPage = lazy(() => import("./pages/management/EmailsPage"))
+const EmailTemplatesPage = lazy(() => import("./pages/management/EmailTemplatesPage"))
 
 function App() {
   return (
@@ -76,6 +78,8 @@ function App() {
           <Route path="/gerencia/clientes/:customerId" element={<CustomerDetailPage />} />
           <Route path="/gerencia/sistema" element={<SystemPage />} />
           <Route path="/gerencia/pagos" element={<PaymentsPage />} />
+          <Route path="/gerencia/correos" element={<EmailsPage />} />
+          <Route path="/gerencia/correos/plantillas" element={<EmailTemplatesPage />} />
         </Route>
       </Route>
 
