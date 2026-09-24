@@ -257,6 +257,17 @@ export interface EmailTemplate extends TemplateDraft {
   last_sent_at: string | null
 }
 
+/** Un mensaje ya escrito con el que empezar una campaña. Es un borrador
+ * editable, no una plantilla guardada: en cuanto se elige, lo que se
+ * guarda es una plantilla normal del usuario. */
+export interface Starter extends TemplateDraft {
+  key: string
+  label: string
+  description: string
+  /** El grupo al que tiene sentido mandarlo; el panel lo preselecciona. */
+  audience: string
+}
+
 export interface TemplatePreview {
   subject: string
   html: string

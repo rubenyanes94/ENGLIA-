@@ -368,6 +368,17 @@ class TemplateOut(TemplateIn):
     last_sent_at: datetime | None
 
 
+class StarterOut(TemplateIn):
+    """Un mensaje ya escrito para arrancar una campaña. Hereda los campos
+    de TemplateIn porque es exactamente eso: el borrador que se va a
+    editar, más de dónde salió y a quién conviene mandarlo."""
+
+    key: str
+    label: str
+    description: str
+    audience: str
+
+
 class TemplatePreviewOut(BaseModel):
     subject: str
     html: str

@@ -29,7 +29,7 @@ from app.core.config import settings
 from app.core.db import get_db
 from app.core.deps import get_current_manager
 from app.models import EmailCampaign, EmailMessage, EmailTemplate, User
-from app.notifications import audiences, campaigns, resend_client, service
+from app.notifications import audiences, campaigns, resend_client, service, starters
 from app.notifications.layout import logo_base64, render_html, render_text
 from app.repositories.analytics_repository import local_now
 from app.schemas.management import (
@@ -40,6 +40,7 @@ from app.schemas.management import (
     EmailMessageList,
     EmailMessageRow,
     EmailSummary,
+    StarterOut,
     TemplateIn,
     TemplateOut,
     TemplatePreviewOut,
@@ -157,6 +158,15 @@ async def _template_out(db: AsyncSession, template: EmailTemplate) -> TemplateOu
         author_name=author.full_name if author else None,
         times_sent=envios[0] or 0, last_sent_at=_local(envios[1]),
     )
+
+
+@router.get("/email-starters", response_model=list[StarterOut])
+async def list_starters() -> list[StarterOut]:
+    """Los mensajes ya escritos con los que se puede empezar una campaña.
+    Son fijos (app/notifications/starters.py), no filas de la base: son
+    el punto de partida, y lo que se guarda después es una plantilla
+    normal del usuario."""
+    return [StarterOut(**s, button_url=None) for s in starters.as_dicts()]
 
 
 @router.get("/email-templates", response_model=list[TemplateOut])
