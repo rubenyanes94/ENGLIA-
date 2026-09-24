@@ -362,6 +362,13 @@ class Settings(BaseSettings):
     # Días sin entrar a partir de los cuales se envía "te echamos de menos"
     # (solo a quien tiene acceso: al que no paga se le escribe por otro lado).
     inactivity_days: int = 7
+    # Durante cuántos meses se sigue escribiendo a quien fue cliente y se
+    # fue (dos veces al mes, ver lifecycle._reconquista). No es "para
+    # siempre" a propósito: escribirle indefinidamente a quien no vuelve
+    # no lo recupera, y sí hace que marque como spam a Espikin — y esa
+    # marca la pagan después los correos que SÍ importan, los de los
+    # clientes que están pagando.
+    winback_months: int = 6
 
     # --- Panel de gerencia ---
     # Zona horaria del NEGOCIO para la analítica. Las fechas se guardan en

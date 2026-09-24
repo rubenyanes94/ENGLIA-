@@ -209,11 +209,28 @@ async def delete_template(template_id: uuid.UUID, db: AsyncSession = Depends(get
 
 
 @router.post("/email-templates/preview", response_model=TemplatePreviewOut)
-async def preview_template(payload: TemplateIn, manager: User = Depends(get_current_manager)) -> TemplatePreviewOut:
+async def preview_template(
+    payload: TemplateIn,
+    como: uuid.UUID | None = Query(None, description="Ver el correo como lo recibiría este cliente"),
+    manager: User = Depends(get_current_manager),
+    db: AsyncSession = Depends(get_db),
+) -> TemplatePreviewOut:
     """El correo tal cual, sin guardar nada: es lo que se ve mientras se
-    escribe. Se personaliza con el nombre de quien está mirando, para que
-    se note dónde cae el {nombre}."""
-    email = campaigns.build_email(payload.model_dump(), manager)
+    escribe.
+
+    Por defecto se personaliza con quien está mirando —por eso en el panel
+    pone siempre su nombre—, pero con `como` se ve tal como le llegaría a
+    un cliente concreto. Es la forma de comprobar que {nombre} agarra el
+    nombre de cada quien sin mandarle un correo a nadie: en un envío real
+    esto mismo se hace una vez por destinatario (ver campaigns.run).
+    """
+    destinatario = manager
+    if como is not None:
+        cliente = await db.get(User, como)
+        if cliente is None:
+            raise HTTPException(status_code=404, detail="Ese cliente ya no existe.")
+        destinatario = cliente
+    email = campaigns.build_email(payload.model_dump(), destinatario)
     baja = f"{settings.frontend_base_url.rstrip('/')}/api/notifications/baja?token=ejemplo"
     # En el correo de verdad el logotipo va adjunto con un Content-ID, que
     # un navegador no resuelve; para el <iframe> del panel se manda el

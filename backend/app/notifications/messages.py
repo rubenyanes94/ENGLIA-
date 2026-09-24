@@ -33,7 +33,7 @@ from app.notifications.layout import Button, Email, Note
 # persona en el panel y vive en la base de datos (app/notifications/
 # campaigns.py). Sí está en esta lista porque es publicidad, y por tanto
 # respeta la baja y lleva enlace para darse de baja como el resto.
-MARKETING_KINDS = {"vence_pronto", "ultimo_dia", "vencio", "te_echamos_de_menos", "campana"}
+MARKETING_KINDS = {"vence_pronto", "ultimo_dia", "vencio", "te_echamos_de_menos", "reconquista", "campana"}
 
 MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 
@@ -148,6 +148,41 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             ],
             button=Button("Volver a activar mi acceso", pagar),
             footnote="¿Lo dejas por algo que podamos mejorar? Responde a este correo: lo leemos todos.",
+            context=context,
+        )
+
+    if kind == "reconquista":
+        # El que ya pagó alguna vez y se fue. Se le escribe dos veces al
+        # mes (ver lifecycle.py), así que hay DOS textos que se van
+        # alternando: el mismo correo dos veces al mes durante medio año
+        # se ignora a la tercera y acaba en spam.
+        if context.get("variante") == "b":
+            return Email(
+                subject="El inglés no se olvida, se oxida",
+                preheader="Diez minutos al día bastan para que no se caiga lo que ya sabes.",
+                eyebrow="Tu inglés",
+                title="Un mes parado *cuesta dos* de vuelta",
+                paragraphs=[
+                    "Lo que aprendiste no se borra, pero sí se oxida: cuesta más arrancar una conversación, "
+                    "vuelven los silencios largos, y la gramática que ya te salía sola hay que volver a pensarla.",
+                    "No hace falta retomar con todo. <strong>Diez minutos de conversación</strong> a la semana "
+                    "bastan para que no se caiga lo que ya tienes.",
+                ],
+                button=Button("Volver a practicar", pagar),
+                context=context,
+            )
+        return Email(
+            subject=f"Tu cuenta sigue esperándote, {nombre}",
+            preheader="Tu nivel y tus módulos siguen guardados como los dejaste.",
+            eyebrow="Te esperamos",
+            title=f"Seguimos guardando *tu sitio*, {nombre}",
+            paragraphs=[
+                "Tu nivel, tus módulos y las correcciones de tu tutor siguen exactamente como los dejaste. "
+                "No borramos nada de nadie.",
+                "El día que quieras volver no empiezas de cero: retomas la conversación donde se quedó.",
+            ],
+            button=Button("Volver a Espikin", pagar),
+            footnote="Si ya no te interesa, puedes darte de baja aquí abajo y dejamos de escribirte.",
             context=context,
         )
 

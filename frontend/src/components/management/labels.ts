@@ -186,6 +186,7 @@ export const EMAIL_KINDS: Record<string, { label: string; when: string }> = {
   ultimo_dia: { label: "Último día", when: "El último día de su acceso" },
   vencio: { label: "Se le venció", when: "El día que pierde el acceso" },
   te_echamos_de_menos: { label: "Te echamos de menos", when: "Una semana sin practicar" },
+  reconquista: { label: "Vuelve con nosotros", when: "Dos veces al mes, a quien fue cliente y se fue" },
   campana: { label: "Campaña", when: "Escrita y enviada desde aquí" },
 }
 
