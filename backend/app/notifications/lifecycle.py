@@ -10,6 +10,10 @@ se va:
 4. **Una semana sin entrar**, teniendo acceso pagado. Es el aviso más
    rentable de todos: ese alumno ya pagó y está a punto de no renovar
    porque dejó de usarlo.
+5. **Dos veces al mes a quien ya fue cliente** y se fue. Quien pagó
+   alguna vez es, con diferencia, el más fácil de recuperar: ya sabe qué
+   es esto y ya le pareció que valía la pena. Se insiste durante
+   WINBACK_MONTHS meses y luego se para (ver _reconquista).
 
 Todo se calcula en fechas de CALENDARIO en hora de Venezuela, no en
 "horas que faltan": la suscripción vence a medianoche (ver
@@ -106,6 +110,50 @@ async def _inactivos_con_acceso(db: AsyncSession) -> list[dict]:
     return await _all(db, sql, {"hoy": local_now(), "dias": settings.inactivity_days, "tz": settings.analytics_timezone})
 
 
+def _quincena(dia) -> tuple[str, str]:
+    """En qué mitad del mes estamos, y qué texto toca.
+
+    Es lo que hace que sean exactamente DOS correos al mes sin llevar
+    ninguna cuenta: la clave de deduplicación lleva "2026-10-1" o
+    "2026-10-2", así que dentro de cada mitad solo cabe uno por alumno,
+    pase el bucle las veces que pase. Y como los dos textos se alternan
+    con la mitad, nadie recibe el mismo dos veces seguidas."""
+    mitad = 1 if dia.day <= 15 else 2
+    return f"{dia.year}-{dia.month:02d}-{mitad}", "a" if mitad == 1 else "b"
+
+
+async def _reconquista(db: AsyncSession) -> list[dict]:
+    """Los que fueron clientes de verdad y hoy no lo son.
+
+    Tres filtros, y los tres importan:
+
+    - **Pagó alguna vez** (un pago aprobado). A quien se registró y nunca
+      pagó no se le escribe esto: no es "vuelve", es otra conversación.
+    - **Se le acabó hace más de una semana.** El día que vence ya recibe
+      su aviso ("vencio"); encadenarle este dos días después es acoso.
+    - **Y hace menos de WINBACK_MONTHS meses.** A partir de ahí se deja
+      de insistir: quien no volvió en medio año no vuelve porque le
+      lleguen doce correos más, y cada uno de esos correos ignorados
+      empeora la entregabilidad de los que sí importan.
+    """
+    sql = f"""
+    WITH fin AS (
+        SELECT s.user_id, max({_local('s.current_period_end')}) AS termina
+          FROM subscriptions s
+         WHERE s.status = 'active' AND s.current_period_end IS NOT NULL
+         GROUP BY s.user_id
+    )
+    SELECT u.id, fin.termina
+      FROM fin
+      JOIN users u ON u.id = fin.user_id
+     WHERE {DESTINATARIOS}
+       AND fin.termina < CAST(:hoy AS timestamp) - interval '7 days'
+       AND fin.termina > CAST(:hoy AS timestamp) - make_interval(months => :meses)
+       AND EXISTS (SELECT 1 FROM payments p WHERE p.user_id = u.id AND p.status = 'approved')
+    """
+    return await _all(db, sql, {"hoy": local_now(), "meses": settings.winback_months, "tz": settings.analytics_timezone})
+
+
 async def run_once() -> dict:
     """Una pasada completa. Devuelve el recuento por tipo, que es lo que
     se ve en el panel de Sistema."""
@@ -149,6 +197,23 @@ async def run_once() -> dict:
             )
             if ok:
                 enviados["te_echamos_de_menos"] = enviados.get("te_echamos_de_menos", 0) + 1
+                total += 1
+                if total >= MAX_POR_VUELTA:
+                    logger.warning("Tope de %s correos por vuelta alcanzado; el resto sale en la siguiente.", MAX_POR_VUELTA)
+                    break
+
+        clave, variante = _quincena(local_now().date())
+        for row in await _reconquista(db):
+            user = await db.get(User, row["id"])
+            if user is None:
+                continue
+            ok = await service.send(
+                db, user, "reconquista",
+                dedupe_key=f"reconquista:{clave}",
+                context={"variante": variante},
+            )
+            if ok:
+                enviados["reconquista"] = enviados.get("reconquista", 0) + 1
                 total += 1
                 if total >= MAX_POR_VUELTA:
                     logger.warning("Tope de %s correos por vuelta alcanzado; el resto sale en la siguiente.", MAX_POR_VUELTA)
