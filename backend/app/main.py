@@ -14,18 +14,26 @@ from app.core.config import settings
 from app.core.db import get_db
 from app.core.redis import redis_client
 from app.monitoring.http_metrics import RequestMetricsMiddleware
-from app.routers import admin, auth, billing, chat, events, levels, library, management, modules, monitoring, payment_review, pronunciation, sentence_game, users, webhooks
+from app.notifications.lifecycle import notifications_loop
+from app.routers import admin, auth, billing, chat, events, levels, library, management, modules, monitoring, notifications, payment_review, pronunciation, sentence_game, users, webhooks
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     # Tasa del BCV: se lee al arrancar y cada hora, en segundo plano (ver
     # app/billing/bcv_rate.py). Sin esto habría que cambiar la tasa a mano
     # cada día para que Pago Móvil pida el monto correcto en bolívares.
-    task = asyncio.create_task(refresh_loop())
+    tasks = [
+        asyncio.create_task(refresh_loop()),
+        # Correos de retención: cada hora mira a quién se le vence el
+        # acceso o lleva una semana sin entrar (app/notifications).
+        asyncio.create_task(notifications_loop()),
+    ]
     yield
-    task.cancel()
-    with contextlib.suppress(asyncio.CancelledError):
-        await task
+    for task in tasks:
+        task.cancel()
+    for task in tasks:
+        with contextlib.suppress(asyncio.CancelledError):
+            await task
 
 
 app = FastAPI(title="English Academy API", version="0.1.0", lifespan=lifespan)
@@ -68,6 +76,7 @@ app.include_router(monitoring.public_router)
 app.include_router(events.router)
 app.include_router(billing.router)
 app.include_router(webhooks.router)
+app.include_router(notifications.router)
 
 
 @app.get("/")

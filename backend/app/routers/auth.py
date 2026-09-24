@@ -6,6 +6,7 @@ from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.core.security import create_access_token, verify_password
 from app.models import User
+from app.notifications import service as notifications
 from app.repositories import user_repository
 from app.schemas.auth import AccessOut, RegisterRequest, TokenResponse, UserOut
 from app.services.access import access_status
@@ -22,6 +23,11 @@ async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db))
     user = await user_repository.create_user(
         db, email=payload.email, password=payload.password, full_name=payload.full_name
     )
+    # Correo de bienvenida. Va aquí y no en segundo plano porque son
+    # ~300 ms y falla en silencio: si Resend no responde, el registro se
+    # completa igual (ver app/notifications/service.py).
+    await notifications.send(db, user, "bienvenida")
+
     # Auto-login al registrarse: el alumno no tiene que hacer dos pasos.
     token = create_access_token(subject=str(user.id))
     return TokenResponse(access_token=token)

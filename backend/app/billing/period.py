@@ -48,6 +48,13 @@ def add_one_month(day: date) -> date:
     return date(year, month, min(day.day, calendar.monthrange(year, month)[1]))
 
 
+def local_date(moment: datetime) -> date:
+    """La fecha de calendario en hora del negocio de un instante guardado
+    en UTC. Un vencimiento a las 04:00 UTC es el día anterior... no: son
+    las 00:00 en Caracas, y el día que le importa al alumno es ese."""
+    return moment.replace(tzinfo=timezone.utc).astimezone(_business_tz()).date()
+
+
 def period_end(start: datetime) -> datetime:
     """Fin del periodo que empieza en `start`. Entra y sale UTC sin zona.
 

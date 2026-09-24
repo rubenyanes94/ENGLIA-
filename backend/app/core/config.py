@@ -329,6 +329,35 @@ class Settings(BaseSettings):
     binance_pay_api_secret: str = ""
     binance_pay_api_base: str = "https://bpay.binanceapi.com"
 
+    # --- Correos (Resend) ---
+    # Sin API key no se envía nada y el resto de la app sigue funcionando
+    # igual (ver app/notifications/service.py): un correo que no sale no
+    # puede tumbar un registro ni una aprobación de pago.
+    resend_api_key: str = ""
+    # Remitente. "onboarding@resend.dev" es el remitente de pruebas de
+    # Resend: sirve para probar, pero SOLO entrega a la dirección dueña de
+    # la cuenta. Con dominio propio verificado esto pasa a ser algo como
+    # "Espikin <hola@espikin.com>" y los correos llegan a cualquiera.
+    email_from: str = "Espikin <onboarding@resend.dev>"
+    email_reply_to: str = ""
+    # Red de seguridad mientras no hay dominio: si está puesta, TODOS los
+    # correos se desvían a esta dirección (con el destinatario real escrito
+    # dentro del mensaje). Así se puede probar el ciclo completo con
+    # clientes reales en la base sin escribirles de verdad. Vaciarla el día
+    # que el dominio esté verificado.
+    email_sandbox_to: str = ""
+    # Interruptor general de los correos comerciales (vencimientos, "te
+    # echamos de menos"). Los transaccionales — bienvenida, pago aprobado,
+    # pago rechazado — se envían igual: son respuesta a algo que hizo el
+    # alumno, no publicidad.
+    marketing_emails_enabled: bool = True
+    # Cada cuánto revisa el bucle a quién le toca un correo de retención.
+    # Una hora: los avisos se atan a un día concreto, no a un minuto.
+    notifications_interval_minutes: int = 60
+    # Días sin entrar a partir de los cuales se envía "te echamos de menos"
+    # (solo a quien tiene acceso: al que no paga se le escribe por otro lado).
+    inactivity_days: int = 7
+
     # --- Panel de gerencia ---
     # Zona horaria del NEGOCIO para la analítica. Las fechas se guardan en
     # UTC; sin convertir, "a qué hora estudian" saldría desplazado 4 horas

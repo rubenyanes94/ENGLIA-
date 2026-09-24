@@ -103,6 +103,14 @@ and restart the TS server (`TypeScript: Restart TS Server`).
   models/routers should depend on `get_db`, not create their own engine/session.
 - Redis client is instantiated directly in `main.py` at module scope
   (`redis_client = aioredis.from_url(...)`) — there's no `core/redis.py` abstraction yet.
+- `notifications/` — the emails Espikin sends (Resend). `service.send()` is the only way
+  to send one: it enforces the dedupe key (unique per user, in `email_messages`), the
+  opt-out, and the `EMAIL_SANDBOX_TO` redirect, and never raises — a failed email must not
+  break the registration or payment approval that triggered it. `lifecycle.py` runs in a
+  background loop from `main.py`'s lifespan (Redis-locked, like the BCV rate) and decides
+  who gets a renewal reminder. Copy lives in `messages.py`, the branded HTML shell in
+  `layout.py`; `python -m app.scripts.preview_emails` renders them all to disk without
+  sending anything.
 
 Alembic is listed as a dependency but not yet initialized (no `alembic/` directory or
 `alembic.ini`) — the DB schema for anything beyond the `pgvector` extension doesn't exist

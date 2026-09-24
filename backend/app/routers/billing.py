@@ -11,11 +11,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.billing import bcv_rate, binance_pay, paypal, stripe_gateway
-from app.billing.period import period_end
+from app.billing.period import local_date, period_end
 from app.core.config import settings
 from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.models import Payment, Subscription, User
+from app.notifications import service as notifications
+from app.notifications.messages import fecha_larga
 from app.repositories import payment_repository, plan_repository, subscription_repository
 from app.schemas.billing import (
     BillingOptionsOut,
@@ -112,6 +114,13 @@ async def report_test_payment(
     db.add(payment)
     await db.commit()
     await db.refresh(payment)
+
+    # El mismo correo que recibiría con un pago de verdad: si el botón de
+    # prueba recorre el camino real, también recorre este trozo.
+    await notifications.send(
+        db, current_user, "pago_aprobado", dedupe_key=f"pago_aprobado:{payment.id}",
+        context={"hasta": fecha_larga(local_date(subscription.current_period_end))},
+    )
     return payment
 
 

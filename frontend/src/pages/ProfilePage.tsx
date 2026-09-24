@@ -149,12 +149,12 @@ export default function ProfilePage() {
             <div className="flex items-center gap-4 px-6 py-4">
               <FontAwesomeIcon icon={faBell} className="w-5 text-slate-400" />
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-slate-800">Notificaciones</p>
-                {/* Se dice la verdad sobre el estado real de la función:
-                    la preferencia se guarda, pero todavía no hay nada que
-                    envíe avisos. Un interruptor que promete lo que no hay
-                    se nota a la primera semana. */}
-                <p className="text-xs text-slate-400">Guardamos tu preferencia para cuando activemos los avisos</p>
+                <p className="font-semibold text-slate-800">Recordatorios por correo</p>
+                {/* Qué apaga exactamente este interruptor, dicho sin
+                    letra pequeña: los recordatorios. Lo de su cuenta —
+                    un pago confirmado, un pago rechazado — le llega
+                    igual, y eso no se puede desactivar. */}
+                <p className="text-xs text-slate-400">Avisos de vencimiento y cuando llevas días sin practicar. Lo de tus pagos te llega siempre.</p>
               </div>
               <Toggle
                 checked={user.notifications_enabled}
