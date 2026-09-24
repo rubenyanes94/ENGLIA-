@@ -29,8 +29,8 @@ from app.core.config import settings
 from app.core.db import get_db
 from app.core.deps import get_current_manager
 from app.models import EmailCampaign, EmailMessage, EmailTemplate, User
-from app.notifications import audiences, campaigns, resend_client, service
-from app.notifications.layout import render_html, render_text
+from app.notifications import audiences, campaigns, resend_client, service, starters
+from app.notifications.layout import logo_base64, render_html, render_text
 from app.repositories.analytics_repository import local_now
 from app.schemas.management import (
     AudienceOut,
@@ -40,6 +40,7 @@ from app.schemas.management import (
     EmailMessageList,
     EmailMessageRow,
     EmailSummary,
+    StarterOut,
     TemplateIn,
     TemplateOut,
     TemplatePreviewOut,
@@ -159,6 +160,15 @@ async def _template_out(db: AsyncSession, template: EmailTemplate) -> TemplateOu
     )
 
 
+@router.get("/email-starters", response_model=list[StarterOut])
+async def list_starters() -> list[StarterOut]:
+    """Los mensajes ya escritos con los que se puede empezar una campaña.
+    Son fijos (app/notifications/starters.py), no filas de la base: son
+    el punto de partida, y lo que se guarda después es una plantilla
+    normal del usuario."""
+    return [StarterOut(**s, button_url=None) for s in starters.as_dicts()]
+
+
 @router.get("/email-templates", response_model=list[TemplateOut])
 async def list_templates(db: AsyncSession = Depends(get_db)) -> list[TemplateOut]:
     rows = (await db.execute(select(EmailTemplate).order_by(EmailTemplate.updated_at.desc()))).scalars().all()
@@ -205,7 +215,11 @@ async def preview_template(payload: TemplateIn, manager: User = Depends(get_curr
     se note dónde cae el {nombre}."""
     email = campaigns.build_email(payload.model_dump(), manager)
     baja = f"{settings.frontend_base_url.rstrip('/')}/api/notifications/baja?token=ejemplo"
-    return TemplatePreviewOut(subject=email.subject, html=render_html(email, baja), text=render_text(email, baja))
+    # En el correo de verdad el logotipo va adjunto con un Content-ID, que
+    # un navegador no resuelve; para el <iframe> del panel se manda el
+    # mismo PNG incrustado.
+    logo = settings.email_logo_url or f"data:image/png;base64,{logo_base64()}"
+    return TemplatePreviewOut(subject=email.subject, html=render_html(email, baja, logo_url=logo), text=render_text(email, baja))
 
 
 @router.post("/email-templates/{template_id}/test", status_code=status.HTTP_202_ACCEPTED)

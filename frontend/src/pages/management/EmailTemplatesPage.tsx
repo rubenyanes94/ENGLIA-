@@ -4,6 +4,7 @@ import {
   faEnvelope,
   faPaperPlane,
   faPenToSquare,
+  faFileLines,
   faPlus,
   faSpinner,
   faTrash,
@@ -14,7 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { api } from "../../api/client"
-import type { Audience, EmailTemplate, TemplateDraft, TemplatePreview } from "../../api/management"
+import type { Audience, EmailTemplate, Starter, TemplateDraft, TemplatePreview } from "../../api/management"
 import { ApiError } from "../../api/types"
 import { dateAndTime, int } from "../../components/charts/format"
 import PageShell from "../../components/management/PageShell"
@@ -43,6 +44,19 @@ type Editando = TemplateDraft & { id?: string }
 export default function EmailTemplatesPage() {
   const templates = useManagementData<EmailTemplate[]>("/management/email-templates")
   const [editando, setEditando] = useState<Editando | null>(null)
+  // Al escribir uno nuevo se elige primero de entre los ya escritos: una
+  // página en blanco es lo que hace que nadie escriba nunca.
+  const [eligiendo, setEligiendo] = useState(false)
+  // El grupo que sugiere el mensaje elegido, para dejarlo marcado abajo.
+  // Se equivoca uno justo ahí: mandarle "renueva antes de que venza" a
+  // quien ya renovó.
+  const [sugerido, setSugerido] = useState<string | null>(null)
+
+  function nuevo(draft: TemplateDraft, audiencia: string | null) {
+    setSugerido(audiencia)
+    setEditando({ ...draft })
+    setEligiendo(false)
+  }
 
   return (
     <PageShell
@@ -56,10 +70,10 @@ export default function EmailTemplatesPage() {
           <Link to="/gerencia/correos" className="text-sm font-medium text-slate-500 hover:text-slate-900">
             Ver enviados
           </Link>
-          {!editando && (
+          {!editando && !eligiendo && (
             <button
               type="button"
-              onClick={() => setEditando({ ...VACIA })}
+              onClick={() => setEligiendo(true)}
               className="flex items-center gap-2 rounded-full bg-ink-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-ink-800"
             >
               <FontAwesomeIcon icon={faPlus} />
@@ -72,6 +86,7 @@ export default function EmailTemplatesPage() {
       {editando ? (
         <Editor
           inicial={editando}
+          sugerido={sugerido}
           onClose={() => setEditando(null)}
           onSaved={(t) => {
             templates.reload()
@@ -82,8 +97,17 @@ export default function EmailTemplatesPage() {
             setEditando(null)
           }}
         />
+      ) : eligiendo ? (
+        <Elegir onElegir={nuevo} onCancelar={() => setEligiendo(false)} />
       ) : (
-        <Lista templates={templates.data ?? []} onNueva={() => setEditando({ ...VACIA })} onAbrir={(t) => setEditando({ ...t })} />
+        <Lista
+          templates={templates.data ?? []}
+          onNueva={() => setEligiendo(true)}
+          onAbrir={(t) => {
+            setSugerido(null)
+            setEditando({ ...t })
+          }}
+        />
       )}
     </PageShell>
   )
@@ -135,13 +159,83 @@ function Lista({ templates, onNueva, onAbrir }: { templates: EmailTemplate[]; on
 
 // ---------------------------------------------------------------------------
 
+/** Los mensajes ya escritos, para no empezar en blanco.
+ *
+ * Es la pantalla que decide si esto se usa o no. Escribir un correo de
+ * promoción desde cero un martes por la tarde no lo hace nadie; elegir
+ * "Recuperar a quien se fue" y cambiarle dos frases, sí. Lo que se elige
+ * es un borrador: a partir de ahí es un mensaje del usuario y estos
+ * textos no vuelven a tocarse. */
+function Elegir({ onElegir, onCancelar }: { onElegir: (draft: TemplateDraft, audiencia: string | null) => void; onCancelar: () => void }) {
+  const starters = useManagementData<Starter[]>("/management/email-starters")
+  // Solo para enseñar "Pensado para: Se les venció" en cada tarjeta. Se
+  // piden los grupos en vez de repetir aquí sus nombres, que se quedarían
+  // viejos el día que cambien en el backend.
+  const audiences = useManagementData<Audience[]>("/management/email-audiences")
+  const nombreGrupo = (key: string) => audiences.data?.find((a) => a.key === key)?.label
+
+  return (
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900">¿Qué quieres decirles?</h2>
+          <p className="text-sm text-slate-500">Elige uno y cámbiale lo que quieras. Todos están escritos y listos para enviar.</p>
+        </div>
+        <button type="button" onClick={onCancelar} className="text-sm font-medium text-slate-500 hover:text-slate-900">
+          Cancelar
+        </button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {(starters.data ?? []).map((st) => {
+          const { key, label, description, audience, ...draft } = st
+          const grupo = nombreGrupo(audience)
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => onElegir(draft, audience)}
+              className="flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:border-brand-300 hover:shadow"
+            >
+              <p className="font-bold text-slate-900">{label}</p>
+              <p className="mt-1 flex-1 text-sm text-slate-500">{description}</p>
+              <p className="mt-4 rounded-2xl bg-slate-50 px-3 py-2 text-xs text-slate-500">
+                <span className="text-slate-400">Asunto: </span>
+                {st.subject}
+              </p>
+              {grupo && (
+                <p className="mt-2 text-xs font-semibold text-brand-700">
+                  Pensado para: {grupo}
+                </p>
+              )}
+            </button>
+          )
+        })}
+
+        <button
+          type="button"
+          onClick={() => onElegir(VACIA, null)}
+          className="flex h-full min-h-[180px] flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-slate-300 p-5 text-slate-400 transition hover:border-brand-300 hover:text-brand-700"
+        >
+          <FontAwesomeIcon icon={faFileLines} className="text-2xl" />
+          <span className="text-sm font-semibold">Empezar en blanco</span>
+        </button>
+      </div>
+    </section>
+  )
+}
+
+// ---------------------------------------------------------------------------
+
 function Editor({
   inicial,
+  sugerido,
   onClose,
   onSaved,
   onDeleted,
 }: {
   inicial: Editando
+  sugerido: string | null
   onClose: () => void
   onSaved: (t: EmailTemplate) => void
   onDeleted: () => void
@@ -242,12 +336,12 @@ function Editor({
           <Campo label="Etiqueta" hint="Arriba, en violeta.">
             <input {...input} value={draft.eyebrow} onChange={(e) => set("eyebrow", e.target.value)} placeholder="Promoción" maxLength={40} />
           </Campo>
-          <Campo label="Título" hint="La frase grande. Puedes usar {nombre}.">
-            <input {...input} value={draft.title} onChange={(e) => set("title", e.target.value)} placeholder="Te regalamos una semana, {nombre}" maxLength={200} />
+          <Campo label="Título" hint="La frase grande. {nombre} y *en violeta*.">
+            <input {...input} value={draft.title} onChange={(e) => set("title", e.target.value)} placeholder="Te regalamos *una semana*, {nombre}" maxLength={200} />
           </Campo>
         </div>
 
-        <Campo label="Mensaje" hint="Deja una línea en blanco entre párrafos. Se escribe en texto normal, sin etiquetas.">
+        <Campo label="Mensaje" hint="Una línea en blanco separa párrafos. Rodea con *asteriscos* lo que quieras en violeta.">
           <textarea
             {...input}
             rows={7}
@@ -330,7 +424,7 @@ function Editor({
           )}
         </section>
 
-        <Enviar templateId={draft.id} guardado={guardado} />
+        <Enviar templateId={draft.id} guardado={guardado} sugerido={sugerido} />
       </div>
     </div>
   )
@@ -338,9 +432,9 @@ function Editor({
 
 // ---------------------------------------------------------------------------
 
-function Enviar({ templateId, guardado }: { templateId?: string; guardado: boolean }) {
+function Enviar({ templateId, guardado, sugerido }: { templateId?: string; guardado: boolean; sugerido: string | null }) {
   const audiences = useManagementData<Audience[]>("/management/email-audiences")
-  const [grupo, setGrupo] = useState<string | null>(null)
+  const [grupo, setGrupo] = useState<string | null>(sugerido)
   const [confirmando, setConfirmando] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [resultado, setResultado] = useState<string | null>(null)

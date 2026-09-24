@@ -37,7 +37,7 @@ from app.core.config import settings
 from app.core.security import create_unsubscribe_token
 from app.models import EmailMessage, User
 from app.notifications import messages, resend_client
-from app.notifications.layout import render_html, render_text
+from app.notifications.layout import LOGO_CID, logo_base64, render_html, render_text
 
 logger = logging.getLogger(__name__)
 
@@ -126,19 +126,26 @@ async def send(
         return False
     destino = settings.email_sandbox_to or user.email
     if settings.email_sandbox_to:
-        email.paragraphs = [
-            f"<em>Modo de pruebas: este correo era para <strong>{user.full_name}</strong> ({user.email}).</em>",
-            *email.paragraphs,
-        ]
+        # Como aviso de arriba y no como primer párrafo: quien revisa un
+        # correo en modo de pruebas está mirando el diseño, y una nota
+        # nuestra metida en el cuerpo es justo lo que no deja verlo.
+        email.banner = f"<strong>Modo de pruebas.</strong> Este correo era para {user.full_name} ({user.email})."
 
     baja = _unsubscribe_url(user) if comercial else None
     row = await _record(db, previous, user, kind, key, context, status="sending", subject=email.subject, to_email=destino)
     if row is None:  # otro proceso se adelantó: es suyo, no nuestro
         return False
 
+    # El logotipo viaja dentro del correo salvo que haya una URL pública
+    # configurada (ver layout.py).
+    logo_url = settings.email_logo_url or None
+    adjuntos = None if logo_url else [{"filename": "espikin.png", "content": logo_base64(), "content_id": LOGO_CID, "content_type": "image/png"}]
+
     try:
         message_id = await resend_client.send_email(
-            to=destino, subject=email.subject, html=render_html(email, baja), text=render_text(email, baja), tag=kind,
+            to=destino, subject=email.subject,
+            html=render_html(email, baja, logo_url=logo_url), text=render_text(email, baja), tag=kind,
+            attachments=adjuntos,
             # List-Unsubscribe: el botón de "cancelar suscripción" que
             # pinta el propio Gmail junto al remitente. Solo en los
             # comerciales, que son los que lo exigen.
