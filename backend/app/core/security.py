@@ -6,6 +6,8 @@ y firmar/verificar tokens. Quien conecta esto con la base de datos y con
 FastAPI es app/core/deps.py.
 """
 
+import hashlib
+import hmac
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -60,3 +62,36 @@ def decode_unsubscribe_token(token: str) -> str:
     if payload.get("purpose") != "unsubscribe":
         raise jwt.InvalidTokenError("Este token no sirve para darse de baja.")
     return payload["sub"]
+
+
+def _password_fingerprint(hashed_password: str) -> str:
+    """Huella de la contraseña ACTUAL, para atar a ella el enlace de
+    restablecer. Un HMAC y no el hash tal cual: el JWT se lee sin la clave
+    y no hay por qué regalar ni un trozo del bcrypt."""
+    return hmac.new(settings.secret_key.encode(), hashed_password.encode(), hashlib.sha256).hexdigest()[:24]
+
+
+def create_password_reset_token(subject: str, hashed_password: str) -> str:
+    """Token del botón "Cambiar mi contraseña" del correo.
+
+    Caduca pronto (PASSWORD_RESET_EXPIRE_MINUTES) y es de un solo uso sin
+    guardar nada en la base de datos: lleva la huella de la contraseña con
+    la que se emitió, y en cuanto se cambia la contraseña deja de coincidir.
+    Eso invalida a la vez este enlace y cualquier otro que se haya pedido
+    antes."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.password_reset_expire_minutes)
+    payload = {"sub": subject, "exp": expire, "purpose": "password_reset", "pwd": _password_fingerprint(hashed_password)}
+    return jwt.encode(payload, settings.secret_key, algorithm=settings.jwt_algorithm)
+
+
+def decode_password_reset_token(token: str) -> tuple[str, str]:
+    """Devuelve (id del usuario, huella). Quien llama compara la huella
+    con `password_reset_matches` una vez cargado el usuario."""
+    payload = jwt.decode(token, settings.secret_key, algorithms=[settings.jwt_algorithm])
+    if payload.get("purpose") != "password_reset" or "pwd" not in payload:
+        raise jwt.InvalidTokenError("Este token no sirve para cambiar la contraseña.")
+    return payload["sub"], payload["pwd"]
+
+
+def password_reset_matches(fingerprint: str, hashed_password: str) -> bool:
+    return hmac.compare_digest(fingerprint, _password_fingerprint(hashed_password))

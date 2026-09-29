@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     # --- JWT ---
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60  # sin refresh token todavía: al expirar, login de nuevo
+    # Vida del enlace de "olvidé mi contraseña". Corta: es una llave de la
+    # cuenta metida en un buzón de correo.
+    password_reset_expire_minutes: int = 60
 
     # Endpoint OpenAI-compatible del motor de inferencia. En dev apunta a
     # Ollama; en producción, a vLLM o NVIDIA NIM. El código del agente

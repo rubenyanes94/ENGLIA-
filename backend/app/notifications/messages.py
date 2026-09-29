@@ -14,8 +14,9 @@ nuestro de un vistazo. Va en lo que importa — los días que quedan, el
 
 Dos familias, y la diferencia importa:
 
-- **Transaccionales** (bienvenida, pago aprobado, pago rechazado): son la
-  respuesta a algo que el alumno acaba de hacer. Se envían siempre,
+- **Transaccionales** (bienvenida, pago aprobado, pago rechazado,
+  cambiar la contraseña): son la respuesta a algo que el alumno acaba
+  de hacer. Se envían siempre,
   aunque se haya dado de baja de los recordatorios, y no llevan enlace de
   baja: nadie debería poder dejar de enterarse de qué pasó con su dinero.
 - **De retención** (vence pronto, último día, venció, te echamos de
@@ -99,6 +100,26 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             button=Button("Reportar el pago otra vez", pagar),
             footnote="Si estás seguro de que el pago salió, responde a este correo con la captura y lo revisamos a mano.",
             tone="alert",
+            context=context,
+        )
+
+    if kind == "restablecer_clave":
+        # El enlace NO llega por `context` desde service.send: `context` se
+        # guarda en email_messages, y ese enlace es una llave de la cuenta.
+        # Lo mete el router con un `builder` (ver routers/auth.py).
+        return Email(
+            subject="Cambia tu contraseña de Espikin",
+            preheader=f"Pulsa el botón para elegir una nueva. El enlace dura {context.get('minutos', 60)} minutos.",
+            eyebrow="Tu cuenta",
+            title=f"*Elige una contraseña nueva*, {nombre}",
+            paragraphs=[
+                "Nos pidieron cambiar la contraseña de tu cuenta. Pulsa el botón y escribe la nueva: al guardarla entras directo a tu aula.",
+            ],
+            button=Button("Cambiar mi contraseña", context["enlace"]),
+            footnote=(
+                f"El enlace sirve una sola vez y durante {context.get('minutos', 60)} minutos. "
+                "Si no lo pediste tú, ignora este correo: tu contraseña sigue siendo la misma."
+            ),
             context=context,
         )
 

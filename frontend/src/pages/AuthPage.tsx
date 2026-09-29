@@ -5,6 +5,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { ApiError } from "../api/types"
 import { useAuth } from "../auth/AuthContext"
 import AuthShell from "../components/auth/AuthShell"
+import Field from "../components/auth/Field"
 import Stepper from "../components/auth/Stepper"
 
 export default function AuthPage() {
@@ -86,6 +87,13 @@ export default function AuthPage() {
 
         <Field label="Correo electrónico" type="email" value={email} onChange={setEmail} required />
         <Field label="Contraseña" type="password" value={password} onChange={setPassword} required minLength={8} />
+        {mode === "login" && (
+          <div className="-mt-1 text-right">
+            <Link to="/recuperar" state={{ email }} className="text-sm font-semibold text-brand-600 hover:text-brand-500">
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
+        )}
 
         {error && (
           <div className="flex items-start gap-2 rounded-xl bg-red-50 px-3 py-2.5 text-sm text-red-600">
@@ -104,35 +112,5 @@ export default function AuthPage() {
         </button>
       </form>
     </AuthShell>
-  )
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  type = "text",
-  required = false,
-  minLength,
-}: {
-  label: string
-  value: string
-  onChange: (v: string) => void
-  type?: string
-  required?: boolean
-  minLength?: number
-}) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</span>
-      <input
-        type={type}
-        required={required}
-        minLength={minLength}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none ring-brand-500 focus:ring-2"
-      />
-    </label>
   )
 }
