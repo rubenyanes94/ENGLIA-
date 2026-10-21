@@ -296,6 +296,18 @@ class Settings(BaseSettings):
     binance_personal_pay_id: str = ""
     binance_personal_asset: str = "USDT"
 
+    @property
+    def allowed_origins(self) -> list[str]:
+        if self.cors_origins.strip():
+            return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        # En desarrollo, cualquiera: el frontend vive en otro puerto y en
+        # Codespaces además en otro subdominio. En producción, solo el
+        # dominio real — un "*" ahí deja que cualquier web ajena llame a
+        # la API con el token de un alumno que la tenga abierta.
+        if self.environment == "development":
+            return ["*"]
+        return [self.frontend_base_url.rstrip("/")]
+
     @field_validator("pago_movil_bs_per_usd", mode="before")
     @classmethod
     def _empty_is_none(cls, value):
@@ -307,6 +319,16 @@ class Settings(BaseSettings):
     # Dónde redirige el navegador del alumno tras aprobar/cancelar un pago
     # en la pasarela (PayPal, Stripe) antes de volver al frontend.
     frontend_base_url: str = "http://localhost:5173"
+
+    # Orígenes permitidos por CORS, separados por coma. Vacío significa
+    # "los que tengan sentido para este entorno" (ver allowed_origins):
+    # en producción, el propio frontend y nada más.
+    #
+    # En el despliegue normal esto casi no se usa: el navegador pide
+    # /api al MISMO origen que sirve la app (el Caddy del frontend
+    # reenvía), y una petición del mismo origen no pasa por CORS. Queda
+    # para el caso de servir el frontend desde otro dominio.
+    cors_origins: str = ""
 
     # Todas las credenciales de pasarelas por defecto vacías a propósito:
     # cada gateway (app/billing/*.py) comprueba si las suyas están

@@ -44,18 +44,18 @@ app = FastAPI(title="English Academy API", version="0.1.0", lifespan=lifespan)
 Path(settings.media_root).mkdir(parents=True, exist_ok=True)
 app.mount("/media", StaticFiles(directory=settings.media_root), name="media")
 
-# En desarrollo permitimos cualquier origen para que React (puerto 5173)
-# pueda llamar a la API (puerto 8000) sin bloqueos de CORS.
-# En producción esto se restringe al dominio real del frontend.
 # Registra ruta, código y duración de cada petición para el panel de
 # gerencia → Sistema (ver app/monitoring/http_metrics.py). Se añade antes
 # que CORS, así que queda POR DENTRO: mide lo que tarda la API, no las
 # respuestas de preflight que CORS contesta sin llegar a los endpoints.
 app.add_middleware(RequestMetricsMiddleware)
 
+# En desarrollo, cualquier origen (el frontend vive en otro puerto, y en
+# Codespaces además en otro subdominio). En producción, solo el dominio
+# real — ver settings.allowed_origins.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

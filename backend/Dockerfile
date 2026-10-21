@@ -35,7 +35,11 @@ RUN mkdir -p /opt/piper-voices \
     && python -m piper.download_voices es_MX-ald-medium --download-dir /opt/piper-voices
 
 COPY . .
+RUN chmod +x /app/start.sh
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Arranque de PRODUCCIÓN (migraciones + uvicorn, o el worker según ROLE;
+# ver start.sh). En desarrollo esto no se usa: el docker-compose de la
+# raíz define su propio `command` con --reload para cada servicio.
+CMD ["/app/start.sh"]

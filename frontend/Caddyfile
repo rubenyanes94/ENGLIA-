@@ -1,0 +1,53 @@
+# Servidor del frontend en producción (ver Dockerfile).
+#
+# Hace dos cosas, y la segunda es la importante:
+#
+# 1. Sirve el build estático de Vite, con la vuelta a index.html que
+#    necesita cualquier app de una sola página: si alguien entra directo
+#    a /gerencia/correos, ahí no hay ningún archivo — lo que hay es una
+#    ruta de React, y quien la resuelve es el navegador después de
+#    cargar index.html.
+#
+# 2. Reenvía /api/* al backend por la RED PRIVADA de Railway. Esto es lo
+#    que mantiene todo en un mismo origen, y no es una manía: el
+#    frontend pide "/api/..." (ver src/api/client.ts), las fotos de
+#    perfil y los audios de las lecciones cuelgan de esa misma ruta, y
+#    los enlaces de "darse de baja" de los correos apuntan a
+#    espikin.academy/api/notifications/baja. Si la API viviera en otro
+#    dominio habría que tocar las tres cosas, abrir CORS y reescribir
+#    enlaces que ya salieron en correos enviados.
+#
+# BACKEND_HOST lo pone Railway (ej. backend.railway.internal:8000). Sin
+# esa variable, el contenedor no arranca: es preferible a arrancar y
+# servir una app que da error en cada petición.
+
+:{$PORT:8080} {
+	encode gzip zstd
+
+	handle /api/* {
+		uri strip_prefix /api
+		reverse_proxy {$BACKEND_HOST} {
+			# Un turno del tutor puede tardar varios segundos: el
+			# valor por defecto cortaría la respuesta a media frase.
+			transport http {
+				read_timeout 180s
+			}
+		}
+	}
+
+	handle {
+		root * /srv
+		# Los assets de Vite llevan el hash del contenido en el nombre,
+		# así que se pueden cachear para siempre. Todo lo demás —
+		# empezando por index.html, que es lo que se sirve en "/" y en
+		# cualquier ruta de React— no se cachea nunca: si se cachea, el
+		# navegador sigue pidiendo los archivos del despliegue viejo y
+		# nadie ve lo que acabas de publicar.
+		@assets path /assets/*
+		@resto not path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		header @resto Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}

@@ -176,7 +176,9 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      # El Dockerfile sin apellido es el de PRODUCCIÓN (build estático
+      # servido por Caddy); en desarrollo queremos el servidor de Vite.
+      dockerfile: Dockerfile.dev
     container_name: englia_frontend
     restart: unless-stopped
     # Sin variables VITE_* a propósito: el frontend llama a /api en su
