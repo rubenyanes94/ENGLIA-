@@ -24,3 +24,7 @@ frontend/.env
 *.log
 .vscode/*
 !.vscode/extensions.json
+
+# Variables listas para pegar en Railway (ver DEPLOY.md). Llevan claves
+# reales y la SECRET_KEY de producción: fuera de git, igual que el .env.
+.railway/
