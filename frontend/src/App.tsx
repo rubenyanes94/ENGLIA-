@@ -4,6 +4,8 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import Layout from "./components/Layout"
 import LandingPage from "./pages/LandingPage"
 import AuthPage from "./pages/AuthPage"
+import ForgotPasswordPage from "./pages/ForgotPasswordPage"
+import ResetPasswordPage from "./pages/ResetPasswordPage"
 import DashboardPage from "./pages/DashboardPage"
 import ClassroomPage from "./pages/ClassroomPage"
 import ProgressPage from "./pages/ProgressPage"
@@ -37,6 +39,8 @@ function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<AuthPage />} />
+      <Route path="/recuperar" element={<ForgotPasswordPage />} />
+      <Route path="/restablecer" element={<ResetPasswordPage />} />
 
       {/* Con sesión pero SIN exigir pago: el paso de suscripción y la vuelta
           desde Stripe/PayPal (app/billing/*). Fuera del Layout del aula: el

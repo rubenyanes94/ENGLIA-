@@ -34,6 +34,13 @@ async def create_user(db: AsyncSession, email: str, password: str, full_name: st
     return user
 
 
+async def set_password(db: AsyncSession, user: User, password: str) -> User:
+    user.hashed_password = hash_password(password)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
 async def list_users(
     db: AsyncSession,
     limit: int = 50,

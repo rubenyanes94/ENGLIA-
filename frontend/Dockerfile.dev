@@ -1,0 +1,19 @@
+# Imagen de DESARROLLO: el servidor de Vite con recarga en caliente.
+# La usa el docker-compose de la raíz, que la nombra explícitamente.
+#
+# El Dockerfile "a secas" es el de PRODUCCIÓN a propósito: es el nombre
+# que buscan las plataformas de despliegue por defecto, y el día que
+# alguien pulse "desplegar" sin leer nada, que lo que salga sea el build
+# estático y no un servidor de desarrollo.
+FROM node:20-slim
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

@@ -7,6 +7,8 @@ interface AuthContextValue {
   isLoading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, fullName: string) => Promise<void>
+  /** Cambia la contraseña con el enlace del correo y deja la sesión iniciada. */
+  resetPassword: (token: string, password: string) => Promise<void>
   logout: () => void
   refreshUser: () => Promise<void>
 }
@@ -73,13 +75,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [refreshUser],
   )
 
+  const resetPassword = useCallback(
+    async (token: string, password: string) => {
+      const { access_token } = await api.post<{ access_token: string }>("/auth/password/reset", { token, password })
+      setToken(access_token)
+      await refreshUser()
+    },
+    [refreshUser],
+  )
+
   const logout = useCallback(() => {
     clearToken()
     setUser(null)
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, resetPassword, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

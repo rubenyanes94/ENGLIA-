@@ -42,8 +42,24 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
+    # pgvector, ANTES de cualquier migración. La primerísima migración ya
+    # crea una columna Vector (la memoria semántica del tutor), así que
+    # sobre una base recién creada fallaría en la primera línea con
+    # "type vector does not exist".
+    #
+    # En desarrollo esto lo hacía infra/postgres/init.sql, que Postgres
+    # ejecuta una sola vez al crear su volumen. En un Postgres gestionado
+    # (Railway, Neon) ese script no existe, y la alternativa era "acuérdate
+    # de entrar a la consola SQL y escribir CREATE EXTENSION" — un paso
+    # manual que solo se descubre cuando el despliegue ya falló.
     context.configure(connection=connection, target_metadata=target_metadata)
     with context.begin_transaction():
+        # DENTRO de la transacción de Alembic, no antes: lanzarla fuera
+        # abre una transacción propia en la conexión, y entonces el commit
+        # de Alembic al terminar no alcanza a lo que hay dentro — las
+        # migraciones dicen "Running upgrade..." y la base se queda vacía.
+        # Pasó, y solo se ve probando contra una base nueva.
+        connection.exec_driver_sql("CREATE EXTENSION IF NOT EXISTS vector")
         context.run_migrations()
 
 

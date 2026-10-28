@@ -14,8 +14,9 @@ nuestro de un vistazo. Va en lo que importa — los días que quedan, el
 
 Dos familias, y la diferencia importa:
 
-- **Transaccionales** (bienvenida, pago aprobado, pago rechazado): son la
-  respuesta a algo que el alumno acaba de hacer. Se envían siempre,
+- **Transaccionales** (bienvenida, pago aprobado, pago rechazado,
+  cambiar la contraseña): son la respuesta a algo que el alumno acaba
+  de hacer. Se envían siempre,
   aunque se haya dado de baja de los recordatorios, y no llevan enlace de
   baja: nadie debería poder dejar de enterarse de qué pasó con su dinero.
 - **De retención** (vence pronto, último día, venció, te echamos de
@@ -33,7 +34,7 @@ from app.notifications.layout import Button, Email, Note
 # persona en el panel y vive en la base de datos (app/notifications/
 # campaigns.py). Sí está en esta lista porque es publicidad, y por tanto
 # respeta la baja y lleva enlace para darse de baja como el resto.
-MARKETING_KINDS = {"vence_pronto", "ultimo_dia", "vencio", "te_echamos_de_menos", "campana"}
+MARKETING_KINDS = {"vence_pronto", "ultimo_dia", "vencio", "te_echamos_de_menos", "reconquista", "campana"}
 
 MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 
@@ -102,6 +103,26 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             context=context,
         )
 
+    if kind == "restablecer_clave":
+        # El enlace NO llega por `context` desde service.send: `context` se
+        # guarda en email_messages, y ese enlace es una llave de la cuenta.
+        # Lo mete el router con un `builder` (ver routers/auth.py).
+        return Email(
+            subject="Cambia tu contraseña de Espikin",
+            preheader=f"Pulsa el botón para elegir una nueva. El enlace dura {context.get('minutos', 60)} minutos.",
+            eyebrow="Tu cuenta",
+            title=f"*Elige una contraseña nueva*, {nombre}",
+            paragraphs=[
+                "Nos pidieron cambiar la contraseña de tu cuenta. Pulsa el botón y escribe la nueva: al guardarla entras directo a tu aula.",
+            ],
+            button=Button("Cambiar mi contraseña", context["enlace"]),
+            footnote=(
+                f"El enlace sirve una sola vez y durante {context.get('minutos', 60)} minutos. "
+                "Si no lo pediste tú, ignora este correo: tu contraseña sigue siendo la misma."
+            ),
+            context=context,
+        )
+
     if kind == "vence_pronto":
         # Los días vienen del contexto y no escritos en el texto: el aviso
         # se manda con AVISO_PREVIO_DIAS días de antelación (lifecycle.py)
@@ -148,6 +169,41 @@ def build(kind: str, *, full_name: str, app_url: str, context: dict) -> Email:
             ],
             button=Button("Volver a activar mi acceso", pagar),
             footnote="¿Lo dejas por algo que podamos mejorar? Responde a este correo: lo leemos todos.",
+            context=context,
+        )
+
+    if kind == "reconquista":
+        # El que ya pagó alguna vez y se fue. Se le escribe dos veces al
+        # mes (ver lifecycle.py), así que hay DOS textos que se van
+        # alternando: el mismo correo dos veces al mes durante medio año
+        # se ignora a la tercera y acaba en spam.
+        if context.get("variante") == "b":
+            return Email(
+                subject="El inglés no se olvida, se oxida",
+                preheader="Diez minutos al día bastan para que no se caiga lo que ya sabes.",
+                eyebrow="Tu inglés",
+                title="Un mes parado *cuesta dos* de vuelta",
+                paragraphs=[
+                    "Lo que aprendiste no se borra, pero sí se oxida: cuesta más arrancar una conversación, "
+                    "vuelven los silencios largos, y la gramática que ya te salía sola hay que volver a pensarla.",
+                    "No hace falta retomar con todo. <strong>Diez minutos de conversación</strong> a la semana "
+                    "bastan para que no se caiga lo que ya tienes.",
+                ],
+                button=Button("Volver a practicar", pagar),
+                context=context,
+            )
+        return Email(
+            subject=f"Tu cuenta sigue esperándote, {nombre}",
+            preheader="Tu nivel y tus módulos siguen guardados como los dejaste.",
+            eyebrow="Te esperamos",
+            title=f"Seguimos guardando *tu sitio*, {nombre}",
+            paragraphs=[
+                "Tu nivel, tus módulos y las correcciones de tu tutor siguen exactamente como los dejaste. "
+                "No borramos nada de nadie.",
+                "El día que quieras volver no empiezas de cero: retomas la conversación donde se quedó.",
+            ],
+            button=Button("Volver a Espikin", pagar),
+            footnote="Si ya no te interesa, puedes darte de baja aquí abajo y dejamos de escribirte.",
             context=context,
         )
 

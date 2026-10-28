@@ -15,7 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { api } from "../../api/client"
-import type { Audience, EmailTemplate, Starter, TemplateDraft, TemplatePreview } from "../../api/management"
+import type { Audience, CustomerList, EmailTemplate, Starter, TemplateDraft, TemplatePreview } from "../../api/management"
 import { ApiError } from "../../api/types"
 import { dateAndTime, int } from "../../components/charts/format"
 import PageShell from "../../components/management/PageShell"
@@ -246,6 +246,11 @@ function Editor({
   const [error, setError] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const [enviando, setEnviando] = useState(false)
+  // Con qué cliente se mira la vista previa. Vacío = con quien está en el
+  // panel. Sirve para comprobar que {nombre} agarra el nombre de cada
+  // quien sin mandarle un correo a nadie.
+  const [como, setComo] = useState("")
+  const clientes = useManagementData<CustomerList>("/management/customers?limit=25&sort=last_active")
 
   const completo = draft.name.trim().length > 1 && draft.subject.trim().length > 1 && draft.title.trim().length > 1 && draft.body.trim().length > 1
   const guardado = Boolean(draft.id)
@@ -259,12 +264,12 @@ function Editor({
     if (!completo) return
     const t = setTimeout(() => {
       api
-        .post<TemplatePreview>("/management/email-templates/preview", cuerpo(draft))
+        .post<TemplatePreview>(`/management/email-templates/preview${como ? `?como=${como}` : ""}`, cuerpo(draft))
         .then(setPreview)
         .catch(() => setPreview(null))
     }, 400)
     return () => clearTimeout(t)
-  }, [draft.subject, draft.preheader, draft.eyebrow, draft.title, draft.body, draft.button_label, draft.button_url, completo])
+  }, [draft.subject, draft.preheader, draft.eyebrow, draft.title, draft.body, draft.button_label, draft.button_url, completo, como])
 
   function set<K extends keyof Editando>(key: K, value: Editando[K]) {
     setDraft((d) => ({ ...d, [key]: value }))
@@ -412,8 +417,28 @@ function Editor({
       <div className="space-y-5">
         <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-5 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Así le llega</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">{preview?.subject || draft.subject || "—"}</p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Así le llega</p>
+              {/* Cada cliente recibe el correo con SU nombre; esto lo
+                  enseña sin mandar nada. En un envío real ocurre una vez
+                  por destinatario. */}
+              <label className="flex items-center gap-2 text-xs text-slate-500">
+                <span className="hidden sm:inline">Ver como</span>
+                <select
+                  value={como}
+                  onChange={(e) => setComo(e.target.value)}
+                  className="max-w-[190px] rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 outline-none focus:border-brand-300"
+                >
+                  <option value="">Tú (quien escribe)</option>
+                  {(clientes.data?.items ?? []).map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.full_name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <p className="mt-1 truncate text-sm font-semibold text-slate-800">{preview?.subject || draft.subject || "—"}</p>
           </div>
           {preview ? (
             <iframe title="Vista previa del correo" srcDoc={preview.html} className="h-[560px] w-full border-0 bg-white" />

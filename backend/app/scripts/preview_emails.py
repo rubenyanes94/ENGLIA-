@@ -25,6 +25,7 @@ EJEMPLOS = {
     "bienvenida": {},
     "pago_aprobado": {"hasta": fecha_larga(date(2026, 10, 23))},
     "pago_rechazado": {"motivo": "No aparece en el estado de cuenta"},
+    "restablecer_clave": {"enlace": f"{APP}/restablecer?token=ejemplo", "minutos": 60},
     "vence_pronto": {"hasta": fecha_larga(date(2026, 10, 23)), "dias": 3},
     "ultimo_dia": {"hasta": fecha_larga(date(2026, 10, 23))},
     "vencio": {},

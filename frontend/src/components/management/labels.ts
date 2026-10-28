@@ -182,10 +182,12 @@ export const EMAIL_KINDS: Record<string, { label: string; when: string }> = {
   bienvenida: { label: "Bienvenida", when: "Al registrarse" },
   pago_aprobado: { label: "Pago confirmado", when: "Al aprobar su pago" },
   pago_rechazado: { label: "Pago rechazado", when: "Al rechazar su pago" },
+  restablecer_clave: { label: "Cambiar contraseña", when: "Cuando pide recuperar su contraseña" },
   vence_pronto: { label: "Vence pronto", when: "3 días antes de que termine su acceso" },
   ultimo_dia: { label: "Último día", when: "El último día de su acceso" },
   vencio: { label: "Se le venció", when: "El día que pierde el acceso" },
   te_echamos_de_menos: { label: "Te echamos de menos", when: "Una semana sin practicar" },
+  reconquista: { label: "Vuelve con nosotros", when: "Dos veces al mes, a quien fue cliente y se fue" },
   campana: { label: "Campaña", when: "Escrita y enviada desde aquí" },
 }
 
