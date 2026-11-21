@@ -24,6 +24,9 @@ langchain-openai==0.2.14
 
 # --- Tareas asíncronas (resumen + embedding al cerrar una sesión) ---
 celery[redis]==5.4.0
+# kombu fijado: sin pin, pip resuelve kombu 5.7, que exige redis-py>=6.1
+# (tenemos 5.2.0 arriba) y el worker muere con VersionMismatch al conectar.
+kombu==5.4.2
 
 # --- Narración de lecciones (texto-a-voz) ---
 # Piper: open source, corre en CPU vía ONNX Runtime, sin cuenta ni costo
