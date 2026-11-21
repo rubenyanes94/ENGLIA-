@@ -12,8 +12,13 @@ Tres cosas que no son obvias:
    certificate". En vez de desactivar la verificación — alguien en medio
    podría inyectar una tasa falsa y los clientes pagarían mal —, se añade
    el intermedio correcto (certs/, sacado de la URL "CA Issuers" del propio
-   certificado del BCV; SHA-256 8C:54:C3:34:…:A4:EF:22:E0, válido hasta
-   2036) a los certificados raíz de certifi.
+   certificado del BCV) a los certificados raíz de certifi. Hay DOS porque
+   el BCV ya cambió de emisor una vez: hasta nov. 2026 lo firmaba el
+   "DV R36" (SHA-256 8C:54:C3:34:…:A4:EF:22:E0) y desde su renovación del
+   2026-11-13 el "OV R36" (SHA-256 65:42:D1:76:…:B4:E7:85:30), ambos
+   válidos hasta 2036 y firmados por raíces que ya trae certifi. Si el
+   lector vuelve a fallar con CERTIFICATE_VERIFY_FAILED, mira el "CA
+   Issuers" del certificado nuevo y añade ese intermedio aquí.
 
 2. **Fecha valor.** El BCV publica por la tarde la tasa que rige AL DÍA
    SIGUIENTE. Se guarda cada tasa con su fecha valor y se cobra con la que
@@ -50,7 +55,11 @@ logger = logging.getLogger(__name__)
 
 BCV_URL = "https://www.bcv.org.ve/"
 SOURCE = "bcv.org.ve"
-INTERMEDIATE_CERT = Path(__file__).parent / "certs" / "sectigo_public_server_authentication_ca_dv_r36.pem"
+_CERTS_DIR = Path(__file__).parent / "certs"
+INTERMEDIATE_CERTS = (
+    _CERTS_DIR / "sectigo_public_server_authentication_ca_dv_r36.pem",
+    _CERTS_DIR / "sectigo_public_server_authentication_ca_ov_r36.pem",
+)
 
 # Cada cuánto se consulta la web del BCV. Publica una vez al día (por la
 # tarde), así que cada hora sobra para no perderse ninguna fecha valor.
@@ -71,7 +80,8 @@ class PublishedRate:
 
 def _ssl_context() -> ssl.SSLContext:
     context = ssl.create_default_context(cafile=certifi.where())
-    context.load_verify_locations(cafile=str(INTERMEDIATE_CERT))
+    for cert in INTERMEDIATE_CERTS:
+        context.load_verify_locations(cafile=str(cert))
     return context
 
 
