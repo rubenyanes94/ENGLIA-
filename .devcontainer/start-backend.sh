@@ -38,7 +38,7 @@ if [ -f "$ENV_FILE" ]; then
   while IFS= read -r line; do
     case "$line" in
       ''|'#'*) continue ;;
-      LLM_*|EMBEDDING_*|NVIDIA_API_KEY=*|TTS_*) export "${line?}" ;;
+      LLM_*|EMBEDDING_*|NVIDIA_API_KEY=*|TTS_*|RESEND_*|EMAIL_*) export "${line?}" ;;
     esac
   done < "$ENV_FILE"
   echo "[start-backend] variables de $ENV_FILE aplicadas sobre las del contenedor."

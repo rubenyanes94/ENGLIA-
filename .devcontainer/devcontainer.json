@@ -21,7 +21,10 @@
   "service": "backend",
 
   // Qué contenedores se arrancan aunque VS Code solo se conecte a "backend".
-  "runServices": ["db", "redis", "ollama", "backend", "celery_worker", "frontend"],
+  // "ollama" ya no va aquí: es opcional (perfil "ollama" en el
+  // docker-compose.yml de la raíz). Nombrarlo aquí lo arrancaría igual,
+  // porque Compose ignora los perfiles de los servicios que se piden por nombre.
+  "runServices": ["db", "redis", "backend", "celery_worker", "frontend"],
 
   // Carpeta que verás abierta en el explorador de archivos (todo el repo).
   // OJO con las mayúsculas: tiene que coincidir EXACTO con el nombre real
@@ -57,13 +60,12 @@
     }
   },
 
-  "forwardPorts": [8000, 5173, 5432, 6379, 11434],
+  "forwardPorts": [8000, 5173, 5432, 6379],
   "portsAttributes": {
     "8000": { "label": "FastAPI Backend", "onAutoForward": "notify" },
     "5173": { "label": "React Frontend", "onAutoForward": "openPreview" },
     "5432": { "label": "PostgreSQL", "onAutoForward": "silent" },
-    "6379": { "label": "Redis", "onAutoForward": "silent" },
-    "11434": { "label": "Ollama (LLM)", "onAutoForward": "silent" }
+    "6379": { "label": "Redis", "onAutoForward": "silent" }
   },
 
   "customizations": {

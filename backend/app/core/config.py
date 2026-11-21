@@ -73,7 +73,7 @@ class Settings(BaseSettings):
     # los parámetros activos del modelo. lightning tardó 73-111s por turno
     # (está encolado); super, 0.8-2.7s. Ochenta veces más rápido el que
     # en teoría era el lento.
-    llm_model: str = "nvidia/nemotron-3-super-120b-a12b"
+    llm_model: str = "nvidia/nemotron-3.5-super-vl-120b-a12b"
 
     # Clave del endpoint de chat. Vacía para motores locales (Ollama y
     # vLLM no la validan, pero el SDK de OpenAI exige el campo no vacío —

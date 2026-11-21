@@ -47,8 +47,17 @@ services:
   # real corriendo. Expone una API compatible con OpenAI en /v1, igual que
   # vLLM/NVIDIA NIM en producción: el código del agente no distingue entre
   # uno y otro, solo cambia OLLAMA_BASE_URL / LLM_BASE_URL.
+  #
+  # OPCIONAL (perfil "ollama"): hoy el chat y los embeddings van a NVIDIA,
+  # así que ningún servicio lo necesita para arrancar. Era además el
+  # contenedor más pesado del Codespace (2 núcleos / 8GB) y backend y
+  # worker esperaban su healthcheck; se sacó del arranque por defecto
+  # para que la creación del Codespace no caiga en modo recuperación.
+  # Para usarlo sin conexión: `docker compose --profile ollama up -d ollama`
+  # y apunta LLM_BASE_URL a http://ollama:11434/v1.
   ollama:
     image: ollama/ollama:latest
+    profiles: ["ollama"]
     container_name: englia_ollama
     restart: unless-stopped
     environment:
@@ -99,7 +108,7 @@ services:
       # responder sin corregir nada; nemotron-3-super responde en ~1-3s y
       # sí detecta los errores de interferencia del currículo.
       LLM_BASE_URL: ${LLM_BASE_URL:-https://integrate.api.nvidia.com/v1}
-      LLM_MODEL: ${LLM_MODEL:-nvidia/nemotron-3-super-120b-a12b}
+      LLM_MODEL: ${LLM_MODEL:-nvidia/nemotron-3.5-super-vl-120b-a12b}
       LLM_API_KEY: ${NVIDIA_API_KEY:-}
       # Los EMBEDDINGS también en NVIDIA. La URL sigue siendo una variable
       # aparte de la del chat, aunque hoy coincidan: son dos motores que
@@ -122,8 +131,6 @@ services:
       db:
         condition: service_healthy
       redis:
-        condition: service_healthy
-      ollama:
         condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
@@ -151,7 +158,7 @@ services:
       # responder sin corregir nada; nemotron-3-super responde en ~1-3s y
       # sí detecta los errores de interferencia del currículo.
       LLM_BASE_URL: ${LLM_BASE_URL:-https://integrate.api.nvidia.com/v1}
-      LLM_MODEL: ${LLM_MODEL:-nvidia/nemotron-3-super-120b-a12b}
+      LLM_MODEL: ${LLM_MODEL:-nvidia/nemotron-3.5-super-vl-120b-a12b}
       LLM_API_KEY: ${NVIDIA_API_KEY:-}
       # Los EMBEDDINGS también en NVIDIA. La URL sigue siendo una variable
       # aparte de la del chat, aunque hoy coincidan: son dos motores que
@@ -167,8 +174,6 @@ services:
       db:
         condition: service_healthy
       redis:
-        condition: service_healthy
-      ollama:
         condition: service_healthy
     command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=2
 
