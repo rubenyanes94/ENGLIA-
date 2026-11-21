@@ -226,18 +226,29 @@ python -m app.scripts.seed_agent_personas  # un tutor por nivel
 python -m app.scripts.seed_plans           # el plan de $10/mes
 python -m app.scripts.seed_a1_modules      # el currículo de A1
 python -m app.scripts.seed_a1_descriptors  # los descriptores de A1
-python -m app.scripts.seed_module_exams    # los exámenes de cada módulo
 python -m app.scripts.seed_library         # los cursos de la biblioteca
 ```
 
 Todos son idempotentes: si los repites, no duplican nada.
 
-Y el último, aparte porque **tarda** (genera y narra una lección por
+Después, aparte porque **tarda** (genera y narra una lección por
 módulo con el modelo y el sintetizador de voz, varios minutos):
 
 ```bash
 python -m app.scripts.seed_a1_lessons
 ```
+
+Y los exámenes **al final, después de las lecciones**: cada examen se
+guarda en la primera lección de su módulo, y un módulo sin lección se
+salta en silencio ("Listo: 0 examen(es) nuevo(s)").
+
+```bash
+python -m app.scripts.seed_module_exams    # los exámenes de cada módulo
+```
+
+Si cambias `LLM_MODEL`, vuelve a correr `seed_agent_personas`: el modelo
+de cada tutor se guarda en la base al crearlo, y el chat, las lecciones y
+los resúmenes usan ese, no la variable.
 
 ### Tu cuenta de gerencia
 

@@ -27,11 +27,8 @@ fi
 echo "→ Migraciones"
 alembic upgrade head
 
-# --host :: y no 0.0.0.0: la red privada de Railway (la que usa el
-# frontend para hablar con la API sin salir a internet) es IPv6. Un
-# proceso escuchando solo en IPv4 es invisible ahí dentro.
-#
-# $PORT lo inyecta Railway y cambia entre despliegues; uvicorn no lo lee
-# solo, hay que pasárselo. El 8000 es solo para correr la imagen a mano.
-echo "→ API en el puerto ${PORT:-8000}"
-exec uvicorn app.main:app --host :: --port "${PORT:-8000}" --proxy-headers --forwarded-allow-ips='*'
+# IPv4 e IPv6 a la vez, con un socket "dual stack" abierto a mano: la red
+# privada de Railway (frontend → API) es IPv6, pero su healthcheck llega
+# por IPv4. `uvicorn --host ::` quedaba SOLO en IPv6 y el despliegue nunca
+# pasaba el healthcheck. Detalles en app/serve.py.
+exec python -m app.serve
